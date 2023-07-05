@@ -2,7 +2,12 @@
 
 === Nexus Configuration
 
-. Create a Docker Hub Registry
-. Create a Docker Proxy Registry
-. Add Docker Proxy to Docker Hub
+=== Create a Docker Hub Registry
+=== Create a Docker Proxy Registry
+image::images/nexus_proxy1.png[]
+image::images/nexus_proxy2.png[]
+
+TIP: See https://access.redhat.com/terms-based-registry/#/ for username / password
+
+=== Add Docker Proxy to Docker Hub
 
