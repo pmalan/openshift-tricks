@@ -1,4 +1,6 @@
 = Openshift Tricks
 :url-repo: https://github.com/pmalan/openshift-tricks
 
+include::Registry/Nexus-pull-trhough.adoc[]
+
 

@@ -1,0 +1,8 @@
+== Nexus pull through cache/proxy Docker Registry
+
+=== Nexus Configuration
+
+. Create a Docker Hub Registry
+. Create a Docker Proxy Registry
+. Add Docker Proxy to Docker Hub
+
