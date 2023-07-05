@@ -1,0 +1,4 @@
+= Openshift Tricks
+:url-repo: https://github.com/pmalan/openshift-tricks
+
+
