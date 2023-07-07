@@ -2,20 +2,27 @@
 
 === Nexus Configuration
 
-
-=== Create a Docker Proxy Registry
+==== Create a Docker Proxy Registry
 image::images/nexus_proxy1.png[]
 image::images/nexus_proxy2.png[]
 
 TIP: See https://access.redhat.com/terms-based-registry/#/ for username / password
 
-=== Create a Docker Group Registry
+TIP: Be sure to click _Allow anonymous docker pull_
+
+==== Create a Docker Group Registry
 
 Create a docker group to expose all the docker registries on a single entry point.
 
 image::images/nexus_proxy3.png[]
 
-=== Add Docker Proxy to Docker Hub
+==== Configure Nexus Realms
+
+Add Docker Bearer Token to Active Realms.
+
+image::images/nexus_proxy4.png[]
+
+=== Configure Openshift to use cache/proxy registry
 
 .imageDigestMirrorSet.yaml
 [source,yaml]
