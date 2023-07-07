@@ -1,7 +1,0 @@
-== Pull running install config
-
-.Retrieve running install-config.yaml
-[source]
-----
-oc -n kube-system extract cm/cluster-config-v1
-----
