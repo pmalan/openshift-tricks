@@ -2,36 +2,28 @@
 
 === Nexus Configuration
 
-=== Create a Docker Hub Registry
+
 === Create a Docker Proxy Registry
 image::images/nexus_proxy1.png[]
 image::images/nexus_proxy2.png[]
 
 TIP: See https://access.redhat.com/terms-based-registry/#/ for username / password
 
+=== Create a Docker Group Registry
+
+Create a docker group to expose all the docker registries on a single entry point.
+
+image::images/nexus_proxy3.png[]
+
 === Add Docker Proxy to Docker Hub
 
+.imageDigestMirrorSet.yaml
 [source,yaml]
-imageDigestMirrorSet.yaml
 ----
 apiVersion: config.openshift.io/v1
 kind: ImageDigestMirrorSet
 metadata:
-  creationTimestamp: '2023-07-05T19:24:43Z'
-  generation: 2
-  managedFields:
-    - apiVersion: config.openshift.io/v1
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:spec':
-          .: {}
-          'f:imageDigestMirrors': {}
-      manager: Mozilla
-      operation: Update
-      time: '2023-07-05T19:39:54Z'
   name: nexus-mirror
-  resourceVersion: '61493969'
-  uid: 6b91a017-61ca-4763-8665-61c92bba8496
 spec:
   imageDigestMirrors:
     - mirrorSourcePolicy: AllowContactingSource
