@@ -1,5 +1,7 @@
 == Nexus pull through cache/proxy Docker Registry
 
+WARNING: Only works with OpenShift 4.12 >
+ 
 === Nexus Configuration
 
 ==== Create a Docker Proxy Registry

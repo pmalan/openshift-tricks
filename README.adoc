@@ -3,7 +3,7 @@
 :sectnums:
 
 
-
-include::Registry/Nexus-pull-trhough.adoc[]
+include::Install/Pull-running-install-config.adoc[Install - Pull Running install-config.yaml]
+include::Registry/Nexus-pull-trhough.adoc[Registry - Pull trhough cache/proxy]
 
 
