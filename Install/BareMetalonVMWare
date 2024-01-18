@@ -1,0 +1,4 @@
+When booting VMWare host through discovery ISO, to be used as a bare metal host:
+
+1. Set the disk.UUDI
+2. Add the boot parameter ip=$IPADDRESS::$DEFAULTGW:$NETMASK:$HOSTNAMEFQDN:$IFACE:none nameserver=$DNSSERVERIP
