@@ -1,0 +1,47 @@
+== To enable multipathd:
+
+Create machine config:
+
+.99-worker-multipathd-config.yaml
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+   name: 99-worker-multipathd-config
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - contents:
+            source: >-
+              data:text/plain;charset=utf-8;base64,IyBkZXZpY2UtbWFwcGVyLW11bHRpcGF0aCBjb25maWd1cmF0aW9uIGZpbGUKCiMgRm9yIGEgY29tcGxldGUgbGlzdCBvZiB0aGUgZGVmYXVsdCBjb25maWd1cmF0aW9uIHZhbHVlcywgcnVuIGVpdGhlcjoKIyAjIG11bHRpcGF0aCAtdAojIG9yCiMgIyBtdWx0aXBhdGhkIHNob3cgY29uZmlnCgojIEZvciBhIGxpc3Qgb2YgY29uZmlndXJhdGlvbiBvcHRpb25zIHdpdGggZGVzY3JpcHRpb25zLCBzZWUgdGhlCiMgbXVsdGlwYXRoLmNvbmYgbWFuIHBhZ2UuCgpkZWZhdWx0cyB7Cgl1c2VyX2ZyaWVuZGx5X25hbWVzIHllcwoJZmluZF9tdWx0aXBhdGhzIHllcwp9CgpibGFja2xpc3Qgewp9Cg==
+          filesystem: root
+          mode: 420
+          path: /etc/multipath.conf
+    systemd:
+      units:
+        - enabled: true
+          name: multipathd.service
+----
+
+Where the _file_ contents is the base64 encoded _multipath.conf_, which by default is defined in the example above as:
+
+.multipath.conf
+----
+# For a complete list of the default configuration values, run either:
+# # multipath -t
+# or
+# # multipathd show config
+# For a list of configuration options with descriptions, see the
+# multipath.conf man page.
+defaults {
+	user_friendly_names yes
+	find_multipaths yes
+}
+blacklist {
+}
+----
