@@ -1,0 +1,51 @@
+== Redfish URLs
+
+Using Redfish requires the following format:
+
+....
+redfish-virtualmedia://host/redfish-url
+....
+
+If you are using non-ssl, you have to chage the protocol:
+
+....
+redfish-virtualmedia+http://host:port/redfish-url
+....
+
+=== To determine URL
+
+Depending on the hardware involved, it is typically the same as the BMC hostname and port, with the addition of /redfish/v1/Systems and the "system" identifier, for example "1".
+
+==== SuperMicro, and HPE iLO
+
+....
+redfish-virtualmedia://bmc-address:port/redfish/v1/Systems/1
+....
+
+==== Sushy Emulator 
+
+You can use sushy-emulator, included with sushy-tools to access predefined kvm machines through redfish, as if it where physical servers with a bmc with redfish capabilities. These capabilities include remote power control and virtual media.
+
+.sushy-tools github
+----
+https://github.com/openstack/sushy-tools/blob/master/doc/source/admin/index.rst
+----
+
+To determine the vm machine you want to access, you first have to access "Systems" and pick the machine from the list:
+
+....
+http://hostname:port/redfish/v1/Systems
+....
+
+Or if you have virt-manager handy, or the domain xml, it is the UUID of the machine:
+
+.domain xml
+----
+<domain type="kvm">
+  <name>bm214</name>
+  <uuid>60f1acf3-b3a0-4783-a4c3-58fbbbfd2eb9</uuid>
+----
+
+....
+http://hostname:port/redfish/v1/Systems/60f1acf3-b3a0-4783-a4c3-58fbbbfd2eb9
+....

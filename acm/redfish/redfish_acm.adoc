@@ -1,0 +1,4 @@
+== Registration of Bare Metal Hosts in ACM
+
+=== DHCP
+

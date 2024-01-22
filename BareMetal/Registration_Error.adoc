@@ -1,0 +1,7 @@
+== Registration Error on previously registered bmh
+
+If you see "Registration Error" on a previous working bare metal host, make sure your BMC endpoint is accessible, then:
+
+1. In spec: of bmh, change online to false, and commit change
+2. Revert back to online true, to trigger a refresh
+
