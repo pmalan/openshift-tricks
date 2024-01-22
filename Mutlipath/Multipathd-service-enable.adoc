@@ -50,5 +50,5 @@ Or you want to use defaults, run the following command to get the base64 encoded
 
 .All defaults:
 ----
-multipath -t | base64
+multipath -t | base64 -w 0
 ----
