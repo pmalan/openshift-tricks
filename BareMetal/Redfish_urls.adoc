@@ -22,6 +22,12 @@ Depending on the hardware involved, it is typically the same as the BMC hostname
 redfish-virtualmedia://bmc-address:port/redfish/v1/Systems/1
 ....
 
+==== Dell iDRAC
+
+....
+/redfish/v1/Systems/System.Embedded.1
+....
+
 ==== Sushy Emulator 
 
 You can use sushy-emulator, included with sushy-tools to access predefined kvm machines through redfish, as if it where physical servers with a bmc with redfish capabilities. These capabilities include remote power control and virtual media.
