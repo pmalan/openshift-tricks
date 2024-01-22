@@ -1,0 +1,9 @@
+== Portworx Mutlipathd
+
+Portworx requires the blacklist entries to be added to the multipath.conf, to ignore any Portworx "pxd" devices.
+
+....
+blacklist {
+        devnode "^pxd[0-9]*"
+        devnode "^pxd*"
+....

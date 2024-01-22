@@ -45,3 +45,10 @@ defaults {
 blacklist {
 }
 ----
+
+Or you want to use defaults, run the following command to get the base64 encoded defaults:
+
+.All defaults:
+----
+multipath -t | base64
+----
