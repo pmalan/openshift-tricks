@@ -24,9 +24,12 @@ redfish-virtualmedia://bmc-address:port/redfish/v1/Systems/1
 
 ==== Dell iDRAC
 
+If you want to use the redfish API. MCE also supports idrac+virtualmedia: natively.
+
 ....
-/redfish/v1/Systems/System.Embedded.1
+redfish-virtualmedia://bmc-address:port/redfish/v1/Systems/System.Embedded.1
 ....
+
 
 ==== Sushy Emulator 
 
