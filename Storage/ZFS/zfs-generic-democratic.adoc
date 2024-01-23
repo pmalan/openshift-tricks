@@ -1,0 +1,35 @@
+== ZFS Generic Storage
+
+To utilize the power of ZFS with its NFS and iSCSI capabilities, you can setup Democratic provider to integrate into a standalone instance of ZFS. 
+
+Do a normal configuration ZFS on Linux, installing ZFS, NFS and iSCSI. targetcli is also required to configure the target portal.
+
+Install democratic:
+
+.Install helm chart
+[code,bash]
+----
+oc create namespace democratic-csi
+oc label namespace democratic-csi security.openshift.io/scc.podSecurityLabelSync=false
+helm repo add democratic-csi https://democratic-csi.github.io/charts/
+helm repo update
+helm search repo democratic-csi
+----
+
+
+[code,bash]
+----
+helm upgrade --install --namespace democratic-csi \
+    --values zfs-iscsi.yaml   \
+    --set node.driver.localtimeHostPath=false \
+    --set node.rbac.openshift.privileged=true \
+    --set controller.rbac.openshift.privileged=true \
+    zfs-iscsi democratic-csi/democratic-csi
+
+helm upgrade --install --namespace democratic-csi \
+    --values nfs-remote.yaml \
+    --set node.driver.localtimeHostPath=false \
+    --set node.rbac.openshift.privileged=true \
+    --set controller.rbac.openshift.privileged=true \
+      zfs-nfs democratic-csi/democratic-csi
+----
