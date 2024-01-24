@@ -1,0 +1,17 @@
+== Missing Gitlab Runner
+
+Add missing operator to Openshift < 4.14
+
+.gitlab-catalogsource.yaml
+----
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: gitlab-runner-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: registry.gitlab.com/gitlab-org/gl-openshift/gitlab-runner-operator/gitlab-runner-operator-catalog-source:v1.21.0
+  displayName: GitLab Runner Operators
+  publisher: GitLab Community
+----

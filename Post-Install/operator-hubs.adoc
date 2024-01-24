@@ -1,0 +1,42 @@
+== Additional Operators
+
+=== IBM Operator Hub
+
+.IBMCatalogSource.yaml
+----
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: "IBM Operator Catalog"
+  image: icr.io/cpopen/ibm-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+----
+
+== OperatorHub.io
+
+.OperatorHUB.yaml
+----
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: operatorhubio-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: quay.io/operatorhubio/catalog:latest
+  displayName: Community Operators
+  publisher: OperatorHub.io
+----
+
+
+.Patch to enable operatorhubio-catalog
+----
+oc patch -n openshift-marketplace OperatorHub cluster --type merge -p '{"spec":{"sources":[{"name":"operatorhubio-catalog","disabled":false},{"name":"community-operators","disabled":false}]}}'
+----

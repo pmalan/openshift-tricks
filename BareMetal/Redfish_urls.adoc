@@ -6,7 +6,7 @@ Using Redfish requires the following format:
 redfish-virtualmedia://host/redfish-url
 ....
 
-If you are using non-ssl, you have to chage the protocol:
+If you are using non-ssl, you have to chage the protocol, only supported in ACM's host inventory though, not MCE:
 
 ....
 redfish-virtualmedia+http://host:port/redfish-url
