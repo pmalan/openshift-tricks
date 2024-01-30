@@ -15,3 +15,9 @@ spec:
   displayName: GitLab Runner Operators
   publisher: GitLab Community
 ----
+
+To get the latest version for catalog source, look at the CHANGEOG.md
+
+----
+https://gitlab.com/gitlab-org/gl-openshift/gitlab-runner-operator/-/blob/1-21-stable/CHANGELOG.md?ref_type=heads
+----

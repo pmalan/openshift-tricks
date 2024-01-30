@@ -1,0 +1,40 @@
+
+== Exposing a service to local developer machine
+
+
+=== Skupper
+
+Download latest client - https://skupper.io/install/index.html
+
+Create a dedicated service to attached to local machine, then do a forward to local port.
+
+Connecto Openshift, as usual:
+
+.Setup skupper
+---
+oc project mariadb
+
+skupper init --enable-console --enable-flow-collector --console-user admin --console-auth=internal --console-password admin2024
+
+skupper gateway init --type docker
+
+skupper service create mariadb-remote 3306
+
+skupper service bind mariadb-remote statefulset/mariadb 
+
+skupper gateway forward mariadb-remote 3306
+---
+
+
+.Testing connectivity
+---
+telnet localhost 3306
+Trying ::1...
+telnet: connect to address ::1: Connection refused
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+i
+11.0.3-MariaDB-1:11.0.3+maria~ubu2204�
+                                      Hj[i}Z*_��-#-YX0%g[pB98mysql_native_password^CConnection closed by foreign host.
+---
