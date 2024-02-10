@@ -38,3 +38,10 @@ i
 11.0.3-MariaDB-1:11.0.3+maria~ubu2204�
                                       Hj[i}Z*_��-#-YX0%g[pB98mysql_native_password^CConnection closed by foreign host.
 ---
+
+
+=== MetaLB
+
+Requires infrastructure, as it needs virtual IP's.
+
+.

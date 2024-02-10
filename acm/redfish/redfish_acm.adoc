@@ -1,4 +1,6 @@
-== Registration of Bare Metal Hosts in ACM
+== Registration of Bare Metal Hosts in ACM using BMC
 
 === DHCP
+
+=== Fixed IP
 

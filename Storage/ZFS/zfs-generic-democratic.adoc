@@ -4,7 +4,7 @@ To utilize the power of ZFS with its NFS and iSCSI capabilities, you can setup D
 
 Do a normal configuration ZFS on Linux, installing ZFS, NFS and iSCSI. targetcli is also required to configure the target portal.
 
-Install democratic:
+=== Democratic Helm Chart
 
 .Install helm chart
 [code,bash]
@@ -17,6 +17,15 @@ helm search repo democratic-csi
 ----
 
 
+=== Democratic Driver Configuration
+
+Depending on your backend, you have to customize the configuration for your environment.
+
+I based my configuration on a standard ZFS on Linux install (OpenZFS - https://openzfs.github.io/openzfs-docs/index.html#)
+
+
+
+=== Install/Upgrade customized helm chat
 [code,bash]
 ----
 helm upgrade --install --namespace democratic-csi \

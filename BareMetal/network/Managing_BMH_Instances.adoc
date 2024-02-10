@@ -1,7 +1,18 @@
 == Registration Error on previously registered bmh
 
+
+=== Registration Error
 If you see "Registration Error" on a previous working bare metal host, make sure your BMC endpoint is accessible, then:
 
 1. In spec: of bmh, change online to false, and commit change
 2. Revert back to online true, to trigger a refresh
+
+=== Deletion of BMH Instance
+
+Mark bmh as offline, as above. As well as setting automatedCleaningMode to disabled.
+
+.Delete BMH from your Environment
+---
+oc delete bmh bminstance -name mylab
+---
 
