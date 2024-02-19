@@ -1,0 +1,10 @@
+== Managing Registered Hosts
+
+=== Using the boot.iso 
+
+The CRD defining the host is defined in the infrastructure namespace Agent.
+
+.Get status of all registered nodes
+----
+oc get agents -A
+----

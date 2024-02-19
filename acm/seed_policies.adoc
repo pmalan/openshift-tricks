@@ -1,0 +1,16 @@
+== Seed Policies 
+
+=== Open Cluster Management 
+
+https://github.com/open-cluster-management-io/policy-collection
+
+.Deploy Policies
+----
+git clone https://github.com/open-cluster-management-io/policy-collection.git
+oc create namespace policies
+cd deploy
+./deploy.sh -n policies 
+----
+
+Defaults to "stable" policies, but can be used to deploy comunity policies as well, by changing the -p parameters to "community"
+

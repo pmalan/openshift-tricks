@@ -1,0 +1,16 @@
+== Podman hosted local Assitant Installer
+
+.Edit configmap.yml
+----
+IMAGE_SERVICE_BASE_URL: http://node2:8888
+SERVICE_BASE_URL: http://node2:8090
+----
+
+
+.Run Container for Assited Installer:
+----
+wget https://github.com/openshift/assisted-service/blob/master/deploy/podman/configmap.yml
+wget https://github.com/openshift/assisted-service/blob/master/deploy/podman/pod-persistent.yml
+podman play kube --configmap configmap.yml pod-persistent.yml 
+----
+
