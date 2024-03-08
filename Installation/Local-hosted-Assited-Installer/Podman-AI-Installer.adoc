@@ -14,3 +14,4 @@ wget https://github.com/openshift/assisted-service/blob/master/deploy/podman/pod
 podman play kube --configmap configmap.yml pod-persistent.yml 
 ----
 
+TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-service/blob/release-4.12/deploy/podman/README.md
