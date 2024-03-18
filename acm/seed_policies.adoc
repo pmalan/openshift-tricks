@@ -8,6 +8,7 @@ https://github.com/open-cluster-management-io/policy-collection
 ----
 git clone https://github.com/open-cluster-management-io/policy-collection.git
 oc create namespace policies
+cd policy-collection
 cd deploy
 ./deploy.sh -n policies 
 ----
