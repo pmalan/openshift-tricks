@@ -1,0 +1,1 @@
+oc get pv | tail -n+2 | awk '$5 == "Released" {print $1}'|xargs -i{}  oc delete pv {}
