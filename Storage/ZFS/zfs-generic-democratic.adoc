@@ -26,6 +26,232 @@ I based my configuration on a standard ZFS on Linux install (OpenZFS - https://o
 
 
 === Install/Upgrade customized helm chat
+
+.nfs-remote.yaml
+[code,yaml]
+----
+csiDriver:
+  # should be globally unique for a given cluster
+  name: "org.democratic-csi.nfs"
+
+# add note here about volume expansion requirements
+storageClasses:
+- name: zfs-generic-nfs-csi
+  defaultClass: false
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  allowVolumeExpansion: true
+  parameters:
+    # for block-based storage can be ext3, ext4, xfs
+    # for nfs should be nfs
+    fsType: nfs
+
+    # if true, volumes created from other snapshots will be
+    # zfs send/received instead of zfs cloned
+    # detachedVolumesFromSnapshots: "false"
+
+    # if true, volumes created from other volumes will be
+    # zfs send/received instead of zfs cloned
+    # detachedVolumesFromVolumes: "false"
+
+  mountOptions: []
+  secrets:
+    provisioner-secret:
+    controller-publish-secret:
+    node-stage-secret:
+#      # any arbitrary iscsiadm entries can be add by creating keys starting with node-db.<entry.name>
+#      # if doing CHAP
+#      node-db.node.session.auth.authmethod: CHAP
+#      node-db.node.session.auth.username: foo
+#      node-db.node.session.auth.password: bar
+#
+#      # if doing mutual CHAP
+#      node-db.node.session.auth.username_in: baz
+#      node-db.node.session.auth.password_in: bar
+    node-publish-secret:
+    controller-expand-secret:
+
+# if your cluster supports snapshots you may enable below
+volumeSnapshotClasses:
+- name: zfs-generic-nfs-csi
+  parameters:
+  # if true, snapshots will be created with zfs send/receive
+   detachedSnapshots: "true"
+   secrets:
+     snapshotter-secret:
+driver:
+  config:
+    # please see the most up-to-date example of the corresponding config here:
+    # https://github.com/democratic-csi/democratic-csi/tree/master/examples
+    # YOU MUST COPY THE DATA HERE INLINE!
+    driver: zfs-generic-nfs
+    sshConnection:
+      host: 10.0.1.14
+      port: 22
+      username: root
+      # use either password or key
+      password: "xxxxxxxxxx"
+
+    zfs:
+      # can be used to override defaults if necessary
+      # the example below is useful for TrueNAS 12
+      cli:
+        #sudoEnabled: true
+        paths:
+          zfs: /usr/sbin/zfs
+          zpool: /usr/sbin/zpool
+          sudo: /usr/bin/sudo
+          chroot: /usr/sbin/chroot
+
+      datasetParentName: SSDPool/k8s
+      detachedSnapshotsDatasetParentName: SSDPool/k8s-snaps
+
+      datasetEnableQuotas: true
+      datasetEnableReservation: false
+      datasetPermissionsMode: "0777"
+      datasetPermissionsUser: 0
+      datasetPermissionsGroup: 0
+
+    nfs:
+      shareStrategy: "setDatasetProperties"
+      shareStrategySetDatasetProperties:
+        properties:
+          sharenfs: "rw,no_subtree_check,no_root_squash"
+          #sharenfs: "on"
+          # share: ""
+      shareHost: "10.0.1.14"
+
+
+----
+
+.zfs-iscsi.yaml
+[code,yaml]
+----
+csiDriver:
+  # should be globally unique for a given cluster
+  name: "org.democratic-csi.iscsi"
+
+# add note here about volume expansion requirements
+storageClasses:
+- name: zfs-generic-iscsi-csi
+  defaultClass: false
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  allowVolumeExpansion: true
+  parameters:
+    # for block-based storage can be ext3, ext4, xfs
+    # for nfs should be nfs
+    fsType: ext4
+
+    # if true, volumes created from other snapshots will be
+    # zfs send/received instead of zfs cloned
+    # detachedVolumesFromSnapshots: "false"
+
+    # if true, volumes created from other volumes will be
+    # zfs send/received instead of zfs cloned
+    # detachedVolumesFromVolumes: "false"
+
+  mountOptions: []
+  secrets:
+    provisioner-secret:
+    controller-publish-secret:
+    node-stage-secret:
+#      # any arbitrary iscsiadm entries can be add by creating keys starting with node-db.<entry.name>
+#      # if doing CHAP
+#      node-db.node.session.auth.authmethod: CHAP
+#      node-db.node.session.auth.username: foo
+#      node-db.node.session.auth.password: bar
+#
+#      # if doing mutual CHAP
+#      node-db.node.session.auth.username_in: baz
+#      node-db.node.session.auth.password_in: bar
+    node-publish-secret:
+    controller-expand-secret:
+
+# if your cluster supports snapshots you may enable below
+volumeSnapshotClasses:
+- name: zfs-generic-iscsi-csi
+  parameters:
+  # if true, snapshots will be created with zfs send/receive
+  # REQUIRED for Openshift Virt, since the original can be 
+  # deleted, while a snapshot might still be in use.
+   detachedSnapshots: "true"
+   secrets:
+     snapshotter-secret:
+
+driver:
+  config:
+    # please see the most up-to-date example of the corresponding config here:
+    # https://github.com/democratic-csi/democratic-csi/tree/master/examples
+    # YOU MUST COPY THE DATA HERE INLINE!
+    driver: zfs-generic-iscsi
+    driver: zfs-generic-iscsi
+sshConnection:
+      host: 10.0.1.14
+      port: 22
+      username: root
+      # use either password or key
+      password: "xxxxxx"
+
+    zfs:
+      # can be used to override defaults if necessary
+      # the example below is useful for TrueNAS 12
+      cli:
+        #sudoEnabled: true
+        paths:
+          zfs: /usr/sbin/zfs
+          zpool: /usr/sbin/zpool
+          sudo: /usr/bin/sudo
+          chroot: /usr/sbin/chroot
+
+      datasetParentName: SSDPool/k8s
+      detachedSnapshotsDatasetParentName: SSDPool/k8s-snaps
+
+      # "" (inherit), lz4, gzip-9, etc
+      zvolCompression:
+      # "" (inherit), on, off, verify
+      zvolDedup:
+      zvolEnableReservation: false
+      # 512, 1K, 2K, 4K, 8K, 16K, 64K, 128K default is 16K
+      zvolBlocksize:
+
+    iscsi:
+      shareStrategy: "targetCli"
+      shareStrategyTargetCli:
+        #sudoEnabled: true
+        basename: "iqn.2003-01.org.linux-iscsi.node2.x8664"
+        tpg:
+          attributes:
+            # set to 1 to enable CHAP
+            authentication: 0
+            # this is required currently as we do not register all node iqns
+            # the effective outcome of this is, allow all iqns to connect
+            generate_node_acls: 1
+            cache_dynamic_acls: 1
+            # if generate_node_acls is 1 then must turn this off as well (assuming you want write ability)
+            demo_mode_write_protect: 0
+        auth:
+        # CHAP
+        #userid: "foo"
+        #password: "bar"
+        # mutual CHAP
+        #mutual_userid: "baz"
+        #mutual_password: "bar"  
+      targetPortal: "10.0.1.14:3260"
+      # for multipath
+      #targetPortals: [] # [ "server[:port]", "server[:port]", ... ]
+      # leave empty to omit usage of -I with iscsiadm
+      interface: ""
+
+      # MUST ensure uniqueness
+      # full iqn limit is 223 bytes, plan accordingly
+      # default is "{{ name }}"
+      # nameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      namePrefix:
+      nameSuffix:
+----
+
+.Helm install
 [code,bash]
 ----
 helm upgrade --install --namespace democratic-csi \
