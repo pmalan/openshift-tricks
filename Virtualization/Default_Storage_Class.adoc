@@ -1,0 +1,16 @@
+# CDI Default storage class
+
+install operator
+disasble autoimport of cdi
+
+## Mark storage class
+
+In the default virt storage class add the following annotation:
+
+[code]
+----
+    storageclass.kubevirt.io/is-default-virt-class: "true"
+----
+
+## Create storageprofiles (if required)
+
