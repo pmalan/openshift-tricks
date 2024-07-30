@@ -9,7 +9,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: worker
-   name: 99-worker-multipathd-config
+  name: 99-worker-multipathd-config
 spec:
   config:
     ignition:
