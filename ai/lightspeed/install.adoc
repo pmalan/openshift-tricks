@@ -34,4 +34,6 @@ WantedBy=default.target
 
 ## Setup LightSpeed
 
-See attached yaml, and update Ollama endpoint to reflect where your Ollama is running.
+Install Lightspeed Operator
+
+See attached olsconfig.yaml, and update Ollama endpoint to reflect where your Ollama is running.
