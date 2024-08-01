@@ -1,0 +1,33 @@
+# OpenShift Lightspeed 
+
+## Ollama configuration
+
+Install ollama - see https://ollama.com/download
+
+Set OLLAMA_HOST, to listen on external host
+
+To test:
+----
+ollama serve
+----
+
+Sample Service for Ollama
+
+ollama.service
+[source]
+----
+[Unit]
+Description=Ollama Service
+After=network-online.target
+
+[Service]
+Environment="OLLAMA_HOST=node3.pietersmalan.com"
+ExecStart=/usr/bin/ollama serve
+User=ollama
+Group=ollama
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
+----
