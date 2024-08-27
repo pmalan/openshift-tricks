@@ -50,6 +50,6 @@ spec:
 
 The endpoint "https://echo-request.pietersmalan.com/" is a podman container with an container image, echoing the http interaction, with method and body payload.
 
-The image used was ghcr.io/mendhak/http-https-echo:34[Container Image] and its github page is available at https://github.com/mendhak/docker-http-https-echo[Github]
+The image used was ghcr.io/mendhak/http-https-echo:34 and its github page is available at https://github.com/mendhak/docker-http-https-echo[mendhak/docker-http-https-echo Github Repository]
 
 
