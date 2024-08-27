@@ -1,2 +1,55 @@
-# Log Forwarder Configuration and Troubleshooting
+== Log Forwarder Configuration and Troubleshooting
+
+=== LogForwarder Configuration
+
+To troubleshoot and get insight into ClusterLogForwarder you can deploy a forwarder, which forwards to an HTTP endpoint. This will allow you to see the payload and also test your configuration of the filter capabilities.
+
+In the following configuration the we forward to logs to an HTTP endpoint.
+
+.clusterlogforwarder.yaml
+----
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  filters:
+    - drop:
+        - test:
+            - field: .kubernetes.namespace_name
+              notMatches: my-project
+      name: drop-non-my-project
+      type: drop
+  outputs:
+    - http:
+        method: POST
+      name: remote-http
+      type: http
+      url: 'https://echo-request.pietersmalan.com/'
+  pipelines:
+    - detectMultilineErrors: true
+      filterRefs:
+        - drop-non-my-project
+      inputRefs:
+        - application
+      name: enable-default-log-store
+      outputRefs:
+        - default
+      parse: json
+    - detectMultilineErrors: true
+      filterRefs:
+        - drop-non-my-project
+      inputRefs:
+        - application
+      name: forward-to-remote
+      outputRefs:
+        - remote-http
+      parse: json
+----
+
+The endpoint "https://echo-request.pietersmalan.com/" is a podman container with an container image, echoing the http interaction, with method and body payload.
+
+The image used was ghcr.io/mendhak/http-https-echo:34[Container Image] and its github page is available at https://github.com/mendhak/docker-http-https-echo[Github]
+
 
