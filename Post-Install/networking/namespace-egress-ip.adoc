@@ -4,6 +4,12 @@ Sometimes it is required to know where traffic originates from, for example Ansi
 
 The IP will broadcasted using ARP, to let the router know that the IP is available.
 
+---
+
+IMPORTANT: Only if using seconday interface
+
+For using the secondary interface, you have to enable ip forwarding on the OVNKubernetes gateway.
+
 First we have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
 
 .cluster.yaml
@@ -24,8 +30,9 @@ spec:
         ipForwarding: Global
 ----
 
+---
 
-To associate an IP with a namespace, we have to assign a poll of IPs to a specific namespace:
+To associate an IP with a namespace, we have to assign a pool of IPs to a specific namespace:
 
 .my-project-egress-ip.yaml
 ----
@@ -44,6 +51,13 @@ spec:
 ----
 
 Each IP will be assigned to a node from where the egress is happening from, and only as soon as there is any egress.
+
+Each node has to be labeled to allow an egress ip association:
+
+---
+oc label node bm215.pietersmalan.com k8s.ovn.org/egress-assignable=""
+oc label node bm216.pietersmalan.com k8s.ovn.org/egress-assignable=""
+---
 
 On the namespace, add the label, env=egress-ssh, to match the selector in the sample above.
 
