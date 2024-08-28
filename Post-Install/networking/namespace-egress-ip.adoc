@@ -1,6 +1,6 @@
 == Associate an Egress IP with Namespace
 
-
+SOmetimes it is required to know where traffic originates from, for example Ansible Automation Platform (AAP), to allow ssh traffic from OpenShift to specific sets of nodes.
 
 To associate an IP with a namespace, we have to assign a poll of IPs to a specific namespace:
 
