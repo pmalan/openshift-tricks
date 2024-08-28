@@ -4,33 +4,7 @@ Sometimes it is required to know where traffic originates from, for example Ansi
 
 The IP will broadcasted using ARP, to let the router know that the IP is available.
 
----
 
-IMPORTANT: Only if using seconday interface
-
-For using the secondary interface, you have to enable ip forwarding on the OVNKubernetes gateway.
-
-First we have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
-
-.cluster.yaml
-----
-apiVersion: operator.openshift.io/v1
-kind: Network
-metadata:
-  name: cluster
-spec:
-  logLevel: Normal
-  operatorLogLevel: Normal
-  disableNetworkDiagnostics: false
-  observedConfig: null
-  defaultNetwork:
-    ovnKubernetesConfig:
-      egressIPConfig: {}
-      gatewayConfig:
-        ipForwarding: Global
-----
-
----
 
 To associate an IP with a namespace, we have to assign a pool of IPs to a specific namespace:
 
@@ -55,10 +29,10 @@ Each IP will be assigned to a node from where the egress is happening from, and 
 Each node has to be labeled to allow an egress ip association:
 
 .Apply label to targeted nodes
----
+----
 oc label node bm215.pietersmalan.com k8s.ovn.org/egress-assignable=""
 oc label node bm216.pietersmalan.com k8s.ovn.org/egress-assignable=""
----
+----
 
 On the namespace, add the label, env=egress-ssh, to match the selector in the sample above.
 
@@ -95,6 +69,10 @@ status:
   items:
     - egressIP: 10.0.1.100
       node: bm214.pietersmalan.com
+    - egressIP: 10.0.1.102
+      node: bm215.pietersmalan.com
+    - egressIP: 10.0.1.101
+      node: bm216.pietersmalan.com
 ----
 
 .OC Command 
@@ -114,18 +92,39 @@ Router ARP Table:
 Flags: D - DYNAMIC; C - COMPLETE
 Columns: ADDRESS, MAC-ADDRESS, INTERFACE, STATUS
  #    ADDRESS         MAC-ADDRESS        INTERFACE  STATUS   
- 0  C 10.0.1.211      56:6F:22:05:01:01  bridge1    permanent
- 1  C 10.0.1.212      56:6F:22:05:01:02  bridge1    permanent
- 2  C 10.0.1.213      56:6F:22:05:01:03  bridge1    permanent
- 3  C 10.0.1.201      56:6F:22:05:00:06  bridge1    permanent
- 4  C 10.0.1.203      52:54:00:D0:48:BE  bridge1    permanent
- 5  C 10.0.1.202      56:6F:22:05:00:07  bridge1    permanent
- 6  C 10.0.1.204      52:54:00:A9:F6:64  bridge1    permanent
- 7  C 10.0.1.205      52:54:00:C6:E6:43  bridge1    permanent
- 8  C 10.0.1.206      56:6F:A5:CF:00:00  bridge1    permanent
 ....  
 34 DC 10.0.1.100      52:54:00:01:30:63  bridge1    stale    
+35 DC 10.0.1.101      52:54:00:1C:92:9A  bridge1    reachable
+36 DC 10.0.1.102      52:54:00:8D:F2:A8  bridge1    stale     
 ....
 ----
 
+
+---
+
+WARNING: Only if using seconday interface
+
+For using the secondary interface as egress, you have to enable ip forwarding on the OVNKubernetes gateway.
+
+First we have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
+
+.cluster.yaml
+----
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+  name: cluster
+spec:
+  logLevel: Normal
+  operatorLogLevel: Normal
+  disableNetworkDiagnostics: false
+  observedConfig: null
+  defaultNetwork:
+    ovnKubernetesConfig:
+      egressIPConfig: {}
+      gatewayConfig:
+        ipForwarding: Global
+----
+
+---
 
