@@ -2,6 +2,8 @@
 
 SOmetimes it is required to know where traffic originates from, for example Ansible Automation Platform (AAP), to allow ssh traffic from OpenShift to specific sets of nodes.
 
+The IP will broadcasted using ARP, to let the router know that the IP is available.
+
 To associate an IP with a namespace, we have to assign a poll of IPs to a specific namespace:
 
 .my-project-egress-ip.yaml
@@ -63,3 +65,31 @@ status:
 ----
 oc get eip
 ----
+
+.Output
+----
+NAME                EGRESSIPS    ASSIGNED NODE            ASSIGNED EGRESSIPS
+egress-my-project   10.0.1.100   bm214.pietersmalan.com   10.0.1.100
+----
+
+Router ARP Table:
+----
+[admin@HomeLab] > ip/arp/print 
+Flags: D - DYNAMIC; C - COMPLETE
+Columns: ADDRESS, MAC-ADDRESS, INTERFACE, STATUS
+ #    ADDRESS         MAC-ADDRESS        INTERFACE  STATUS   
+ 0  C 10.0.1.211      56:6F:22:05:01:01  bridge1    permanent
+ 1  C 10.0.1.212      56:6F:22:05:01:02  bridge1    permanent
+ 2  C 10.0.1.213      56:6F:22:05:01:03  bridge1    permanent
+ 3  C 10.0.1.201      56:6F:22:05:00:06  bridge1    permanent
+ 4  C 10.0.1.203      52:54:00:D0:48:BE  bridge1    permanent
+ 5  C 10.0.1.202      56:6F:22:05:00:07  bridge1    permanent
+ 6  C 10.0.1.204      52:54:00:A9:F6:64  bridge1    permanent
+ 7  C 10.0.1.205      52:54:00:C6:E6:43  bridge1    permanent
+ 8  C 10.0.1.206      56:6F:A5:CF:00:00  bridge1    permanent
+....  
+34 DC 10.0.1.100      52:54:00:01:30:63  bridge1    stale    
+....
+----
+
+
