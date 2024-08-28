@@ -1,1 +1,57 @@
+== Associate an Egress IP with Namespace
 
+
+
+To associate an IP with a namespace, we have to assign a poll of IPs to a specific namespace:
+
+.my-project-egress-ip.yaml
+----
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: egress-my-project
+spec:
+  egressIPs:
+    - 10.0.1.100
+    - 10.0.1.101
+    - 10.0.1.102
+  namespaceSelector:
+    matchLabels:
+      env: egress-ssh
+----
+
+Each IP will be assigned to a node from where the egress is happening from, and only as soon as there is any egress.
+
+On the namespace, add the label, env=egress-ssh, to match the selector in the sample above.
+
+.Apply label to NameSpace
+----
+oc label namespace my-project dev=egress-ssh
+----
+
+Create a pod to generate some egress traffic, within the namespace:
+
+.egress-pod.yaml
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: egress-pod
+  annotations:
+spec:
+  containers:
+  - command: ['bash', '-c', 'while true; do curl -m 5 https://google.com/test-egress.txt ; sleep 20; done']
+    image: registry.redhat.io/rhel7/rhel-tools
+    imagePullPolicy: IfNotPresent
+    name: test-egress-pod
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+----
+
+To see the status of the egress IP allocation, look at the status of the EgressIP object:
+
+.Status EgressIP
+----
+
+----
