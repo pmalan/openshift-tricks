@@ -53,5 +53,13 @@ To see the status of the egress IP allocation, look at the status of the EgressI
 
 .Status EgressIP
 ----
+status:
+  items:
+    - egressIP: 10.0.1.100
+      node: bm214.pietersmalan.com
+----
 
+.OC Command 
+----
+oc get eip
 ----
