@@ -105,9 +105,7 @@ Columns: ADDRESS, MAC-ADDRESS, INTERFACE, STATUS
 
 WARNING: Only if using seconday interface
 
-For using the secondary interface as egress, you have to enable ip forwarding on the OVNKubernetes gateway.
-
-First we have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
+For using the secondary interface as egress, you have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
 
 .cluster.yaml
 ----
