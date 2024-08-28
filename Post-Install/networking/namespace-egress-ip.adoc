@@ -4,6 +4,27 @@ Sometimes it is required to know where traffic originates from, for example Ansi
 
 The IP will broadcasted using ARP, to let the router know that the IP is available.
 
+First we have to enable non-local traffic to flow through the OVNKubernetes stack, by adding *ipForwarding: Global*.
+
+.cluster.yaml
+----
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+  name: cluster
+spec:
+  logLevel: Normal
+  operatorLogLevel: Normal
+  disableNetworkDiagnostics: false
+  observedConfig: null
+  defaultNetwork:
+    ovnKubernetesConfig:
+      egressIPConfig: {}
+      gatewayConfig:
+        ipForwarding: Global
+----
+
+
 To associate an IP with a namespace, we have to assign a poll of IPs to a specific namespace:
 
 .my-project-egress-ip.yaml
