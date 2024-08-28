@@ -1,6 +1,6 @@
 == Associate an Egress IP with Namespace
 
-SOmetimes it is required to know where traffic originates from, for example Ansible Automation Platform (AAP), to allow ssh traffic from OpenShift to specific sets of nodes.
+Sometimes it is required to know where traffic originates from, for example Ansible Automation Platform (AAP), to allow ssh traffic from OpenShift to specific sets of nodes.
 
 The IP will broadcasted using ARP, to let the router know that the IP is available.
 
