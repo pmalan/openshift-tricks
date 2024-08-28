@@ -28,8 +28,9 @@ Each IP will be assigned to a node from where the egress is happening from, and 
 
 Each node has to be labeled to allow an egress ip association:
 
-.Apply label to targeted nodes
+.Apply label to targeted worker nodes
 ----
+oc label node bm214.pietersmalan.com k8s.ovn.org/egress-assignable=""
 oc label node bm215.pietersmalan.com k8s.ovn.org/egress-assignable=""
 oc label node bm216.pietersmalan.com k8s.ovn.org/egress-assignable=""
 ----
