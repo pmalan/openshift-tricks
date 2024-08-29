@@ -4,7 +4,7 @@
 
 To troubleshoot and get insight into ClusterLogForwarder you can deploy a forwarder, which forwards to an HTTP endpoint. This will allow you to see the payload and also test your configuration of the filter capabilities.
 
-In the following configuration the we forward to logs to an HTTP endpoint.
+In the following configuration the we forward to logs to an HTTP endpoint, filter on namespace, dropping any logs not in the my-project namespace.
 
 .clusterlogforwarder.yaml
 ----
