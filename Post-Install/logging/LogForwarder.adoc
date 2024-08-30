@@ -26,7 +26,7 @@ spec:
         method: POST
       name: remote-http
       type: http
-      url: 'https://echo-request.pietersmalan.com/'
+      url: 'http://{podmanhost:8888}'
   pipelines:
     - detectMultilineErrors: true
       filterRefs:
@@ -48,7 +48,7 @@ spec:
       parse: json
 ----
 
-The endpoint "https://echo-request.pietersmalan.com/" is a podman container with an container image, echoing the http interaction, with method and body payload.
+The endpoint "http://{podmanhost}:8888/" is a podman container with an container image, echoing the http interaction, with method and body payload.
 
 .podman command
 ----
