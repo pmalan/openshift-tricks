@@ -190,3 +190,52 @@ spec:
         - remote-http
       parse: json
 ----
+
+==== Forwarding of specified namespaces to different loggers
+
+Forward logs for qualified namespaces, for example my-project to my http logger on port 88888 and my-project2 to http logger on port 8889:
+
+.instance.yaml
+----
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  inputs:
+    - application:
+        namespaces:
+          - my-project
+      name: log-my-project
+    - application:
+        namespaces:
+          - my-project2
+      name: log-my-project2
+  outputs:
+    - http:
+        method: POST
+      name: remote-http-8888
+      type: http
+      url: 'http://node3.pietersmalan.com:8888/'
+    - http:
+        method: POST
+      name: remote-http-8889
+      type: http
+      url: 'http://node3.pietersmalan.com:8889/'
+  pipelines:
+    - detectMultilineErrors: true
+      inputRefs:
+        - log-my-project
+      name: forward-to-remote-8888
+      outputRefs:
+        - remote-http-8888
+      parse: json
+    - detectMultilineErrors: true
+      inputRefs:
+        - log-my-project2
+      name: forward-to-remote-8889
+      outputRefs:
+        - remote-http-8889
+      parse: json
+----
