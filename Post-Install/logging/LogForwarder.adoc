@@ -57,4 +57,104 @@ podman run -p 8888:8080 ghcr.io/mendhak/http-https-echo:34
 
 The image used was ghcr.io/mendhak/http-https-echo:34 and its github page is available at https://github.com/mendhak/docker-http-https-echo[mendhak/docker-http-https-echo Github Repository]
 
+In the example above, content of logs are filter on specified values, to look at the available fiels to filter on, we can look at the contents of a log entry:
+
+.sample log entry - body
+----
+{
+   "@timestamp":"2024-09-03T16:31:25.995191094Z",
+   "file":"/var/log/pods/my-project_myapp-594594b578-wfkhf_cc2aa912-e443-4fd6-8010-264a07f9ee21/myapp/0.log",
+   "hostname":"bm215.pietersmalan.com",
+   "kubernetes":{
+      "annotations":{
+         "k8s.ovn.org/pod-networks":"{\"default\":{\"ip_addresses\":[\"10.129.6.55/23\"],\"mac_address\":\"0a:58:0a:81:06:37\",\"gateway_ips\":[\"10.129.6.1\"],\"routes\":[{\"dest\":\"10.128.0.0/14\",\"nextHop\":\"10.129.6.1\"},{\"dest\":\"172.30.0.0/16\",\"nextHop\":\"10.129.6.1\"},{\"dest\":\"100.64.0.0/16\",\"nextHop\":\"10.129.6.1\"}],\"ip_address\":\"10.129.6.55/23\",\"gateway_ip\":\"10.129.6.1\"}}",
+         "k8s.v1.cni.cncf.io/network-status":"[{\n \"name\": \"ovn-kubernetes\",\n \"interface\": \"eth0\",\n \"ips\": [\n \"10.129.6.55\"\n ],\n \"mac\": \"0a:58:0a:81:06:37\",\n \"default\": true,\n \"dns\": {}\n}]",
+         "openshift.io/scc":"restricted-v2",
+         "seccomp.security.alpha.kubernetes.io/pod":"runtime/default"
+      },
+      "container_id":"cri-o://5a41442fe20f2c1df39e19142fa6afec9fef67fefa358d2325ebc9efcbdc2cc0",
+      "container_image":"image-registry.openshift-image-registry.svc:5000/my-project/myapp:latest",
+      "container_image_id":"image-registry.openshift-image-registry.svc:5000/my-project/myapp@sha256:920d5f0e242e65819d69946432dfaeab2f1f0b696e1a6c6724edc978fafe067e",
+      "container_name":"myapp",
+      "labels":{
+         "app":"myapp",
+         "deployment":"myapp",
+         "pod-template-hash":"594594b578"
+      },
+      "namespace_id":"6e72d1d8-a42a-4fc6-8af9-bb786e21e6d9",
+      "namespace_labels":{
+         "k8s_ovn_org_egress-assignable":"",
+         "kubernetes_io_metadata_name":"my-project",
+         "log-dev":"true",
+         "olm_operatorgroup_uid_ba3c9e3c-8786-414a-9577-6ba65252e168":"",
+         "openshift-pipelines_tekton_dev_namespace-reconcile-version":"1.15.1",
+         "pod-security_kubernetes_io_audit":"privileged",
+         "pod-security_kubernetes_io_audit-version":"v1.24",
+         "pod-security_kubernetes_io_warn":"privileged",
+         "pod-security_kubernetes_io_warn-version":"v1.24"
+      },
+      "namespace_name":"my-project",
+      "pod_id":"cc2aa912-e443-4fd6-8010-264a07f9ee21",
+      "pod_ip":"10.129.6.55",
+      "pod_name":"myapp-594594b578-wfkhf",
+      "pod_owner":"ReplicaSet/myapp-594594b578"
+   },
+   "level":"info",
+   "log_type":"application",
+   "message":"2024-09-03 16:31:25,994 INFO [io.quarkus] (Shutdown thread) code-with-quarkus stopped in 0.090s",
+   "openshift":{
+      "cluster_id":"f9db5ac7-8d9a-4b41-b5b7-b52b458ff921",
+      "sequence":1725381086931373359
+   }
+}
+----
+
+.sample log headers
+----
+detected_level info
+kubernetes_container_name myapp
+kubernetes_host bm215.pietersmalan.com
+kubernetes_namespace_name my-project
+kubernetes_pod_name myapp-594594b578-wfkhf
+log_type application
+service_name unknown_service
+----
+
+
+=== Samples
+
+==== Forwarding logs for a set of namespaces
+
+Foward all logs for projects in "my-*" names, for example my-project, my-test.
+
+.cluster.yaml
+----
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  inputs:
+    - application:
+        includes:
+          - namespace: my-*
+      name: log-dev-logs
+  outputs:
+    - http:
+        method: POST
+      name: remote-http
+      type: http
+      url: 'http://{podmanhost:8888}'
+  pipelines:
+    - detectMultilineErrors: true
+      inputRefs:
+        - log-dev-logs
+      name: forward-to-remote
+      outputRefs:
+        - remote-http
+      parse: json
+
+----
+
 
