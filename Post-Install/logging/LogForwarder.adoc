@@ -180,7 +180,7 @@ spec:
         method: POST
       name: remote-http
       type: http
-      url: 'http://node3.pietersmalan.com:8888/'
+      url: '{podmanhost:8888}'
   pipelines:
     - detectMultilineErrors: true
       inputRefs:
