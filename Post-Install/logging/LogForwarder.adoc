@@ -125,9 +125,9 @@ service_name unknown_service
 
 ==== Forwarding logs for a set of namespaces
 
-Foward all logs for projects in "my-*" names, for example my-project, my-test.
+Foward all logs for projects in "my-*" names, for example my-project, my-test:
 
-.cluster.yaml
+.instance.yaml
 ----
 apiVersion: logging.openshift.io/v1
 kind: ClusterLogForwarder
@@ -157,4 +157,36 @@ spec:
 
 ----
 
+==== Forwarding of specified namespaces
 
+Forward logs for qualified namespaces, for example my-project and the democratic-csi projects:
+
+.instance.yaml
+----
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  inputs:
+    - application:
+        namespaces:
+          - my-project
+          - democratic-csi
+      name: log-dev-logs
+  outputs:
+    - http:
+        method: POST
+      name: remote-http
+      type: http
+      url: 'http://node3.pietersmalan.com:8888/'
+  pipelines:
+    - detectMultilineErrors: true
+      inputRefs:
+        - log-dev-logs
+      name: forward-to-remote
+      outputRefs:
+        - remote-http
+      parse: json
+----
