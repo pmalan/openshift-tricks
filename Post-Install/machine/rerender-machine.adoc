@@ -1,5 +1,7 @@
 == Rerender a Machine
 
+Typical issues like "unexpected on-disk state validating against rendered-master", can be solved by forcing a rerender of current machine config:
+
 .ssh
 ----
 rm /etc/machine-config-daemon/currentconfig
