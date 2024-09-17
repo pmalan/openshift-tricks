@@ -18,9 +18,7 @@
 .Quay user
 - An unix user with admin privildges.
 
-=== Quay Configuration
-
-The Quay configuration is done though a config.yaml. The easiest way to create the config.yaml is to use the Quay configuration Wizard.
+=== Login to registry.redhat.io
 
 Login into registry.redhat.io, to retrieve token, if using a shared secret, you can look it up at https://access.redhat.com/terms-based-registry/accounts
 
@@ -30,6 +28,22 @@ Since we are running as root, we need to use sudo
 ----
 sudo podman login -u=username -p=password registry.redhat.io
 ----
+
+=== Database Configuration Postgres
+
+.Create database directory
+----
+sudo mkdir -p /var/lib/pgsql/data
+sudo chmod 777 /var/lib/pgsql/data
+---
+
+
+
+
+
+=== Quay Configuration
+
+The Quay configuration is done though a config.yaml. The easiest way to create the config.yaml is to use the Quay configuration Wizard.
 
 .Setup Mode (where my-secret-password is the password to access 
 ----
