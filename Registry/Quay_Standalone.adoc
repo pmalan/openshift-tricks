@@ -218,6 +218,8 @@ scp quay-config.tar.gz quay@quay1:~
 
 .Extract on quay host
 ----
+cd
+mkdir storage
 mkdir config
 cd config
 tar zxvf ../quay-config.tar.gz
@@ -333,4 +335,17 @@ registry.redhat.io/quay/clair-rhel8:v3.12.2
 ----
 cd
 vi config/config.yaml
+----
+
+=== Finally start Quay
+
+.Start Quay pod with automatic restart feature
+----
+sudo podman run --replace --name quay --restart=always -p 443:8443 -p 80:8080 \
+   -e QUAY_DISTRIBUTED_STORAGE_PREFERENCE=west \
+   --sysctl net.core.somaxconn=4096 \
+   --privileged=true \
+   -v /home/quay/config:/conf/stack:Z \
+   -v /home/quay/storage:/datastorage:Z \
+   -d registry.redhat.io/quay/quay-rhel8:v3.12.2
 ----
