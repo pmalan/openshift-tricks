@@ -155,6 +155,7 @@ FEATURE_SECURITY_NOTIFICATIONS: false
 FEATURE_SECURITY_SCANNER: true
 FEATURE_STORAGE_REPLICATION: true
 FEATURE_TEAM_SYNCING: false
+FEATURE_UI_V2: true
 FEATURE_USER_CREATION: true
 FEATURE_USER_LAST_ACCESSED: true
 FEATURE_USER_LOG_ACCESS: false
@@ -278,17 +279,17 @@ http_listen_addr: :9999
 introspection_addr: :9998
 log_level: debug
 indexer:
-  connstring: host=localhost port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
+  connstring: host=quay1.pietersmalan.com port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
   scanlock_retry: 10
   layer_scan_concurrency: 5
   migrations: true
 matcher:
-  connstring: host=localhost port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
+  connstring: host=quay1.pietersmalan.com port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
   max_conn_pool: 100
   migrations: true
   indexer_addr: clair-indexer
 notifier:
-  connstring: host=localhost port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
+  connstring: host=quay1.pietersmalan.com port=5433 dbname=clair user=clairuser password=clairpass sslmode=disable
   delivery_interval: 1m
   poll_interval: 5m
   migrations: true
@@ -310,4 +311,26 @@ metrics:
 EOF
 
 sudo cp clair_config.yaml /etc/opt/clairv4/config/config.yaml
+----
+
+==== Start Clair 
+
+.Start Clair container
+----
+sudo podman run -d --name clairv4 \
+-p 9999:9999 -p 9998:9998 \
+-e CLAIR_CONF=/clair/config.yaml \
+-e CLAIR_MODE=combo \
+-v /etc/opt/clairv4/config:/clair:Z \
+registry.redhat.io/quay/clair-rhel8:v3.12.2
+----
+
+=== Additional Configuration
+
+==== Enable new V2 UI
+
+.Edit config.yaml to enable V2 UI, by adding 'FEATURE_UI_V2: true' 
+----
+cd
+vi config/config.yaml
 ----
