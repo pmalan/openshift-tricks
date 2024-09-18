@@ -230,14 +230,18 @@ If you want to reconfigure quay, you can restart the configuration wizard, this 
 
 .Quay configuration pod
 ----
-export QUAY=$pwd
 sudo podman run --rm -it --name quay_config \
-  -p 80:8080 -p 443:8443 \
-  -v $QUAY/config:/conf/stack:Z \
+  -p 8080:8080 \
+  -v /home/quay/config:/conf/stack:Z \
   registry.redhat.io/quay/quay-rhel8:v3.12.2 config my-secret-password
----
+----
 
 NOTE: This process can also be used to short cut the typing, by editing the supplied yaml with your custom values, and copy it to quay/config and starting the wizard. 
 
 === Configuring Claire
 
+.Create folders for Claire
+----
+sudo mkdir /etc/opt/clairv4/config/
+sudo cd /etc/opt/clairv4/config/
+----
