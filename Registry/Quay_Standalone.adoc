@@ -1,4 +1,5 @@
 == Quay Standalone Install
+:page-layout: docs
 
 === Prerequisites
 
@@ -20,6 +21,8 @@
 .Quay user
 - An unix user 'quay' with admin privildges for sudo with a home folder of /home/quay.
 
+...
+
 === Login to registry.redhat.io
 
 Login into registry.redhat.io.
@@ -32,6 +35,8 @@ Since we are running all processes as root, we need to use sudo
 ----
 sudo podman login -u=username -p=password registry.redhat.io
 ----
+
+...
 
 === Database Configuration Postgres
 
