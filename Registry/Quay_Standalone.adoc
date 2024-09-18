@@ -148,6 +148,7 @@ FEATURE_MAILING: false
 FEATURE_NONSUPERUSER_TEAM_SYNCING_SETUP: false
 FEATURE_PARTIAL_USER_AUTOCOMPLETE: true
 FEATURE_PROXY_STORAGE: false
+FEATURE_PROXY_CACHE: true
 FEATURE_REPO_MIRROR: true
 FEATURE_REQUIRE_TEAM_INVITE: true
 FEATURE_RESTRICTED_V1_PUSH: true
@@ -329,13 +330,21 @@ registry.redhat.io/quay/clair-rhel8:v3.12.2
 
 === Additional Configuration
 
-==== Enable new V2 UI
+==== Enable features in Quay
 
-.Edit config.yaml to enable V2 UI, by adding 'FEATURE_UI_V2: true' 
+.Edit config.yaml to enable V2 UI, by adding configuration for example, 'FEATURE_UI_V2: true' 
 ----
 cd
 vi config/config.yaml
 ----
+
+Enable V2 UI::
+
+FEATURE_UI_V2: true
+
+Enable Proxy Cache, aka pull through cache::
+
+FEATURE_PROXY_CACHE: true
 
 === Finally start Quay
 
