@@ -1,5 +1,5 @@
 == Quay Standalone Install
-:page-layout: docs
+
 :toc:
 :toc-placement!:
 
