@@ -33,7 +33,7 @@ Login into registry.redhat.io.
 
 NOTE: To retrieve token, if using a shared secret, you can look it up at https://access.redhat.com/terms-based-registry/accounts
 
-Since we are running all processes as root, we need to use sudo 
+WARNING: Keep in mind, since we are running all processes as root, we need to use sudo. When authenticating against registry.redhat.io, you are authenticating the root user, no the quay user.
 
 .Login to registry.redhat.io
 ----
