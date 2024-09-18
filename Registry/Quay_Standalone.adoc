@@ -24,7 +24,7 @@
 
 Login into registry.redhat.io, to retrieve token, if using a shared secret, you can look it up at https://access.redhat.com/terms-based-registry/accounts
 
-Since we are running as root, we need to use sudo 
+Since we are running all processes as root, we need to use sudo 
 
 .Login to registry.redhat.io
 ----
@@ -203,116 +203,6 @@ USER_EVENTS_REDIS:
     port: 6379
 USER_RECOVERY_TOKEN_LIFETIME: 30m
 USERFILES_LOCATION: west
-ACTION_LOG_ARCHIVE_LOCATION: west
-ACTION_LOG_ARCHIVE_PATH: /logs
-ACTION_LOG_ROTATION_THRESHOLD: 1w
-ALLOW_PULLS_WITHOUT_STRICT_LOGGING: true
-ALLOWED_OCI_ARTIFACT_TYPES:
-    application/vnd.oci.image.config.v1+json:
-        - application/vnd.oci.image.layer.v1.tar+zstd
-    application/vnd.sylabs.sif.config.v1+json:
-        - application/vnd.sylabs.sif.layer.v1+tar
-AUTHENTICATION_TYPE: Database
-AVATAR_KIND: local
-BUILDLOGS_REDIS:
-    host: quay1.pietersmalan.com
-    port: 6379
-DATABASE_SECRET_KEY: ff0638b7-9abf-4227-93cb-322257272c78
-DB_CONNECTION_ARGS: {}
-DB_URI: postgresql://quayuser:quaypass@quay1.pietersmalan.com/quaydb
-DEFAULT_TAG_EXPIRATION: 2w
-DISTRIBUTED_STORAGE_CONFIG:
-    west:
-        - RadosGWStorage
-        - access_key: 29a7kI0PIaZyAMSCYW8O
-          bucket_name: quay1
-          hostname: minio.pietersmalan.com
-          is_secure: false
-          port: "9000"
-          secret_key: 93o6h4WKGSseHRzHoJSPGNhpQrstf5I5cRFcmpfG
-          storage_path: /datastorage/registry
-DISTRIBUTED_STORAGE_DEFAULT_LOCATIONS: []
-DISTRIBUTED_STORAGE_PREFERENCE:
-    - west
-EXTERNAL_TLS_TERMINATION: false
-FEATURE_ACI_CONVERSION: false
-FEATURE_ACTION_LOG_ROTATION: true
-FEATURE_ANONYMOUS_ACCESS: true
-FEATURE_APP_REGISTRY: true
-FEATURE_APP_SPECIFIC_TOKENS: true
-FEATURE_BITBUCKET_BUILD: false
-FEATURE_BLACKLISTED_EMAILS: false
-FEATURE_BUILD_SUPPORT: true
-FEATURE_CHANGE_TAG_EXPIRATION: true
-FEATURE_DIRECT_LOGIN: true
-FEATURE_EXTENDED_REPOSITORY_NAMES: true
-FEATURE_FIPS: false
-FEATURE_GITHUB_BUILD: false
-FEATURE_GITHUB_LOGIN: false
-FEATURE_GITLAB_BUILD: false
-FEATURE_GOOGLE_LOGIN: false
-FEATURE_INVITE_ONLY_USER_CREATION: false
-FEATURE_MAILING: false
-FEATURE_NONSUPERUSER_TEAM_SYNCING_SETUP: false
-FEATURE_PARTIAL_USER_AUTOCOMPLETE: true
-FEATURE_PROXY_STORAGE: false
-FEATURE_REPO_MIRROR: true
-FEATURE_REQUIRE_TEAM_INVITE: true
-FEATURE_RESTRICTED_V1_PUSH: true
-FEATURE_SECURITY_NOTIFICATIONS: false
-FEATURE_SECURITY_SCANNER: true
-FEATURE_STORAGE_REPLICATION: true
-FEATURE_TEAM_SYNCING: false
-FEATURE_USER_CREATION: true
-FEATURE_USER_LAST_ACCESSED: true
-FEATURE_USER_LOG_ACCESS: false
-FEATURE_USER_METADATA: false
-FEATURE_USER_RENAME: false
-FEATURE_USERNAME_CONFIRMATION: true
-FRESH_LOGIN_TIMEOUT: 10m
-GITHUB_LOGIN_CONFIG: {}
-GITHUB_TRIGGER_CONFIG: {}
-GITLAB_TRIGGER_KIND: {}
-LDAP_ALLOW_INSECURE_FALLBACK: false
-LDAP_EMAIL_ATTR: mail
-LDAP_UID_ATTR: uid
-LDAP_URI: ldap://localhost
-LOG_ARCHIVE_LOCATION: default
-LOGS_MODEL: database
-LOGS_MODEL_CONFIG: {}
-MAIL_DEFAULT_SENDER: support@quay.io
-MAIL_PORT: 587
-MAIL_USE_AUTH: false
-MAIL_USE_TLS: false
-PREFERRED_URL_SCHEME: https
-REGISTRY_TITLE: Project Quay
-REGISTRY_TITLE_SHORT: Project Quay
-REPO_MIRROR_INTERVAL: 30
-REPO_MIRROR_TLS_VERIFY: true
-SEARCH_MAX_RESULT_PAGE_COUNT: 10
-SEARCH_RESULTS_PER_PAGE: 10
-SECRET_KEY: 318f914f-0b11-49ac-9b70-61124c18092c
-SECURITY_SCANNER_INDEXING_INTERVAL: 30
-SECURITY_SCANNER_V4_ENDPOINT: http://quay1.pietersmalan.com:9999
-SECURITY_SCANNER_V4_PSK: YzQ5aDFiYTkxMWg0
-SERVER_HOSTNAME: quay1.pietersmalan.com
-SETUP_COMPLETE: true
-SUPER_USERS:
-    - quayadmin
-TAG_EXPIRATION_OPTIONS:
-    - 0s
-    - 1d
-    - 1w
-    - 2w
-    - 4w
-TEAM_RESYNC_STALE_TIME: 30m
-TESTING: false
-USE_CDN: false
-USER_EVENTS_REDIS:
-    host: quay1.pietersmalan.com
-    port: 6379
-USER_RECOVERY_TOKEN_LIFETIME: 30m
-USERFILES_LOCATION: west
 
 ----
 
@@ -336,6 +226,18 @@ You can now exit the quay_config container, by pressing CTRL-C a couple times in
 
 ==== Reconfiguration
 
-If you want to reconfigure quay, 
+If you want to reconfigure quay, you can restart the configuration wizard, this time pointing to config directory:
+
+.Quay configuration pod
+----
+export QUAY=$pwd
+sudo podman run --rm -it --name quay_config \
+  -p 80:8080 -p 443:8443 \
+  -v $QUAY/config:/conf/stack:Z \
+  registry.redhat.io/quay/quay-rhel8:v3.12.2 config my-secret-password
+---
+
+NOTE: This process can also be used to short cut the typing, by editing the supplied yaml with your custom values, and copy it to quay/config and starting the wizard. 
+
 === Configuring Claire
 
