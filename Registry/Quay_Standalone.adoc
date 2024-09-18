@@ -67,7 +67,7 @@ Quay can be configured to use local file system, but performance might not be up
 
 Create a bucket for image storage for example, "quay1"
 
-NOTE: If S3 provider is not listed, for example MINIO, use CEPH RadosGW. 
+NOTE: If S3 provider is not listed, for example MINIO without SSL enabled, use CEPH RadosGW. 
 
 
 === Quay Configuration
