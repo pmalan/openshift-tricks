@@ -248,7 +248,7 @@ NOTE: This process can also be used to short cut the typing, by editing the supp
 ----
 mkdir /home/quay/postgres-clairv4
 setfacl -m u:26:-wx /home/quay/postgres-clairv4
-sudo mkdir /etc/opt/clairv4/config/
+sudo mkdir -p /etc/opt/clairv4/config/
 ----
 
 ==== Clair Postgres Database
@@ -268,9 +268,12 @@ sudo podman exec -it postgresql-clairv4 /bin/bash -c 'echo "CREATE EXTENSION IF 
 
 ==== Clair Configuration
 
+NOTE: Replace your PSK key with the one /home/quay/config/config.yaml as generated.
+
 .Configure Clair
 ----
-sudo cat <<EOF > /etc/opt/clairv4/config/config.yaml
+cd
+cat <<EOF > clair_config.yaml
 http_listen_addr: :9999
 introspection_addr: :9998
 log_level: debug
@@ -305,4 +308,6 @@ metrics:
   name: "prometheus"
 
 EOF
+
+sudo cp clair_config.yaml /etc/opt/clairv4/config/config.yaml
 ----
