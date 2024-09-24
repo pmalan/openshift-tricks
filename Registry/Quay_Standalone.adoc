@@ -394,3 +394,12 @@ sudo podman run --replace --name quay --restart=always -p 443:8443 -p 80:8080 \
 sudo systemctl enable --now podman-restart.service
 sudo systemctl enable --now podman.service
 ----
+
+==== Mirror Workers
+
+.podman command
+----
+sudo podman run -d --name mirroring-worker --restart=always \
+  -v /home/quay/config:/conf/stack:Z \
+  registry.redhat.io/quay/quay-rhel8:v3.12.2 repomirror
+----
