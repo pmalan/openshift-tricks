@@ -1,0 +1,8 @@
+== Bulk Approving Certificate Requests
+
+When a cluster was down for a long period, you might have to approve new certificates.
+
+.Bulk approve certificates
+----
+oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs oc adm certificate approve
+----
