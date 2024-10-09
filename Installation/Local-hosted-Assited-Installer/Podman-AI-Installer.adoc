@@ -19,7 +19,7 @@ TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-s
 
 === Disconnected local AI Installer
 
-Follow the steps for creating the mirror registry, but add the following images in mirror:
+==== Follow the steps for creating the mirror registry, but add the following images in mirror:
 ----
 additionalImages:
   ....
@@ -28,11 +28,26 @@ additionalImages:
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
   ....
 ----
+==== Create or host RHCOS images
 
-Create a working directory, and get the required yaml files for configuration:
+Create a web server or use an existing web server to host the required RHCOS image(s).
+
+For creating a NGINX installation:
+----
+sudo dnf install -y nginx
+sudo mkdir -p /usr/share/nginx/html/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3
+cd /usr/share/nginx/html/pub/openshift-v4/dependencies/rhcos/4.10/4.16.3
+sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-4.16.3-x86_64-live.x86_64.iso
+sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/sha256sum.txt
+
+----
+
+==== Create a working directory, and get the required yaml files for configuration:
 ----
 mkdir ai
 cd ai
 wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/configmap-disconnected.yml
 wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
+----
+
 
