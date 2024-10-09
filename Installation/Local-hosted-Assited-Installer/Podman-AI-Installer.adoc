@@ -15,3 +15,17 @@ podman play kube --configmap configmap.yml pod-persistent.yml
 ----
 
 TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-service/blob/release-4.12/deploy/podman/README.md
+
+
+=== Disconnected local AI Installer
+
+Follow the steps for creating the mirror registry, but add the following images in mirror:
+----
+additionalImages:
+  ....
+  - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
+  - name: quay.io/edge-infrastructure/assisted-installer:latest
+  - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
+  ....
+----
+
