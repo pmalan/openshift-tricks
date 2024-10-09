@@ -20,6 +20,26 @@ TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-s
 === Disconnected local AI Installer
 
 ==== Follow the steps for creating the mirror registry, but add the following images in mirror:
+
+TIP: All configuration was done for OpenShift 4.16.x. Update according to your target version.
+
+.Install nmstatectl, get openshift binaries, and mirror registry
+----
+sudo dnf install -y nmstate
+mkdir ~/bin
+cd ~/bin
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz 
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/oc-mirror.rhel9.tar.gz
+tar zxvf openshift-client-linux.tar.gz
+tar zxvf openshift-install-linux.tar.gz
+tar zxvf oc-mirror.rhel9.tar.gz
+chmod +x oc-mirror
+mkdir ~/mirror-registry
+cd ~/mirror-registry
+wget https://mirror.openshift.com/pub/cgw/mirror-registry/latest/mirror-registry-amd64.tar.gz
+----
+
 ----
 additionalImages:
   ....
