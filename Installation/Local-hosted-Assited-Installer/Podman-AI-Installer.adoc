@@ -67,7 +67,7 @@ for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
 done
 ----
 
-Create a file imageset-config.yaml in mirror
+Create a file imageset-config.yaml in mirror folder.
 
 .imageset-config.yaml
 ----
@@ -113,12 +113,11 @@ mirror:
         - name: v1
 
 additionalImages:
-  ....
   - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
   - name: quay.io/edge-infrastructure/assisted-installer:latest
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
-  ....
 ----
+
 ==== Create or host RHCOS images
 
 Create a web server or use an existing web server to host the required RHCOS image(s).
