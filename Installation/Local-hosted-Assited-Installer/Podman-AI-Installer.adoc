@@ -45,13 +45,29 @@ tar zxvf mirror-registry-amd64.tar.gz
 rm *.gz
 ----
 
-=== 
+=== Mirror images (Connected host)
 
-Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.json in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
+Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
 
+.Reformat pull-secret in readable format, and create mirror folder to hold images
+----
+mkdir ~/mirror
+cd ~/mirror
+cat ~/pull-secret.txt | jq . >  ~/pull-secret.json
+----
 
+.Login into all the registries
+----
+PULL_SECRET_PATH=~/pull-secret.json
+for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
+  echo "Logging into $R";
+  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
+  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
+  podman login -u $U -p $P $R
+done
+----
 
-=== Create mirror images on connected host
+Create a file imageset-config.yaml in mirror
 
 .imageset-config.yaml
 ----
