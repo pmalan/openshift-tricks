@@ -17,13 +17,13 @@ podman play kube --configmap configmap.yml pod-persistent.yml
 TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-service/blob/release-4.12/deploy/podman/README.md
 
 
-=== Disconnected local AI Installer
+== Disconnected local AI Installer
 
-==== Get the binaries:
+=== Get the binaries:
 
-Install relevant binaries on connected, and disconnected hosts. 
+Install relevant binaries on connected, and disconnected hosts. For example mirror registry would only be needed on the disconnected host. 
 
-TIP: All configuration was done for OpenShift 4.16.x. Update according to your target version.
+TIP: All configuration was done for OpenShift 4.16.16. Update according to your target version.
 
 .Install nmstatectl, get openshift binaries, and mirror registry
 ----
@@ -45,7 +45,13 @@ tar zxvf mirror-registry-amd64.tar.gz
 rm *.gz
 ----
 
-==== Create mirror images on connected host
+=== 
+
+Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.json in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
+
+
+
+=== Create mirror images on connected host
 
 .imageset-config.yaml
 ----
