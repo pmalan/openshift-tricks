@@ -142,6 +142,10 @@ mirror:
   - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
   - name: quay.io/edge-infrastructure/assisted-installer:latest
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
+  - name: quay.io/sclorg/postgresql-12-c8s:latest
+  - name: quay.io/edge-infrastructure/assisted-image-service:latest
+  - name: quay.io/edge-infrastructure/assisted-service:latest
+  - name: quay.io/edge-infrastructure/assisted-installer-ui:latest
 ----
 
 NOTE: To get a list of operator names, based on channel, and version number:  
@@ -243,3 +247,23 @@ unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
    location = "<quayhost>:8443/416-mirror/openshift4"
 ----
 
+Edit configmap-disconnected.yml
+
+Change the following:
+. IMAGE_SERVICE_BASE_URL - http://:8888
+. SERVICE_BASE_URL - http://:8090
+. RELEASE_IMAGES - '[{"openshift_version":"4.10","cpu_architecture":"x86_64","cpu_architectures":["x86_64"],"url":"quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64","version":"4.16.16","default":true}]'
+. OS_IMAGES - '[{"openshift_version":"4.10","cpu_architecture":"x86_64","url":"http://<disconnected nginx>/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-4.16.3-x86_64-live.x86_64.iso","version":"410.84.202205191234-0"}]'
+. AGENT_DOCKER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer-agent:latest
+. CONTROLLER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer-controller:latest
+. INSTALLER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer:latest
+
+Save the file.
+
+.Run AI installer
+----
+podman play kube --configmap configmap-disconnected.yml pod-persistent-disconnected.yml
+# startup can be slower when the VM is not connected to the internet
+sudo firewall-cmd --permanent --add-port={8090/tcp,8080/tcp,8888/tcp}
+sudo firewall-cmd --reload
+----
