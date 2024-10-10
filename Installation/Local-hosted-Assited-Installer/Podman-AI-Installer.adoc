@@ -1,4 +1,4 @@
-== Podman hosted local Assitant Installer
+== Podman hosted local Assistant Installer
 
 .Edit configmap.yml
 ----
@@ -7,7 +7,7 @@ SERVICE_BASE_URL: http://node2:8090
 ----
 
 
-.Run Container for Assited Installer:
+.Run Container for Assisted Installer:
 ----
 wget https://github.com/openshift/assisted-service/blob/master/deploy/podman/configmap.yml
 wget https://github.com/openshift/assisted-service/blob/master/deploy/podman/pod-persistent.yml
@@ -19,7 +19,9 @@ TIP: Make sure to use the latest branch, https://github.com/openshift/assisted-s
 
 === Disconnected local AI Installer
 
-==== Follow the steps for creating the mirror registry, but add the following images in mirror:
+==== Get the binaries:
+
+Install relevant binaries on connected, and disconnected hosts. 
 
 TIP: All configuration was done for OpenShift 4.16.x. Update according to your target version.
 
@@ -35,12 +37,59 @@ tar zxvf openshift-client-linux.tar.gz
 tar zxvf openshift-install-linux.tar.gz
 tar zxvf oc-mirror.rhel9.tar.gz
 chmod +x oc-mirror
+rm *.gz
 mkdir ~/mirror-registry
 cd ~/mirror-registry
 wget https://mirror.openshift.com/pub/cgw/mirror-registry/latest/mirror-registry-amd64.tar.gz
+tar zxvf mirror-registry-amd64.tar.gz
+rm *.gz
 ----
 
+==== Create mirror images on connected host
+
+.imageset-config.yaml
 ----
+kind: ImageSetConfiguration
+apiVersion: mirror.openshift.io/v1alpha2
+
+storageConfig:
+  local:
+    path: ./
+
+mirror:
+  platform:
+    channels:
+    - name: stable-4.16
+      type: ocp
+      minVersion: 4.16.16
+      maxVersion: 4.16.16
+    graph: true
+
+  operators:
+  - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.16
+    packages:
+    - name: kubevirt-hyperconverged
+      channels:
+      - name: stable
+        minVersion: 4.16.6
+    - name: mtv-operator
+      channels:
+        - name: release-v2.7
+    - name: lvms-operator
+      channels:
+        - name: stable-4.16
+    - name: kubernetes-nmstate-operator
+      channels:
+      - name: stable
+
+    - name: web-terminal
+      channels:
+      - name: fast
+
+    - name: cincinnati-operator
+      channels:
+        - name: v1
+
 additionalImages:
   ....
   - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
