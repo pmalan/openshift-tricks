@@ -138,13 +138,13 @@ mirror:
       channels:
         - name: v1
 
-additionalImages:
+  additionalImages:
   - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
   - name: quay.io/edge-infrastructure/assisted-installer:latest
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
 ----
 
-.NOTE: To get a list of operator names, based on channel, and version number:  
+NOTE: To get a list of operator names, based on channel, and version number:  
 ----
 # Get all the channels
 oc-mirror list releases --version 4.16 --channels
@@ -153,6 +153,49 @@ oc-mirror list operators --version 4.16 --channel stable-4.16 --catalogs --catal
 # For operator kubevirt-hyperconverged get versions
 oc-mirror list operators --version 4.16 --channel stable --package kubevirt-hyperconverged --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
 ----
+
+.Mirror images
+----
+cd ~/mirror
+mkdir data
+oc mirror --config=imageset-config.yaml file://./data
+----
+
+.Locate the output tar file, as indicated in the log output
+----
+info: Mirroring completed in 2m50.81s (74.89MB/s)
+Creating archive /home/openshift/mirror/data/mirror_seq1_000000.tar
+----
+
+Move the tar file to disconnected host, including the pull-secret.json as created above.
+
+NOTE: If Quay is accessible directly from connected host, then mirror can be done directly to Quay registry.
+
+.Direct Mirroring to Quay
+----
+oc mirror --config=imageset-config.yaml docker://<quayhost>:8443/416-mirror
+----
+
+=== Import mirror images (Disconnected host)
+
+.Login into Quay registry
+----
+PULL_SECRET_PATH=~/pull-secret.json
+for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
+  echo "Logging into $R";
+  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
+  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
+  podman login -u $U -p $P $R
+done
+----
+
+NOTE: Ignore the errors that logins failed for repositories, leave the non-reachable repositories in the pull-secret, as a safe guard in case you need to connect cluster at a later stage for troubleshooting, or decides to bring the cluster into a connect state.
+
+.Import images into specified Organization in Quay
+----
+oc mirror --from=./mirror_seq1_000000.tar docker://<quayhost>:8443/416-mirror 
+----
+
 
 ==== Create or host RHCOS images
 
