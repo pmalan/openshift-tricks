@@ -230,6 +230,12 @@ oc mirror --config=imageset-config.yaml docker://<quayhost>:8443/416-mirror
 
 === Import mirror images (Disconnected host)
 
+NOTE: The CA for Quay must be setup as a trusted CA. In the following example it is a Let's Encrypt fullchain.pem
+----
+sudo cp -v fullchain.pem /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+----
+
 .Login into Quay registry
 ----
 PULL_SECRET_PATH=~/pull-secret.json
