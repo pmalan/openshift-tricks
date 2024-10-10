@@ -206,6 +206,23 @@ Move the tar file to disconnected host, including the pull-secret.json as create
 
 NOTE: If Quay is accessible directly from connected host, then mirror can be done directly to Quay registry, without the export/import steps.
 
+NOTE: The CA for Quay must be setup as a trusted CA. In the following example it is a Let's Encrypt fullchain.pem
+----
+sudo cp -v fullchain.pem /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+----
+
+.Rerun the podman login script
+----
+PULL_SECRET_PATH=~/pull-secret.json
+for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
+  echo "Logging into $R";
+  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
+  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
+  podman login -u $U -p $P $R
+done
+----
+
 .Direct Mirroring to Quay
 ----
 oc mirror --config=imageset-config.yaml docker://<quayhost>:8443/416-mirror
