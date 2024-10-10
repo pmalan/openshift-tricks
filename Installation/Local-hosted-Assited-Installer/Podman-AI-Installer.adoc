@@ -199,26 +199,47 @@ oc mirror --from=./mirror_seq1_000000.tar docker://<quayhost>:8443/416-mirror
 ----
 
 
-==== Create or host RHCOS images
+=== Create an HTTP server to host RHCOS images (Disconnected host)
 
 Create a web server or use an existing web server to host the required RHCOS image(s).
 
-For creating a NGINX installation:
+.Creating a NGINX installation, and hosting RHCOS:
 ----
 sudo dnf install -y nginx
 sudo mkdir -p /usr/share/nginx/html/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3
-cd /usr/share/nginx/html/pub/openshift-v4/dependencies/rhcos/4.10/4.16.3
-sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-4.16.3-x86_64-live.x86_64.iso
-sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/sha256sum.txt
+cd /usr/share/nginx/html/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3
+#sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-4.16.3-x86_64-live.x86_64.iso
+#sudo wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/sha256sum.txt
+# Move iso and sha256sum to serving directory, sourced from above URLs
+sudo firewall-cmd --permanent --add-port={80/tcp,443/tcp}
+sudo firewall-cmd --reload
+sudo systemctl enable nginx --now
 
 ----
 
-==== Create a working directory, and get the required yaml files for configuration:
+.Create a working directory, and get the required yaml files for configuration:
 ----
-mkdir ai
-cd ai
-wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/configmap-disconnected.yml
-wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
+mkdir ~/ai
+cd ~/ai
+#wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/configmap-disconnected.yml
+#wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
+# Move yml files in ~/ai directory sourced from above URLs
 ----
 
+.Create a registry.conf to reflect mirror
+----
+unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
+[[registry]]
+   prefix = ""
+   location = "quay.io/openshift-release-dev/ocp-release"
+   mirror-by-digest-only = true
+   [[registry.mirror]]
+   location = "<quayhost>:8443/416-mirror/openshift4"
+[[registry]]
+   prefix = ""
+   location = "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
+   mirror-by-digest-only = true
+   [[registry.mirror]]
+   location = "<quayhost>:8443/416-mirror/openshift4"
+----
 
