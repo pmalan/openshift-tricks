@@ -169,7 +169,9 @@ Creating archive /home/openshift/mirror/data/mirror_seq1_000000.tar
 
 Move the tar file to disconnected host, including the pull-secret.json as created above.
 
-NOTE: If Quay is accessible directly from connected host, then mirror can be done directly to Quay registry.
+=== Direct Mirroring (Disconnect host/Connected host)
+
+NOTE: If Quay is accessible directly from connected host, then mirror can be done directly to Quay registry, without the export/import steps.
 
 .Direct Mirroring to Quay
 ----
