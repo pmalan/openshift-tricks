@@ -45,6 +45,29 @@ tar zxvf mirror-registry-amd64.tar.gz
 rm *.gz
 ----
 
+=== Quay Registry (Disconnected host)
+
+.Open firewall for default ports (If required)
+----
+sudo firewall-cmd --add-port=8443/tcp --zone=public --permanent
+sudo firewall-cmd --reload
+----
+
+.Setup Quay registry, replacing quayhostname to fully qualified host name, and SSL certificates :
+----
+cd ~/mirror-registry
+sudo ./mirror-registry install --initUser quay --initPassword quayquay --quayHostname <quayhostname> --sslCert ~/certs/cert.pem --sslKey ~/certs/privkey.pem
+----
+
+Sign in to https://<quayhost>:8443 using initUser/initPassword (quay/quayquay in example) as specified above.
+
+. Under the user icon, far right hand side, select Account Settings.
+. Click on the "Generate Encrypted Password", next to "CLI Password:"
+. Supply, once again, your initPassword
+. Select "Docker Configuration" and download json file by clicking on "Download quay-auth.json"
+
+
+
 === Mirror images (Connected host)
 
 Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
