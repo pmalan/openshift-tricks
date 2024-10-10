@@ -79,6 +79,35 @@ cd ~/mirror
 cat ~/pull-secret.txt | jq . >  ~/pull-secret.json
 ----
 
+.Add the quay-uath.json "<quayhost>:8443" contents to pull-secret.json, the result shoud be similar to the following structure
+----
+{
+  "auths": {
+    "cloud.openshift.com": {
+      "auth": "...",
+      "email": ".."
+    },
+    "quay.io": {
+      "auth": "..",
+      "email": ".."
+    },
+    "registry.connect.redhat.com": {
+      "auth": "..",
+      "email": ".."
+    },
+    "registry.redhat.io": {
+      "auth": "..",
+      "email": ".."
+    },
+    "<quayhost>:8443": {
+      "auth": "cXVheTo5SVhQdFZKNHhad2M4cm9mWEZaSitDWjErMzgyNFdwQk14OWRlWXltQTNpTHB0b0hpNEFFMzZQbTFIM3FvYkk0",
+      "email": ""
+    }
+  }
+}
+
+----
+
 .Login into all the registries
 ----
 PULL_SECRET_PATH=~/pull-secret.json
