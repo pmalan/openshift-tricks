@@ -144,7 +144,7 @@ additionalImages:
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
 ----
 
-NOTE: To get a list of operator names, based on channel, and version number:  
+.NOTE: To get a list of operator names, based on channel, and version number:  
 ----
 # Get all the channels
 oc-mirror list releases --version 4.16 --channels
