@@ -275,6 +275,8 @@ sudo systemctl enable nginx --now
 
 ----
 
+=== Setup Assistent Installer (Disconnected host)
+
 .Create a working directory, and get the required yaml files for configuration:
 ----
 mkdir ~/ai
@@ -284,7 +286,13 @@ cd ~/ai
 # Move yml files in ~/ai directory sourced from above URLs
 ----
 
-.Create a registry.conf to reflect mirror
+
+.Create a directory called $HOME/.config/containers to reflect mirror configuration
+----
+mkdir -p $HOME/.config/containers
+----
+
+.$HOME/.config/containers/registries.conf
 ----
 unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
 [[registry]]
