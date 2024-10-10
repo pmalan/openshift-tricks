@@ -93,10 +93,13 @@ mirror:
     - name: kubevirt-hyperconverged
       channels:
       - name: stable
-        minVersion: 4.16.6
+        minVersion: 4.16.3
     - name: mtv-operator
       channels:
         - name: release-v2.7
+    - name: local-storage-operator
+      channels:
+        - name: stable
     - name: lvms-operator
       channels:
         - name: stable-4.16
@@ -118,10 +121,14 @@ additionalImages:
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
 ----
 
-NOTE: To get a list of operator names:  
+NOTE: To get a list of operator names, based on channel, and version number:  
 ----
+# Get all the channels
 oc-mirror list releases --version 4.16 --channels
+# For stable-4.16 Channel list operators
 oc-mirror list operators --version 4.16 --channel stable-4.16 --catalogs --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
+# For operator kubevirt-hyperconverged get versions
+oc-mirror list operators --version 4.16 --channel stable --package kubevirt-hyperconverged --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
 ----
 
 ==== Create or host RHCOS images
