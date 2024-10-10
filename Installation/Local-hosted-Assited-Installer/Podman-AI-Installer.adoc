@@ -118,6 +118,12 @@ additionalImages:
   - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
 ----
 
+NOTE: To get a list of operator names:  
+----
+oc-mirror list releases --version 4.16 --channels
+oc-mirror list operators --version 4.16 --channel stable-4.16 --catalogs --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
+----
+
 ==== Create or host RHCOS images
 
 Create a web server or use an existing web server to host the required RHCOS image(s).
