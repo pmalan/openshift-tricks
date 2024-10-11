@@ -281,7 +281,7 @@ sudo systemctl enable nginx --now
 ----
 mkdir ~/ai
 cd ~/ai
-#wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/configmap-disconnected.yml
+#wget == link:../configmap-disconnected.yml[configmap-disconnected.yml]
 #wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
 # Move yml files in ~/ai directory sourced from above URLs
 ----
