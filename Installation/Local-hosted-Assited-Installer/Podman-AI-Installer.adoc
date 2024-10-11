@@ -277,9 +277,11 @@ sudo systemctl enable nginx --now
 
 === Setup Assistent Installer (Disconnected host)
 
-[configmap-disconnected.yml](configmap-disconnected.yml)
+link:http://asciidoctor.org/[Asciidoctor]
 
-[configmap-disconnected.yml](configmap-disconnected.yml)
+* [configmap-disconnected.yml](configmap-disconnected.yml)
+
+* [configmap-disconnected.yml](configmap-disconnected.yml)
 
 .Create a working directory, and get the required yaml files for configuration:
 ----
