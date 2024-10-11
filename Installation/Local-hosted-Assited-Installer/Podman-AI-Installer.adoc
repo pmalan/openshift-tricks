@@ -125,7 +125,7 @@ Create a file imageset-config.yaml in mirror folder.
 ----
 kind: ImageSetConfiguration
 apiVersion: mirror.openshift.io/v1alpha2
-
+archiveSize: 1
 storageConfig:
   local:
     path: ./
