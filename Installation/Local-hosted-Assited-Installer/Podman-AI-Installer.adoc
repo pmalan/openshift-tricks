@@ -137,9 +137,7 @@ mirror:
       type: ocp
       minVersion: 4.16.16
       maxVersion: 4.16.16
-    architectures:
-      - amd64
-    graph: false
+    graph: true
 
   operators:
   - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.16
@@ -176,7 +174,10 @@ mirror:
   - name: quay.io/sclorg/postgresql-12-c8s:latest
   - name: quay.io/edge-infrastructure/assisted-image-service:latest
   - name: quay.io/edge-infrastructure/assisted-service:latest
+  - name: quay.io/edge-infrastructure/assisted-service:latest
   - name: quay.io/edge-infrastructure/assisted-installer-ui:latest
+  - name: quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64
+
 ----
 
 NOTE: To get a list of operator names, based on channel, and version number:  
