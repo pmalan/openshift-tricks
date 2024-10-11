@@ -277,11 +277,15 @@ sudo systemctl enable nginx --now
 
 === Setup Assistent Installer (Disconnected host)
 
+[configmap-disconnected.yml](configmap-disconnected.yml)
+
+[configmap-disconnected.yml](configmap-disconnected.yml)
+
 .Create a working directory, and get the required yaml files for configuration:
 ----
 mkdir ~/ai
 cd ~/ai
-#wget == link:../configmap-disconnected.yml[configmap-disconnected.yml]
+#wget [configmap-disconnected.yml](configmap-disconnected.yml)
 #wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
 # Move yml files in ~/ai directory sourced from above URLs
 ----
