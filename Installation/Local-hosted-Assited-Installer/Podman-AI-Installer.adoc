@@ -317,19 +317,24 @@ unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
    location = "<quayhost>:8443/416-mirror/openshift4"
 ----
 
-Edit configmap-disconnected.yml
+Edit configmap-disconnected.yml, configmap_tls_certs.yml
 
 Change the following:
 
 . Replace <quayhost> with quayhost FQDN
 . Replace <disconnectedhost> with FQDN where AI is going to run on.
+. Update CA
+. Update key and cert in config_tls_certs.yml
 
 Save the file.
 
-.Run AI installer
+.Configure firewall
 ----
-podman play kube --configmap configmap-disconnected.yml pod-persistent-disconnected.yml
-# startup can be slower when the VM is not connected to the internet
 sudo firewall-cmd --permanent --add-port={8090/tcp,8080/tcp,8888/tcp}
 sudo firewall-cmd --reload
+----
+
+.Run AI installer
+----
+podman play kube --configmap configmap-disconnected.yml --configmap configmap_tls_certs.yml pod-persistent-disconnected.yml
 ----
