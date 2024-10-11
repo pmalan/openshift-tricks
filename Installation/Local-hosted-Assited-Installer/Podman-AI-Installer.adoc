@@ -278,8 +278,10 @@ sudo systemctl enable nginx --now
 === Setup Assistent Installer (Disconnected host)
 
 
-
+.URLs to files
 link:./configmap-disconnected.yml[configmap-disconnected.yml]
+link:./configmap_tls_certs.yml[configmap_tls_certs.yml]
+link:./pod-persistent-disconnected.yml[pod-persistent-disconnected.yml]
 
 
 .Create a working directory, and get the required yaml files for configuration:
@@ -287,7 +289,7 @@ link:./configmap-disconnected.yml[configmap-disconnected.yml]
 mkdir ~/ai
 cd ~/ai
 #wget https://github.com/pmalan/openshift-tricks/raw/refs/heads/main/Installation/Local-hosted-Assited-Installer/configmap-disconnected.yml
-#wget https://github.com/openshift/assisted-service/raw/refs/heads/release-4.16/deploy/podman/pod-persistent-disconnected.yml
+#wget https://github.com/pmalan/openshift-tricks/raw/refs/heads/main/Installation/Local-hosted-Assited-Installer/pod-persistent-disconnected.yml
 # Move yml files in ~/ai directory sourced from above URLs
 ----
 
@@ -318,19 +320,8 @@ Edit configmap-disconnected.yml
 
 Change the following:
 
-. IMAGE_SERVICE_BASE_URL - http://:8888
-
-. SERVICE_BASE_URL - http://:8090
-
-. RELEASE_IMAGES - '[{"openshift_version":"4.10","cpu_architecture":"x86_64","cpu_architectures":["x86_64"],"url":"quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64","version":"4.16.16","default":true}]'
-
-. OS_IMAGES - '[{"openshift_version":"4.10","cpu_architecture":"x86_64","url":"http://<disconnected nginx>/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-4.16.3-x86_64-live.x86_64.iso","version":"410.84.202205191234-0"}]'
-
-. AGENT_DOCKER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer-agent:latest
-
-. CONTROLLER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer-controller:latest
-
-. INSTALLER_IMAGE - <quayhost>:8443/416-mirror/edge-infrastructure/assisted-installer:latest
+. Replace <quayhost> with quayhost FQDN
+. Replace <disconnectedhost> with FQDN where AI is going to run on.
 
 Save the file.
 
