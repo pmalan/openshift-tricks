@@ -177,6 +177,7 @@ mirror:
   - name: quay.io/edge-infrastructure/assisted-service:latest
   - name: quay.io/edge-infrastructure/assisted-installer-ui:latest
   - name: quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64
+  - name: quay.io/karmab/aicli
 
 ----
 
@@ -339,6 +340,16 @@ sudo firewall-cmd --reload
 podman play kube --configmap configmap-disconnected.yml --configmap configmap_tls_certs.yml pod-persistent-disconnected.yml
 ----
 
+=== Create Cluster
 
+HINT: To get pullsecret in a single line: "cat ../pull-secret.json |jq -c"
 
-cat ../pull-secret.json |jq -c
+. Access AI Installer GUI through https://<disconnectedhost>:8080
+. Go through the steps to create a cluster
+. When you get the step "Host Discovery"
+
+.Install AICL
+----
+alias aicli='podman run --net host -it --rm -e AI_URL=https://<disconnectedhost>:8080 -v $HOME/.aicli:/root/.aicli -v $PWD:/workdir karmab/aicli'
+----
+
