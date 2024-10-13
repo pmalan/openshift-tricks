@@ -340,6 +340,11 @@ sudo firewall-cmd --reload
 podman play kube --configmap configmap-disconnected.yml --configmap configmap_tls_certs.yml pod-persistent-disconnected.yml
 ----
 
+.Stop AI Installer
+----
+podman kube down pod-persistent-disconnected.yml
+----
+
 === Create Cluster
 
 HINT: To get pullsecret in a single line: "cat ../pull-secret.json |jq -c"
