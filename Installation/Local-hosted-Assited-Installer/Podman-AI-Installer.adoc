@@ -347,7 +347,10 @@ podman play kube --down pod-persistent-disconnected.yml
 
 === Create Cluster
 
-HINT: To get pullsecret in a single line: "cat ../pull-secret.json |jq -c"
+NOTE: To get pullsecret in a single line: 
+----
+cat ../pull-secret.json |jq -c
+----
 
 . Access AI Installer GUI through https://<disconnectedhost>:8080
 . Go through the steps to create a cluster
