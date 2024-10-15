@@ -342,7 +342,7 @@ podman play kube --configmap configmap-disconnected.yml --configmap configmap_tl
 
 .Stop AI Installer
 ----
-podman kube down pod-persistent-disconnected.yml
+podman play kube --down pod-persistent-disconnected.yml
 ----
 
 === Create Cluster
