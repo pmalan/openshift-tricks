@@ -56,7 +56,7 @@ sudo firewall-cmd --reload
 .Setup Quay registry, replacing quayhostname to fully qualified host name, and SSL certificates :
 ----
 cd ~/mirror-registry
-sudo ./mirror-registry install --initUser quay --initPassword quayquay --quayHostname <quayhostname> --sslCert ~/certs/cert.pem --sslKey ~/certs/privkey.pem
+./mirror-registry install --initUser admin --initPassword admin123456 --quayHostname <quayhostname> --sslCert ~/certs/cert.pem --sslKey ~/certs/privkey.pem
 ----
 
 Sign in to https://<quayhost>:8443 using initUser/initPassword (quay/quayquay in example) as specified above.
@@ -72,11 +72,19 @@ Sign in to https://<quayhost>:8443 using initUser/initPassword (quay/quayquay in
 
 Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
 
-.Reformat pull-secret in readable format, and create mirror folder to hold images
+.Delete - Reformat pull-secret in readable format, and create mirror folder to hold images
 ----
 mkdir ~/mirror
 cd ~/mirror
 cat ~/pull-secret.txt | jq . >  ~/pull-secret.json
+----
+
+.Create auth.json
+----
+podman login --authfile local.json -u admin -p <your password> <qauyhost> --tls-verify=false 
+jq -cM -s '{"auths": ( .[0].auths + .[1].auths ) }' local.json ~/pull-secret.json > combined-pullsecret.json
+mkdir -p $XDG_RUNTIME_DIR/containers/
+cp combined-pullsecret.json $XDG_RUNTIME_DIR/containers/auth.json
 ----
 
 .Add the quay-uath.json "<quayhost>:8443" contents to pull-secret.json, the result shoud be similar to the following structure
