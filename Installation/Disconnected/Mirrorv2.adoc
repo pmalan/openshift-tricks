@@ -1,6 +1,6 @@
 == Mirror using oc-mirror v2
 
-!NOTE: Still in tech-preview
+.NOTE: Still in tech-preview
 
 
 
