@@ -115,6 +115,7 @@ ay.io/openshift-release-dev/ocp-release:4.17.0-x86_64","version":"4.17.0","defau
      [[registry.mirror]]
        location = "disconnected.pietersmalan.com:8443/mirror"
        pull-from-mirror = "digest-only"
+----
 
 Certificates for Assisted Installer site: 
 
@@ -231,7 +232,6 @@ spec:
     - name: certs-configmap-volume
       configMap:
         name: certs
-
 ----
 
 .Configure firewall
