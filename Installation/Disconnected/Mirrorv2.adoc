@@ -67,6 +67,8 @@ mirror:
 
 If you need OS iamges for Openshift Virtualization, add the following under "additionalImages:". Select which is appropite.
 
+NOTE: For more images - see https://quay.io/organization/containerdisks
+
 ----
   - name: quay.io/containerdisks/centos-stream:9
   - name: quay.io/containerdisks/fedora:latest
@@ -74,15 +76,30 @@ If you need OS iamges for Openshift Virtualization, add the following under "add
   - name: registry.redhat.io/rhel9/rhel-guest-image:latest
 ----
 
+=== Login into All registries.
+
+Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
+
+
+.Create auth.json
+----
+podman login --authfile local.json -u $QUAY_USER -p $QUAY_PWD $QUAY_HOST_NAME:$QUAY_PORT --tls-verify=false 
+jq -cM -s '{"auths": ( .[0].auths + .[1].auths ) }' local.json ~/pull-secret.txt > pull-secret.json
+podman login --authfile ./pull-secret.json quay.io
+podman login --authfile ./pull-secret.json registry.redhat.io
+podman login --authfile ./pull-secret.json $QUAY_HOST_NAME:$QUAY_PORT
+
+----
+
 === Direct Registry to Registry mirror
 
 .Mirror Direct
 ----
 mkdir ~/working-dir
-cp imageset-config-v2.yaml ~/working-dir
+cp imageSetConfiguration-v2-4.16.16.yaml ~/working-dir
 cd ~/working-dir
-oc mirror -c imageset-config-v2.yaml --workspace file://$PWD docker://$QUAY_HOST_NAME:$QUAY_PORT/$MIRROR_REPO --v2
+oc mirror -c imageSetConfiguration-v2-4.16.16.yaml --workspace file://$PWD docker://$QUAY_HOST_NAME:$QUAY_PORT/$MIRROR_REPO --v2
 ----
 
 
-----
+
