@@ -1,9 +1,8 @@
 == Mirror using oc-mirror v2
 
-WARNING: Still in tech-preview
+NOTE: Still in tech-preview
 
 NOTE: Although Quay is referenced, any Docker V2 registry would work.
-
 
 
 Setup environment
