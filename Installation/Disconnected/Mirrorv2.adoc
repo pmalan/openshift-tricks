@@ -1,6 +1,8 @@
 == Mirror using oc-mirror v2
 
-.NOTE: Still in tech-preview
+WARNING: Still in tech-preview
+
+NOTE: Although Quay is referenced, any Docker V2 registry would work.
 
 
 
@@ -56,12 +58,21 @@ mirror:
   - name: quay.io/edge-infrastructure/assisted-service:latest
   - name: quay.io/edge-infrastructure/assisted-installer-ui:latest
   - name: quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64
-  - name: quay.io/karmab/aicli
+  - name: quay.io/karmab/aicli:latest
   - name: registry.redhat.io/rhel9/support-tools:latest
   - name: registry.redhat.io/ubi8/ubi:latest
   - name: registry.redhat.io/openshift4/ose-cli:latest
   - name: registry.redhat.io/ubi9/ubi:latest
 
+----
+
+If you need OS iamges for Openshift Virtualization, add the following under "additionalImages:". Select which is appropite.
+
+----
+  - name: quay.io/containerdisks/centos-stream:9
+  - name: quay.io/containerdisks/fedora:latest
+  - name: registry.redhat.io/rhel8/rhel-guest-image:latest
+  - name: registry.redhat.io/rhel9/rhel-guest-image:latest
 ----
 
 === Direct Registry to Registry mirror
