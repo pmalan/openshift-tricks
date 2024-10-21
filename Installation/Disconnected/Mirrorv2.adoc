@@ -2,7 +2,18 @@
 
 !NOTE: Still in tech-preview
 
+
+
 Setup environment
+
+.Install requirements
+----
+sudo dnf install -y nmstate
+mkdir ~/bin
+cd ~/bin
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+tar zxvf openshift-client-linux.tar.gz
+----
 
 .env.sh
 ----
@@ -53,3 +64,15 @@ mirror:
 
 ----
 
+=== Direct Registry to Registry mirror
+
+.Mirror Direct
+----
+mkdir ~/working-dir
+cp imageset-config-v2.yaml ~/working-dir
+cd ~/working-dir
+oc mirror -c imageset-config-v2.yaml --workspace file://$PWD docker://$QUAY_HOST_NAME:$QUAY_PORT/$MIRROR_REPO --v2
+----
+
+
+----
