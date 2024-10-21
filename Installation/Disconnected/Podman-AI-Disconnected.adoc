@@ -1,251 +1,5 @@
 == Disconnected local AI Installer
 
-=== Get the binaries:
-
-Install relevant binaries on connected, and disconnected hosts. For example mirror registry would only be needed on the disconnected host. 
-
-TIP: All configuration was done for OpenShift 4.16.16. Update according to your target version.
-
-.Install nmstatectl, get openshift binaries, and mirror registry
-----
-sudo dnf install -y nmstate
-mkdir ~/bin
-cd ~/bin
-wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz 
-wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
-wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/oc-mirror.rhel9.tar.gz
-tar zxvf openshift-client-linux.tar.gz
-tar zxvf openshift-install-linux.tar.gz
-tar zxvf oc-mirror.rhel9.tar.gz
-chmod +x oc-mirror
-rm *.gz
-mkdir ~/mirror-registry
-cd ~/mirror-registry
-wget https://mirror.openshift.com/pub/cgw/mirror-registry/latest/mirror-registry-amd64.tar.gz
-tar zxvf mirror-registry-amd64.tar.gz
-rm *.gz
-----
-
-=== Quay Registry (Disconnected host)
-
-.Open firewall for default ports (If required)
-----
-sudo firewall-cmd --add-port=8443/tcp --zone=public --permanent
-sudo firewall-cmd --reload
-----
-
-.Setup Quay registry, replacing quayhostname to fully qualified host name, and SSL certificates :
-----
-cd ~/mirror-registry
-./mirror-registry install --initUser admin --initPassword admin123456 --quayHostname <quayhostname> --sslCert ~/certs/cert.pem --sslKey ~/certs/privkey.pem
-----
-
-Sign in to https://<quayhost>:8443 using initUser/initPassword (quay/quayquay in example) as specified above.
-
-. Under the user icon, far right hand side, select Account Settings.
-. Click on the "Generate Encrypted Password", next to "CLI Password:"
-. Supply, once again, your initPassword
-. Select "Docker Configuration" and download json file by clicking on "Download quay-auth.json"
-
-
-
-=== Mirror images (Connected host)
-
-Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
-
-.Delete - Reformat pull-secret in readable format, and create mirror folder to hold images
-----
-mkdir ~/mirror
-cd ~/mirror
-cat ~/pull-secret.txt | jq . >  ~/pull-secret.json
-----
-
-.Create auth.json
-----
-podman login --authfile local.json -u admin -p <your password> <qauyhost> --tls-verify=false 
-jq -cM -s '{"auths": ( .[0].auths + .[1].auths ) }' local.json ~/pull-secret.json > combined-pullsecret.json
-mkdir -p $XDG_RUNTIME_DIR/containers/
-cp combined-pullsecret.json $XDG_RUNTIME_DIR/containers/auth.json
-----
-
-.Add the quay-uath.json "<quayhost>:8443" contents to pull-secret.json, the result shoud be similar to the following structure
-----
-{
-  "auths": {
-    "cloud.openshift.com": {
-      "auth": "...",
-      "email": ".."
-    },
-    "quay.io": {
-      "auth": "..",
-      "email": ".."
-    },
-    "registry.connect.redhat.com": {
-      "auth": "..",
-      "email": ".."
-    },
-    "registry.redhat.io": {
-      "auth": "..",
-      "email": ".."
-    },
-    "<quayhost>:8443": {
-      "auth": "cXVheTo5SVhQdFZKNHhad2M4cm9mWEZaSitDWjErMzgyNFdwQk14OWRlWXltQTNpTHB0b0hpNEFFMzZQbTFIM3FvYkk0",
-      "email": ""
-    }
-  }
-}
-
-----
-
-.Login into all the registries
-----
-PULL_SECRET_PATH=~/pull-secret.json
-for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
-  echo "Logging into $R";
-  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
-  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
-  podman login -u $U -p $P $R
-done
-----
-
-Create a file imageset-config.yaml in mirror folder.
-
-.imageset-config.yaml
-----
-kind: ImageSetConfiguration
-apiVersion: mirror.openshift.io/v1alpha2
-archiveSize: 1
-storageConfig:
-  local:
-    path: ./
-
-mirror:
-  platform:
-    channels:
-    - name: stable-4.16
-      type: ocp
-      minVersion: 4.16.16
-      maxVersion: 4.16.16
-    graph: true
-
-  operators:
-  - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.16
-    packages:
-    - name: kubevirt-hyperconverged
-      channels:
-      - name: stable
-        minVersion: 4.16.3
-    - name: mtv-operator
-      channels:
-        - name: release-v2.7
-    - name: local-storage-operator
-      channels:
-        - name: stable
-    - name: lvms-operator
-      channels:
-        - name: stable-4.16
-    - name: kubernetes-nmstate-operator
-      channels:
-      - name: stable
-
-    - name: web-terminal
-      channels:
-      - name: fast
-
-    - name: cincinnati-operator
-      channels:
-        - name: v1
-
-  additionalImages:
-  - name: quay.io/edge-infrastructure/assisted-installer-agent:latest
-  - name: quay.io/edge-infrastructure/assisted-installer:latest
-  - name: quay.io/edge-infrastructure/assisted-installer-controller:latest
-  - name: quay.io/sclorg/postgresql-12-c8s:latest
-  - name: quay.io/edge-infrastructure/assisted-image-service:latest
-  - name: quay.io/edge-infrastructure/assisted-service:latest
-  - name: quay.io/edge-infrastructure/assisted-service:latest
-  - name: quay.io/edge-infrastructure/assisted-installer-ui:latest
-  - name: quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64
-  - name: quay.io/karmab/aicli
-
-----
-
-NOTE: To get a list of operator names, based on channel, and version number:  
-----
-# Get all the channels
-oc-mirror list releases --version 4.16 --channels
-# For stable-4.16 Channel list operators
-oc-mirror list operators --version 4.16 --channel stable-4.16 --catalogs --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
-# For operator kubevirt-hyperconverged get versions
-oc-mirror list operators --version 4.16 --channel stable --package kubevirt-hyperconverged --catalog registry.redhat.io/redhat/redhat-operator-index:v4.16
-----
-
-.Mirror images
-----
-cd ~/mirror
-mkdir data
-oc mirror --config=imageset-config.yaml file://./data
-----
-
-.Locate the output tar file, as indicated in the log output
-----
-info: Mirroring completed in 2m50.81s (74.89MB/s)
-Creating archive /home/openshift/mirror/data/mirror_seq1_000000.tar
-----
-
-Move the tar file to disconnected host, including the pull-secret.json as created above.
-
-=== Direct Mirroring (Disconnect host/Connected host)
-
-NOTE: If Quay is accessible directly from connected host, then mirror can be done directly to Quay registry, without the export/import steps.
-
-NOTE: The CA for Quay must be setup as a trusted CA. In the following example it is a Let's Encrypt fullchain.pem
-----
-sudo cp -v fullchain.pem /etc/pki/ca-trust/source/anchors/
-sudo update-ca-trust
-----
-
-.Rerun the podman login script
-----
-PULL_SECRET_PATH=~/pull-secret.json
-for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
-  echo "Logging into $R";
-  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
-  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
-  podman login -u $U -p $P $R
-done
-----
-
-.Direct Mirroring to Quay
-----
-oc mirror --config=imageset-config.yaml docker://<quayhost>:8443/416-mirror
-----
-
-=== Import mirror images (Disconnected host)
-
-NOTE: The CA for Quay must be setup as a trusted CA. In the following example it is a Let's Encrypt fullchain.pem
-----
-sudo cp -v fullchain.pem /etc/pki/ca-trust/source/anchors/
-sudo update-ca-trust
-----
-
-.Login into Quay registry
-----
-PULL_SECRET_PATH=~/pull-secret.json
-for R in $(cat $PULL_SECRET_PATH | jq -r '.auths|keys[]'); do
-  echo "Logging into $R";
-  U=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $1}')
-  P=$(jq -r ".auths.\"$R\".auth" $PULL_SECRET_PATH | base64 -d | awk -F: '{print $2}')
-  podman login -u $U -p $P $R
-done
-----
-
-NOTE: Ignore the errors that logins failed for repositories, leave the non-reachable repositories in the pull-secret, as a safe guard in case you need to connect cluster at a later stage for troubleshooting, or decides to bring the cluster into a connect state.
-
-.Import images into specified Organization in Quay
-----
-oc mirror --from=./mirror_seq1_000000.tar docker://<quayhost>:8443/416-mirror 
-----
 
 
 === Create an HTTP server to host RHCOS images (Disconnected host)
@@ -269,54 +23,216 @@ sudo systemctl enable nginx --now
 === Setup Assistent Installer (Disconnected host)
 
 
-.URLs to files
-link:./configmap-disconnected.yml[configmap-disconnected.yml]
-link:./configmap_tls_certs.yml[configmap_tls_certs.yml]
-link:./pod-persistent-disconnected.yml[pod-persistent-disconnected.yml]
+
 
 
 .Create a working directory, and get the required yaml files for configuration:
 ----
 mkdir ~/ai
 cd ~/ai
-#wget https://github.com/pmalan/openshift-tricks/raw/refs/heads/main/Installation/Local-hosted-Assited-Installer/configmap-disconnected.yml
-#wget https://github.com/pmalan/openshift-tricks/raw/refs/heads/main/Installation/Local-hosted-Assited-Installer/pod-persistent-disconnected.yml
-# Move yml files in ~/ai directory sourced from above URLs
+----
+
+.env.sh
+----
+export QUAY_HOST_NAME=quayhostname
+export QUAY_PORT=8443
+export QUAY_USER=admin
+export QUAY_PWD=admin123456
+export QUAY_TOKEN=$(echo -n $QUAY_USER:$QUAY_PWD | base64)
+export MIRROR_REPO=mirror
+export AI_URL=https://disconnected.pietersmalan.com:8080
+mkdir ~/.aicl
+alias aicli='podman run --net host -it --rm -e AI_URL=$AI_URL -v $HOME/.aicli:/root/.aicli -v $PWD:/workdir quay.io/karmab/aicli'
+
 ----
 
 
-.Create a directory called $HOME/.config/containers to reflect mirror configuration
-----
-mkdir -p $HOME/.config/containers
-----
 
-.$HOME/.config/containers/registries.conf
-----
-unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
-[[registry]]
-   prefix = ""
-   location = "quay.io/openshift-release-dev/ocp-release"
-   mirror-by-digest-only = true
-   [[registry.mirror]]
-   location = "<quayhost>:8443/416-mirror/openshift4"
-[[registry]]
-   prefix = ""
-   location = "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
-   mirror-by-digest-only = true
-   [[registry.mirror]]
-   location = "<quayhost>:8443/416-mirror/openshift4"
+.Create configmap-disconnected.yaml
 ----
 
-Edit configmap-disconnected.yml, configmap_tls_certs.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  ASSISTED_SERVICE_HOST: disconnected.pietersmalan.com:8090
+  ASSISTED_SERVICE_URL: https://disconnected.pietersmalan.com:8090
+  HTTPS_CERT_FILE: "/etc/certs/tls.crt"
+  HTTPS_KEY_FILE: "/etc/certs/tls.key"
+  HTTPS_CA_FILE: "/etc/certs/ca-bundle.pem"
+  ASSISTED_SERVICE_SCHEME: https
+  AUTH_TYPE: none
+  DB_HOST: 127.0.0.1
+  DB_NAME: installer
+  DB_PASS: admin
+  DB_PORT: "5432"
+  DB_USER: admin
+  DEPLOY_TARGET: onprem
+  DEPLOYMENT_TYPE: "Podman"
+  DISK_ENCRYPTION_SUPPORT: "true"
+  DUMMY_IGNITION: "false"
+  ENABLE_SINGLE_NODE_DNSMASQ: "true"
+  HW_VALIDATOR_REQUIREMENTS: '[{"version":"default","master":{"cpu_cores":4,"ram_mib":16384,"disk_size_gb":100,"installation_disk_speed_threshold_ms":10,"network_latency
+_threshold_ms":100,"packet_loss_percentage":0},"worker":{"cpu_cores":2,"ram_mib":8192,"disk_size_gb":100,"installation_disk_speed_threshold_ms":10,"network_latency_thres
+hold_ms":1000,"packet_loss_percentage":10},"sno":{"cpu_cores":8,"ram_mib":16384,"disk_size_gb":100,"installation_disk_speed_threshold_ms":10}}]'
+  IMAGE_SERVICE_BASE_URL: https://disconnected.pietersmalan.com:8888
+  IPV6_SUPPORT: "true"
+  ISO_IMAGE_TYPE: "full-iso"
+  LISTEN_PORT: "8888"
+  NTP_DEFAULT_SERVER: ""
+  OS_IMAGES: '[{"openshift_version":"4.16","cpu_architecture":"x86_64","url":"http://disconnected.pietersmalan.com/pub/openshift-v4/dependencies/rhcos/4.16/4.16.3/rhcos-
+4.16.3-x86_64-live.x86_64.iso","version":"4.16.0-x86_64"},{"openshift_version":"4.17","cpu_architecture":"x86_64","url":"http://disconnected.pietersmalan.com/pub/openshi
+ft-v4/dependencies/rhcos/4.17/4.17.0/rhcos-4.17.0-x86_64-live.x86_64.iso","version":"4.17.0-x86_64"}]'
+  POSTGRESQL_DATABASE: installer
+  POSTGRESQL_PASSWORD: admin
+  POSTGRESQL_USER: admin
+  PUBLIC_CONTAINER_REGISTRIES: 'quay.io,disconnected.pietersmalan.com:8443'
+  LOCAL_REPOSITORY: 'mirror'
+  RELEASE_IMAGES: '[{"openshift_version":"4.16","cpu_architecture":"x86_64","cpu_architectures":["x86_64"],"url":"disconnected.pietersmalan.com:8443/mirror/openshift-rel
+ease-dev/ocp-release:4.16.16-x86_64","version":"4.16.16","default":true},{"openshift_version":"4.17","cpu_architecture":"x86_64","cpu_architectures":["x86_64"],"url":"qu
+ay.io/openshift-release-dev/ocp-release:4.17.0-x86_64","version":"4.17.0","default":false}]'
+  
+  SERVICE_BASE_URL: https://disconnected.pietersmalan.com:8090
+  STORAGE: filesystem
+  ENABLE_UPGRADE_AGENT: "true"
+  AGENT_DOCKER_IMAGE: "disconnected.pietersmalan.com:8443/mirror/edge-infrastructure/assisted-installer-agent:latest"
+  CONTROLLER_IMAGE: "disconnected.pietersmalan.com:8443/mirror/edge-infrastructure/assisted-installer-controller:latest"
+  INSTALLER_IMAGE: "disconnected.pietersmalan.com:8443/mirror/edge-infrastructure/assisted-installer:latest"
+  SKIP_CERT_VERIFICATION: "true"
+  ENABLE_OKD_SUPPORT: "false"
 
-Change the following:
+  additionalTrustBundle: |
+    ....
+  registries.conf: |
+    unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
+    short-name-mode = ""
 
-. Replace <quayhost> with quayhost FQDN
-. Replace <disconnectedhost> with FQDN where AI is going to run on.
-. Update CA
-. Update key and cert in config_tls_certs.yml
+    [[registry]]
+      prefix = ""
+     location = "quay.io"
 
-Save the file.
+     [[registry.mirror]]
+       location = "disconnected.pietersmalan.com:8443/mirror"
+       pull-from-mirror = "digest-only"
+
+Certificates for Assisted Installer site: 
+
+.configmap_tls_certs.yml
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: certs
+data:
+  tls.key: |-
+    -----BEGIN PRIVATE KEY-----
+   ...
+    -----END PRIVATE KEY-----
+
+  tls.crt: |-
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+  ca-bundle.pem: |
+    -----BEGIN CERTIFICATE-----
+    ..
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+
+----
+
+.pod
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: assisted-installer
+  name: assisted-installer
+spec:
+  containers:
+  - args:
+    - run-postgresql
+    image: quay.io/sclorg/postgresql-12-c8s:latest
+    name: db
+    envFrom:
+    - configMapRef:
+        name: config
+    volumeMounts:
+      - mountPath: /var/lib/pgsql
+        name: pg-data
+  - image: quay.io/edge-infrastructure/assisted-installer-ui:latest
+    name: ui
+    ports:
+    - hostPort: 8080
+    securityContext:
+        privileged: true
+    envFrom:
+    - configMapRef:
+        name: config
+    volumeMounts:
+      - mountPath: /etc/certs
+        name: certs-configmap-volume
+      - mountPath: /etc/containers/certs.d/disconnected.pietersmalan.com
+        name: certs-configmap-volume
+  - image: quay.io/edge-infrastructure/assisted-image-service:latest
+    name: image-service
+    ports:
+    - hostPort: 8888
+    envFrom:
+    - configMapRef:
+        name: config
+    volumeMounts:
+      - mountPath: /etc/certs
+        name: certs-configmap-volume
+      - mountPath: /etc/containers/certs.d/disconnected.pietersmalan.com
+        name: certs-configmap-volume
+
+  - image: quay.io/edge-infrastructure/assisted-service:latest
+    name: service
+    ports:
+    - hostPort: 8090
+    envFrom:
+    - configMapRef:
+        name: config
+    volumeMounts:
+      - mountPath: /data
+        name: ai-data
+      - mountPath: /etc/containers
+        name: mirror-registry-config
+      - mountPath: /etc/certs
+        name: certs-configmap-volume
+      - mountPath: /etc/containers/certs.d/disconnected.pietersmalan.com
+        name: certs-configmap-volume
+
+          #- mountPath: /etc/pki/ca-trust/extracted/pem/mirror_ca.pem
+          #subPath: tls-ca-bundle.pem
+          #name: mirror-registry-config
+  restartPolicy: Never
+  volumes:
+    - name: ai-data
+      persistentVolumeClaim:
+        claimName: ai-service-data
+    - name: pg-data
+      persistentVolumeClaim:
+        claimName: ai-db-data
+    - name: mirror-registry-config
+      configMap:
+        name: config
+        deafultMode: 420
+        items:
+          - key: registries.conf
+            path: registries.conf
+          - key: tls-ca-bundle.pem
+            path: tls-ca-bundle.pem
+    - name: certs-configmap-volume
+      configMap:
+        name: certs
+
+----
 
 .Configure firewall
 ----
@@ -324,26 +240,85 @@ sudo firewall-cmd --permanent --add-port={8090/tcp,8080/tcp,8888/tcp}
 sudo firewall-cmd --reload
 ----
 
+.Login into mirror registry
+----
+podman login --authfile ~/pull-secret.json $QUAY_HOST_NAME:$QUAY_PORT
+----
+
 .Run AI installer
 ----
 podman play kube --configmap configmap-disconnected.yml --configmap configmap_tls_certs.yml pod-persistent-disconnected.yml
 ----
 
-.Stop AI Installer
+.To stop AI Installer
 ----
 podman play kube --down pod-persistent-disconnected.yml
 ----
 
+.To delete already created volumes (Delete volumes not in use)
+----
+podman volume prune
+----
+
+
 === Create Cluster
 
 NOTE: To get pullsecret in a single line: 
+
+.Get pull secret
 ----
 cat ../pull-secret.json |jq -c
 ----
 
+
+
 . Access AI Installer GUI through https://<disconnectedhost>:8080
 . Go through the steps to create a cluster
-. When you get the step "Host Discovery"
+
+. When you get the step "Operators" we must update the image Tag Mirror Set, and the Image Digest Mirror Set:
+----
+ 
+
+cat <<EOF > itms.yaml
+apiVersion: config.openshift.io/v1
+kind: ImageTagMirrorSet
+metadata:
+  name: image-tag-mirror
+spec:
+  imageTagMirrors:
+  - mirrors:
+    - $QUAY_HOST_NAME:QUAY_PORT/$MIRROR_REPO
+    source: quay.io
+  - mirrors:
+    - $QUAY_HOST_NAME:QUAY_PORT/$MIRROR_REPO
+    source: registry.redhat.io
+EOF
+
+cat <<EOF > idms.yaml
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: image-digest-mirror
+spec:
+  imageDigestMirrors:
+  - mirrors:
+    - $QUAY_HOST_NAME:QUAY_PORT/$MIRROR_REPO
+    source: quay.io
+  - mirrors:
+    - $QUAY_HOST_NAME:QUAY_PORT/$MIRROR_REPO
+    source: registry.redhat.io
+EOF
+
+aicli download kubeconfig <clustername>
+export KUBECONFIG=./kubeconfig.<clustername<
+oc apply -f itms.yaml
+oc apply -f idms.yaml
+----
+
+
+
+
+
 
 .Install AICL
 ----

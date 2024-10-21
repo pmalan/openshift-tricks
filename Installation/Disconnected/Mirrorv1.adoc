@@ -121,7 +121,7 @@ podman login --authfile ./pull-secret.json registry.redhat.io
 podman login --authfile ./pull-secret.json $QUAY_HOST_NAME:$QUAY_PORT
 ----
 
-== Disconnected 
+== Disconnected (Add --dest-skip-tls for no SSL verification)
 ----
 cd ~/mirror
 mkdir data
