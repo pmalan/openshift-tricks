@@ -93,7 +93,8 @@ mirror:
   - name: registry.redhat.io/openshift4/ose-must-gather:latest
   - name: quay.io/openshift-release-dev/ocp-release:4.16.16-x86_64
 
---
+----
+
 If you need OS iamges for Openshift Virtualization, add the following under "additionalImages:". Select which is appropite.
 
 NOTE: For more images - see https://quay.io/organization/containerdisks
