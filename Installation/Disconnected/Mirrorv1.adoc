@@ -98,6 +98,7 @@ If you need OS iamges for Openshift Virtualization, add the following under "add
 
 NOTE: For more images - see https://quay.io/organization/containerdisks
 
+.additionalImages
 ----
   - name: quay.io/containerdisks/centos-stream:9
   - name: quay.io/containerdisks/fedora:latest
