@@ -1,0 +1,39 @@
+== Self Signed Certificate with self generated CA
+
+Most of the tools expect a Certificate signed with a Certificate Authority. A selfsigned Certificate will not work, expect X509 errors if you try.
+
+Using the examples in selfsignedca sub folder:
+
+=== Create CA crt
+
+- Edit openssl-ca-org.cnf
+- Update ca_distinguished_name section as appicable
+
+Run 1-createca.sh to create cakey.pem and cacert.pem
+
+Run 2-createindexserial.sh - to initialize counter and certificate db
+
+=== Create Certificate Signing Request
+
+- Edit openssl-server.cnf
+- Update server_distinguished_name section
+- Update alternate_names to reflect different hosts/host alternate_names
+
+Run 3-createcsr.sh
+
+=== Update CA config
+
+- Edit openssl-ca.conf
+- Apply the same changes as applied in the openssl-ca-org.cnf 
+
+NOTE: This file is based on the openssl-ca-org.cnf with additional configuration applied. This additional configuration can only be done after initial certificate and key generation for CA
+
+Run 4-ca-sign-csr.sh
+
+You now have access to cacert.pem, serverkey.pem and servercert.pem. 
+
+=== optional
+
+To test 5-check-cert.sh
+
+To create a chain 6-create-fullchain.sh (CA and server cert combined)
