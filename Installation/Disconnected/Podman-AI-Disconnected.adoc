@@ -41,7 +41,7 @@ export QUAY_PWD=admin123456
 export QUAY_TOKEN=$(echo -n $QUAY_USER:$QUAY_PWD | base64)
 export MIRROR_REPO=mirror
 export AI_URL=https://disconnected.pietersmalan.com:8080
-mkdir ~/.aicl
+mkdir ~/.aicli
 alias aicli='podman run --net host -it --rm -e AI_URL=$AI_URL -v $HOME/.aicli:/root/.aicli -v $PWD:/workdir quay.io/karmab/aicli'
 
 ----
