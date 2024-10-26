@@ -13,6 +13,10 @@ curl -k https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCP_VERSION/o
 tar zxvf openshift-install-linux.tar.gz
 ISO_URL=$(./openshift-install coreos print-stream-json | grep location | grep $ARCH | grep iso | cut -d\" -f4)
 curl -L $ISO_URL -o rhcos-live.iso
+curl https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-amd64 -o butane
+curl https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_amd64 -o coreos-installer
+chmod +x coreos-installer 
+chmod +x butane
 ---- 
 
 == Single Node 
@@ -56,11 +60,33 @@ imageDigestSources:
 
 NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' and detremine drive. (or you can specify /dev/sdX format).
 
-
+=== Create ISO - DHCP Configuration
 
 .Create ISO
 ----
 mkdir sno
 cp install-config.yaml sno
 ./openshift-install --dir=sno create single-node-ignition-config
+alias coreos-installer='podman run --privileged --pull always --rm -v /dev:/dev -v /run/udev:/run/udev -v $PWD:/data -w /data quay.io/coreos/coreos-installer:release'
+coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign -o sno-install.iso rhcos-live.iso.org
+----
+
+==== Create ISO - Static Network
+
+.Static Network Configuration
+----
+ip='192.168.100.3'
+gateway='192.168.100.249'
+netmask='255.255.255.0'
+hostname='sno1.pl.pietersmalan.com'
+interface='enp1s0'
+nameserver='192.168.100.249'
+ipconfig="ip=${ip}::${gateway}:${netmask}:${hostname}:${interface}:none:${nameserver}"
+mkdir sno
+cp install-config.yaml sno
+./openshift-install --dir=sno create single-node-ignition-config
+alias coreos-installer='podman run --privileged --pull always --rm -v /dev:/dev -v /run/udev:/run/udev -v $PWD:/data -w /data quay.io/coreos/coreos-installer:release'
+coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign -- -a "${ipconfig}" -o sno-install-${hostname}.iso rhcos-live.iso.org
+
+
 ----
