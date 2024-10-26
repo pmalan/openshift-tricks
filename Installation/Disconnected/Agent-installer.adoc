@@ -1,0 +1,66 @@
+== Agent Installer
+
+
+=== Get all the relevant binaries
+
+.Download binaries
+----
+OCP_VERSION=4.16.16
+ARCH=x86_64
+curl -k https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCP_VERSION/openshift-client-linux.tar.gz -o oc.tar.gz
+tar zxf oc.tar.gz
+curl -k https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCP_VERSION/openshift-install-linux.tar.gz -o openshift-install-linux.tar.gz
+tar zxvf openshift-install-linux.tar.gz
+ISO_URL=$(./openshift-install coreos print-stream-json | grep location | grep $ARCH | grep iso | cut -d\" -f4)
+curl -L $ISO_URL -o rhcos-live.iso
+---- 
+
+== Single Node 
+
+=== Create install-config.yaml
+
+.install-config.yaml
+----
+apiVersion: v1
+baseDomain: <domain> 
+compute:
+- name: worker
+  replicas: 0 
+controlPlane:
+  name: master
+  replicas: 1 
+metadata:
+  name: <name> 
+networking: 
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16 
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  none: {}
+bootstrapInPlace:
+  installationDisk: /dev/disk/by-id/<disk_id> 
+pullSecret: '<pull_secret>' 
+sshKey: |
+  <ssh_key> 
+imageDigestSources:
+  - mirrors:
+    - mirror: <repostiry>:<repository_port>/<mirror_repo>
+    source: quay.io
+
+----
+
+NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' and detremine drive. (or you can specify /dev/sdX format).
+
+
+
+.Create ISO
+----
+mkdir sno
+cp install-config.yaml sno
+./openshift-install --dir=sno create single-node-ignition-config
+----
