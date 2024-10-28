@@ -133,6 +133,28 @@ additionalTrustBundle: |
 
 ----
 
+
+NOTE:
+----
+1. If you used "oc adm release mirror" then imageDigestSources would be:
+
+- mirrors:
+  - disconnected.pietersmalan.com:8443/mirror
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - disconnected.pietersmalan.com:8443/mirror
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+
+
+2. If you used "oc mirror --config=imageset-config.yaml"
+
+.....
+
+3. If you used oc-mirror v2, then remove imageDigestSources, and copy 
+
+
+----
+
 .agent-config-yaml
 ----
 apiVersion: v1beta1
