@@ -12,7 +12,7 @@ ifndef::env-github[]
 endif::[]
 :toc:
 
-toc::[]
+:toc: macro
 
 === Get all the relevant binaries
 
