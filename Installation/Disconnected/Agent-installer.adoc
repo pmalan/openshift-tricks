@@ -71,7 +71,7 @@ imageDigestSources:
 
 ----
 
-NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' and detremine drive. (or you can specify /dev/sdX format).
+NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' or 'ls -l /dev/disk/by-path' and detremine drive. (or you can specify /dev/sdX format).
 
 NOTE: Be sure to include mirror registry's secret in the pullSecret.
 
@@ -92,12 +92,27 @@ coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign 
 sudo dnf install /usr/bin/nmstatectl -y
 ----
 
-Boot rhcos-live.iso on target machine, do a "sudo nmtui" to configure network as required.
+[NOTE]
+====
+If you need to determine any values, for example rootdevice, or network configuration, you can boot rhcos-live.iso on target machine.
 
-.Capture nmstate on taget machine
+.Do a "sudo nmtui" to configure network as required, to capute network configuration.
 ----
+nmtui
 nmstatectl show > nmstate.config
 ----
+
+.lsblk 
+----
+lsblk -o path,size,model,SERIAL,TYPE
+----
+
+.Link back to disk by path
+----
+ls -l /dev/disk/by-path
+----
+
+====
 
 Create install-config.yaml and agent-config.yaml. Use the nmstate.config captured above to help with the agent network configuration.
 
@@ -247,3 +262,62 @@ oc apply -f working-dir/cluster-resources
 oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": true}]'
 ----
 
+== Prepare local LVM storage 
+
+.local-storage LVM Operator subscription
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    openshift.io/cluster-monitoring: "true"
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/warn: privileged
+  name: openshift-storage
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-storage-operatorgroup
+  namespace: openshift-storage
+spec:
+  targetNamespaces:
+  - openshift-storage
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: lvms
+  namespace: openshift-storage
+spec:
+  installPlanApproval: Automatic
+  name: lvms-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+----
+
+.Create LVMCluster custom resource to provision
+----
+apiVersion: lvm.topolvm.io/v1alpha1
+kind: LVMCluster
+metadata:
+  name: my-lvmcluster
+  namespace: openshift-storage
+spec:
+  storage:
+    deviceClasses:
+    - default: true
+      deviceSelector:
+        forceWipeDevicesAndDestroyAllData: true
+        paths:
+        - /dev/disk/by-path/<as determined by ls -l /dev/disk/by-path>
+      fstype: xfs
+      name: vg1
+      thinPoolConfig:
+        chunkSizeCalculationPolicy: Static
+        name: thin-pool-1
+        overprovisionRatio: 10
+        sizePercent: 90
+
+----
