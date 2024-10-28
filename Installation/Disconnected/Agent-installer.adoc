@@ -60,6 +60,8 @@ imageDigestSources:
 
 NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' and detremine drive. (or you can specify /dev/sdX format).
 
+NOTE: Be sure to include mirror registry's secret in the pullSecret.
+
 === Create ISO - DHCP Configuration
 
 .Create ISO
@@ -73,6 +75,11 @@ coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign 
 
 ==== Create ISO - Static Network
 
+.Install "nmstatectl"
+----
+sudo dnf install /usr/bin/nmstatectl -y
+----
+
 Boot rhcos-live.iso on target machine, do a "sudo nmtui" to configure network as required.
 
 .Capture nmstate on taget machine
@@ -80,12 +87,113 @@ Boot rhcos-live.iso on target machine, do a "sudo nmtui" to configure network as
 nmstatectl show > nmstate.config
 ----
 
+Create install-config.yaml and agent-config.yaml
+
+
+.install-config.yaml
+----
+apiVersion: v1
+baseDomain: <base-domain> 
+compute:
+- architecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  replicas: 0 
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  replicas: 1 
+metadata:
+  name: <cluster-name>
+networking: 
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 192.168.100.0/24
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  none: {}
+pullSecret: ''
+sshKey: |
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPHOkTjC/ErGlk/jjjl0kFeT2ypOojwwLWtdcnXcRqAz ai@disconnected.pietersmalan.com
+imageDigestSources:
+- mirrors:
+  - <mirror-registry>/<mirror-repo>/openshift4/openshift/release
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+- mirrors:
+  - <mirror-registry>/<mirror-repo>/openshift4/openshift/release-images
+  source: quay.io/openshift-release-dev/ocp-release
+additionalTrustBundle: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+
+----
+
+.agent-config-yaml
+----
+apiVersion: v1beta1
+kind: AgentConfig
+metadata:
+  name: <cluster-name>
+rendezvousIP: 192.168.100.3 
+hosts:
+  - hostname: <cluster-name>.<base-domain>
+    rootDeviceHints: 
+      deviceName: /dev/sda
+    interfaces:
+      - name: enp1s0
+        macAddress: 52:54:00:D8:43:65 
+    networkConfig:
+      interfaces:
+        - name: enp1s0
+          type: ethernet
+          state: up
+          mac-address: 52:54:00:D8:43:65
+          ipv4:
+            enabled: true
+            address:
+              - ip: 192.168.100.3
+                prefix-length: 23 
+            dhcp: false
+      dns-resolver:
+        config:
+          server:
+          - 192.168.100.249
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.100.249 
+          next-hop-interface: enp1s0
+          table-id: 254
+
+----
+
+.Create manifests
+----
+mkdir sno
+cp agent-config.yaml install-config.yaml sno
+openshift-install agent create cluster-manifests --dir sno
+----
+
+Update manifests .... tbd
+
+.Create ISO
+----
+openshift-install --dir <install_directory> agent create image
+----
+
+
+
 .Embed Static Network Configuration on local machine
 ----
 ip='192.168.100.3'
 gateway='192.168.100.249'
 netmask='255.255.255.0'
-hostname='sno1.pl.pietersmalan.com'
+hostname='<cluster-name>.<base-domain>'
 interface='enp1s0'
 nameserver='192.168.100.249'
 ipconfig="ip=${ip}::${gateway}:${netmask}:${hostname}:${interface}:none:${nameserver}"
@@ -94,7 +202,7 @@ mkdir sno
 cp install-config.yaml sno
 ./openshift-install --dir=sno create single-node-ignition-config
 #alias coreos-installer='podman run --privileged --pull always --rm -v /dev:/dev -v /run/udev:/run/udev -v $PWD:/data -w /data quay.io/coreos/coreos-installer:release'
-./coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign -o sno-install.iso rhcos-live.iso.org
+./coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign --copy-network -o sno-install.iso rhcos-live.iso.org
 ./coreos-installer iso kargs modify -a "${ipconfig}" sno-install.iso
 
 
