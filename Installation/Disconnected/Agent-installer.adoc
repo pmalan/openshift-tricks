@@ -198,14 +198,14 @@ hosts:
 ----
 mkdir sno
 cp agent-config.yaml install-config.yaml sno
-openshift-install agent create cluster-manifests --dir sno
+./openshift-install agent create cluster-manifests --dir sno
 ----
 
 Update manifests .... tbd
 
 .Create ISO
 ----
-openshift-install --dir <install_directory> agent create image
+./openshift-install --dir <install_directory> agent create image
 ----
 
 
