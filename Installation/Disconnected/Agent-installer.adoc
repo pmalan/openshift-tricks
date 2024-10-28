@@ -1,5 +1,24 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+ifndef::env-github[]
+:imagesdir: ./
+endif::[]
+:toc:
+:toc-placement!:
+
 == Agent Installer
 
+:toc:
+:toc-placement!:
+
+Here is my preamble paragraph, but I could really place the TOC anywhere! Lorem ipsum foo bar baz.
+
+toc::[]
 
 === Get all the relevant binaries
 
@@ -244,3 +263,11 @@ name: redhat-operator-index
 ----
 oc apply -f catalogSource-cs-redhat-operator-index.yaml
 ----
+
+=== Disable Market Place sources
+
+.Patch the operator hub
+----
+oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": true}]'
+----
+
