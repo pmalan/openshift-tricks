@@ -444,60 +444,8 @@ metadata:
   namespace: openshift-cnv
 spec:
   featureGates:
-    enableCommonBootImageImport: false
+    enableCommonBootImageImport: true
   dataImportCronTemplates:
-    - metadata:
-        annotations:
-          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
-        labels:
-          instancetype.kubevirt.io/default-instancetype: u1.medium
-          instancetype.kubevirt.io/default-preference: centos.stream9
-          kubevirt.io/dynamic-credentials-support: 'true'
-        name: centos-stream9-image-cron
-      spec:
-        garbageCollect: Outdated
-        managedDataSource: centos-stream9
-        schedule: 7 5/12 * * *
-        template:
-          metadata: {}
-          spec:
-            source:
-              registry:
-                pullMethod: node
-                url: 'docker://quay.io/containerdisks/centos-stream:9'
-            storage:
-              resources:
-                requests:
-                  storage: 30Gi
-          status: {}
-      status:
-        commonTemplate: true
-    - metadata:
-        annotations:
-          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
-        labels:
-          instancetype.kubevirt.io/default-instancetype: u1.medium
-          instancetype.kubevirt.io/default-preference: fedora
-          kubevirt.io/dynamic-credentials-support: 'true'
-        name: fedora-image-cron
-      spec:
-        garbageCollect: Outdated
-        managedDataSource: fedora
-        schedule: 7 5/12 * * *
-        template:
-          metadata: {}
-          spec:
-            source:
-              registry:
-                pullMethod: node
-                url: 'docker://quay.io/containerdisks/fedora:latest'
-            storage:
-              resources:
-                requests:
-                  storage: 30Gi
-          status: {}
-      status:
-        commonTemplate: true
     - metadata:
         annotations:
           cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
