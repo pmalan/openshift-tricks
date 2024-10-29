@@ -362,3 +362,54 @@ Before creating the virtualization instance, we have to set the target storage f
 oc patch storageclass lvms-vg1 -p '{"metadata":{"annotations":{"storageclass.kubevirt.io/is-default-virt-class":"true"}}}' 
 ----
 
+.Create the hyperconverged instance
+----
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+spec:
+  featureGates:
+    enableCommonBootImageImport: false
+     
+----
+
+.Create an import for required OS images
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataImportCron
+metadata:
+  annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+    cdi.kubevirt.io/storage.import.imageStreamDockerRef: '<mirrorregistry>/<mirror>/ocp/rhel9/rhel-guest-image:latest'
+    operator-sdk/primary-resource: openshift-cnv/ssp-kubevirt-hyperconverged
+    operator-sdk/primary-resource-type: SSP.ssp.kubevirt.io
+  name: rhel9-image-cron
+  namespace: openshift-virtualization-os-images
+  labels:
+    app.kubernetes.io/component: templating
+    app.kubernetes.io/managed-by: ssp-operator
+    app.kubernetes.io/name: data-sources
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.16.3
+    instancetype.kubevirt.io/default-instancetype: u1.medium
+    instancetype.kubevirt.io/default-preference: rhel.9
+    kubevirt.io/dynamic-credentials-support: 'true'
+spec:
+  garbageCollect: Outdated
+  managedDataSource: rhel9
+  schedule: 7 5/12 * * *
+  template:
+    metadata: {}
+    spec:
+      source:
+        registry:
+          imageStream: rhel9-guest
+          pullMethod: node
+      storage:
+        resources:
+          requests:
+            storage: 30Gi
+----
+
