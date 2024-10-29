@@ -266,6 +266,7 @@ oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disab
 
 .local-storage LVM Operator subscription
 ----
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -321,3 +322,43 @@ spec:
         sizePercent: 90
 
 ----
+
+== Prepare Virtualization
+
+.Create Openshift Virtualization subscription, and instance
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-cnv
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: kubevirt-hyperconverged-group
+  namespace: openshift-cnv
+spec:
+  targetNamespaces:
+    - openshift-cnv
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: hco-operatorhub
+  namespace: openshift-cnv
+spec:
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  name: kubevirt-hyperconverged
+  startingCSV: kubevirt-hyperconverged-operator.v4.16.3
+  channel: "stable" 
+---
+----
+
+Before creating the virtualization instance, we have to set the target storage for the machine template imports.
+
+.Set the new default strage class for virtualization
+----
+oc patch storageclass lvms-vg1 -p '{"metadata":{"annotations":{"storageclass.kubevirt.io/is-default-virt-class":"true"}}}' 
+----
+
