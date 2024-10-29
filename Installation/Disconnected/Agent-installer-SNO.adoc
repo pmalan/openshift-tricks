@@ -362,6 +362,79 @@ Before creating the virtualization instance, we have to set the target storage f
 oc patch storageclass lvms-vg1 -p '{"metadata":{"annotations":{"storageclass.kubevirt.io/is-default-virt-class":"true"}}}' 
 ----
 
+.Create StorageProfile
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: StorageProfile
+metadata:
+  name: lvms-vg1
+spec:
+  claimPropertySets:
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Block
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem
+  cloneStrategy: snapshot
+  dataImportCronSourceFormat: pvc
+----
+
+.Create image streams
+----
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: rhel8-guest
+  namespace: openshift-virtualization-os-images
+  labels:
+    app: kubevirt-hyperconverged
+    app.kubernetes.io/component: compute
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.16.3
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: <mirrorregistry>/<mirror_repo>/rhel8/rhel-guest-image
+      generation: 32
+      importPolicy:
+        scheduled: true
+        importMode: Legacy
+      referencePolicy:
+        type: Source
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: rhel9-guest
+  namespace: openshift-virtualization-os-images
+  labels:
+    app: kubevirt-hyperconverged
+    app.kubernetes.io/component: compute
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.16.3
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: <mirrorregistry>/<mirror_repo>/rhel9/rhel-guest-image
+      generation: 41
+      importPolicy:
+        scheduled: true
+        importMode: Legacy
+      referencePolicy:
+        type: Source
+----
+
 .Create the hyperconverged instance
 ----
 apiVersion: hco.kubevirt.io/v1beta1
@@ -372,6 +445,111 @@ metadata:
 spec:
   featureGates:
     enableCommonBootImageImport: false
+  dataImportCronTemplates:
+    - metadata:
+        annotations:
+          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+        labels:
+          instancetype.kubevirt.io/default-instancetype: u1.medium
+          instancetype.kubevirt.io/default-preference: centos.stream9
+          kubevirt.io/dynamic-credentials-support: 'true'
+        name: centos-stream9-image-cron
+      spec:
+        garbageCollect: Outdated
+        managedDataSource: centos-stream9
+        schedule: 7 5/12 * * *
+        template:
+          metadata: {}
+          spec:
+            source:
+              registry:
+                pullMethod: node
+                url: 'docker://quay.io/containerdisks/centos-stream:9'
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+          status: {}
+      status:
+        commonTemplate: true
+    - metadata:
+        annotations:
+          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+        labels:
+          instancetype.kubevirt.io/default-instancetype: u1.medium
+          instancetype.kubevirt.io/default-preference: fedora
+          kubevirt.io/dynamic-credentials-support: 'true'
+        name: fedora-image-cron
+      spec:
+        garbageCollect: Outdated
+        managedDataSource: fedora
+        schedule: 7 5/12 * * *
+        template:
+          metadata: {}
+          spec:
+            source:
+              registry:
+                pullMethod: node
+                url: 'docker://quay.io/containerdisks/fedora:latest'
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+          status: {}
+      status:
+        commonTemplate: true
+    - metadata:
+        annotations:
+          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+        labels:
+          instancetype.kubevirt.io/default-instancetype: u1.medium
+          instancetype.kubevirt.io/default-preference: rhel.8
+        name: rhel8-image-cron
+      spec:
+        garbageCollect: Outdated
+        managedDataSource: rhel8
+        schedule: 7 5/12 * * *
+        template:
+          metadata: {}
+          spec:
+            source:
+              registry:
+                imageStream: rhel8-guest
+                pullMethod: node
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+          status: {}
+      status:
+        commonTemplate: true
+    - metadata:
+        annotations:
+          cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+        labels:
+          instancetype.kubevirt.io/default-instancetype: u1.medium
+          instancetype.kubevirt.io/default-preference: rhel.9
+          kubevirt.io/dynamic-credentials-support: 'true'
+        name: rhel9-image-cron
+      spec:
+        garbageCollect: Outdated
+        managedDataSource: rhel9
+        schedule: 7 5/12 * * *
+        template:
+          metadata: {}
+          spec:
+            source:
+              registry:
+                imageStream: rhel9-guest
+                pullMethod: node
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+          status: {}
+      status:
+        commonTemplate: true
+  dataImportSchedule: 7 5/12 * * *
      
 ----
 
