@@ -350,7 +350,7 @@ spec:
   source: redhat-operators
   sourceNamespace: openshift-marketplace
   name: kubevirt-hyperconverged
-  startingCSV: kubevirt-hyperconverged-operator.v4.16.3
+  startingCSV: kubevirt-hyperconverged-operator.v4.16.0
   channel: "stable" 
 ---
 ----
@@ -537,5 +537,75 @@ spec:
         resources:
           requests:
             storage: 30Gi
+----
+
+== Prepare Migration Toolkit for Virtualization
+
+=== Prepare VDDK image 
+
+The VDDK speeds up migration from VMware and is highly recommended. The image would be referenced in the configuration of source's host.
+
+NOTE: Download relevant VDDK version associated with your VMware version
+
+https://developer.vmware.com/web/sdk/8.0/vddk
+https://developer.vmware.com/web/sdk/7.0/vddk
+
+.Build images 
+----
+tar zxvf VMware-vix-disklib-<version>.x86_64.tar.gz
+cat > Dockerfile << EOF
+FROM <mirrorregistry/<mirror_repo>/ubi8/ubi:latest
+USER 1001
+COPY vmware-vix-disklib-distrib /vmware-vix-disklib-distrib
+RUN mkdir -p /opt
+ENTRYPOINT ["cp", "-r", "/vmware-vix-disklib-distrib", "/opt"]
+EOF
+podman build . -t <mirrorregistry/<mirror_repo>/vddk:<tag>
+podman push <mirrorregistry/<mirror_repo>/vddk:<tag>
+
+== Install MTV Operator
+
+.Create operator
+----
+cat << EOF | oc apply -f -
+---
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: openshift-mtv
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: migration
+  namespace: openshift-mtv
+spec:
+  targetNamespaces:
+    - openshift-mtv
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: mtv-operator
+  namespace: openshift-mtv
+spec:
+  channel: release-v2.7
+  installPlanApproval: Automatic
+  name: mtv-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: "mtv-operator.v2.7.2"
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: ForkliftController
+metadata:
+  name: forklift-controller
+  namespace: openshift-mtv
+spec:
+  olm_managed: true
+  feature_ui_plugin: 'true'
+  feature_validation: 'true'
+  feature_volume_populator: 'true'
+EOF
 ----
 
