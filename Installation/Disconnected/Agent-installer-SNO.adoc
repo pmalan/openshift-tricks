@@ -79,6 +79,7 @@ TIP: Be sure to include mirror registry's secret in the pullSecret.
 
 
 .Create ISO
+[source,bash]
 ----
 mkdir sno
 cp install-config.yaml sno
@@ -90,6 +91,7 @@ coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign 
 === Create ISO - Static Network
 
 .Install "nmstatectl"
+[source,bash]
 ----
 sudo dnf install nmstatectl -y
 ----
@@ -332,6 +334,7 @@ spec:
 == Prepare Virtualization
 
 .Create Openshift Virtualization subscription, and instance
+[source,yaml]
 ----
 apiVersion: v1
 kind: Namespace
@@ -369,6 +372,7 @@ oc patch storageclass lvms-vg1 -p '{"metadata":{"annotations":{"storageclass.kub
 ----
 
 .Create StorageProfile
+[source,yaml]
 ----
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: StorageProfile
@@ -387,6 +391,7 @@ spec:
 ----
 
 .Create image streams
+[source,yaml]
 ----
 kind: ImageStream
 apiVersion: image.openshift.io/v1
@@ -442,6 +447,7 @@ spec:
 ----
 
 .Create the hyperconverged instance
+[source,yaml]
 ----
 apiVersion: hco.kubevirt.io/v1beta1
 kind: HyperConverged
@@ -508,6 +514,7 @@ spec:
 ----
 
 .Create an import for required OS images
+[source,yaml]
 ----
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataImportCron
@@ -556,7 +563,8 @@ TIP: Download relevant VDDK version associated with your VMware version
 https://developer.vmware.com/web/sdk/8.0/vddk
 https://developer.vmware.com/web/sdk/7.0/vddk
 
-.Build images 
+.Build images
+[source,bash] 
 ----
 tar zxvf VMware-vix-disklib-<version>.x86_64.tar.gz
 cat > Dockerfile << EOF
@@ -573,6 +581,7 @@ podman push <mirrorregistry/<mirror_repo>/vddk:<tag>
 == Install MTV Operator
 
 .Create operator
+[source,yaml]
 ----
 cat << EOF | oc apply -f -
 ---
