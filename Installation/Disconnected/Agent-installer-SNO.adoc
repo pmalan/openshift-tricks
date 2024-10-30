@@ -1,4 +1,14 @@
-= Agent Installer
+
+Agent Installer for SNO
+==============================
+:toc:
+:toc-placement: preamble
+:toclevels: 1
+:showtitle:
+:Some attr: Some value
+
+// Need some preamble to get TOC:
+{empty}
 
 ifdef::env-github[]
 :tip-caption: :bulb:
@@ -11,14 +21,12 @@ ifndef::env-github[]
 :imagesdir: ./
 endif::[]
 
-:toc:
-:toc-placement: preamble
-:toclevels: 1
-:showtitle:
+
 
 == Get all the relevant binaries
 
 .Download binaries
+[source,bash]
 ----
 OCP_VERSION=4.16.16
 ARCH=x86_64
@@ -39,6 +47,7 @@ chmod +x butane
 === Create ISO - DHCP Configuration
 
 .install-config.yaml
+[source,yaml]
 ----
 apiVersion: v1
 baseDomain: <domain> 
@@ -120,6 +129,7 @@ Create install-config.yaml and agent-config.yaml. Use the nmstate.config capture
 
 
 .install-config.yaml
+[source,yaml]
 ----
 apiVersion: v1
 baseDomain: <base-domain> 
@@ -165,6 +175,7 @@ additionalTrustBundle: |
 
 
 .agent-config-yaml
+[source,yaml]
 ----
 apiVersion: v1beta1
 kind: AgentConfig
@@ -267,6 +278,7 @@ oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disab
 == Prepare local LVM storage 
 
 .local-storage LVM Operator subscription
+[source,yaml]
 ----
 ---
 apiVersion: v1
