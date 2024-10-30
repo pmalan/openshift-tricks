@@ -73,9 +73,9 @@ imageDigestSources:
 
 ----
 
-NOTE: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' or 'ls -l /dev/disk/by-path' and detremine drive. (or you can specify /dev/sdX format).
+TIP: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' or 'ls -l /dev/disk/by-path' and detremine drive. (or you can specify /dev/sdX format).
 
-NOTE: Be sure to include mirror registry's secret in the pullSecret.
+TIP: Be sure to include mirror registry's secret in the pullSecret.
 
 
 .Create ISO
@@ -94,7 +94,7 @@ coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign 
 sudo dnf install nmstatectl -y
 ----
 
-[NOTE]
+[TIP]
 ====
 If you need to determine any values, for example rootdevice, or network configuration, you can boot rhcos-live.iso on target machine.
 
@@ -547,7 +547,7 @@ spec:
 
 The VDDK speeds up migration from VMware and is highly recommended. The image would be referenced in the configuration of source's host.
 
-NOTE: Download relevant VDDK version associated with your VMware version
+TIP: Download relevant VDDK version associated with your VMware version
 
 https://developer.vmware.com/web/sdk/8.0/vddk
 https://developer.vmware.com/web/sdk/7.0/vddk
