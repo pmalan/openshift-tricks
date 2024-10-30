@@ -564,6 +564,7 @@ ENTRYPOINT ["cp", "-r", "/vmware-vix-disklib-distrib", "/opt"]
 EOF
 podman build . -t <mirrorregistry/<mirror_repo>/vddk:<tag>
 podman push <mirrorregistry/<mirror_repo>/vddk:<tag>
+----
 
 == Install MTV Operator
 
