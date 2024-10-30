@@ -1,14 +1,5 @@
 
-Agent Installer for SNO
-==============================
-:toc:
-:toc-placement: preamble
-:toclevels: 1
-:showtitle:
-:Some attr: Some value
-
-// Need some preamble to get TOC:
-{empty}
+= Agent Installer
 
 ifdef::env-github[]
 :tip-caption: :bulb:
