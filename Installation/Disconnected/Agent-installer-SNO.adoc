@@ -11,8 +11,10 @@ ifndef::env-github[]
 :imagesdir: ./
 endif::[]
 
-
-:toc: macro
+:toc:
+:toc-placement: preamble
+:toclevels: 1
+:showtitle:
 
 == Get all the relevant binaries
 
