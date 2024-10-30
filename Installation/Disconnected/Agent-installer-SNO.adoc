@@ -89,7 +89,7 @@ coreos-installer iso ignition embed -fi sno/bootstrap-in-place-for-live-iso.ign 
 
 .Install "nmstatectl"
 ----
-sudo dnf install /usr/bin/nmstatectl -y
+sudo dnf install nmstatectl -y
 ----
 
 [NOTE]
