@@ -301,6 +301,7 @@ spec:
 ----
 
 .Create LVMCluster custom resource to provision
+[source,yaml]
 ----
 apiVersion: lvm.topolvm.io/v1alpha1
 kind: LVMCluster
