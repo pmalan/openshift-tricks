@@ -386,7 +386,7 @@ spec:
     - accessModes:
         - ReadWriteOnce
       volumeMode: Filesystem
-  cloneStrategy: snapshot
+  cloneStrategy: csi-clone 
   dataImportCronSourceFormat: pvc
 ----
 
