@@ -77,6 +77,8 @@ TIP: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machi
 
 TIP: Be sure to include mirror registry's secret in the pullSecret.
 
+WARNING: Remove cloud.redhat.com from the pull secret to disable insights.
+
 
 .Create ISO
 [source,bash]
@@ -165,6 +167,11 @@ additionalTrustBundle: |
 
 ----
 
+TIP: To determine /dev/disk/by-id/<disk_id>, boot rhcos-live.iso on target machine. Do a 'lsblk -o model,size,path' or 'ls -l /dev/disk/by-path' and detremine drive. (or you can specify /dev/sdX format).
+
+TIP: Be sure to include mirror registry's secret in the pullSecret.
+
+WARNING: Remove cloud.redhat.com from the pull secret to disable insights.
 
 
 .agent-config-yaml
