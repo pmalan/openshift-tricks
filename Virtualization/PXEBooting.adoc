@@ -1,0 +1,5 @@
+== PXE Booting a Virtual Machine
+
+If you don't specify the MTU size in the NAD, the MTU size will differ from the external network and packets will be dropped.
+
+To fix the issue, be sure to add a MTU to NAD, correlating to your external network configuration.
