@@ -1,0 +1,6 @@
+== Set Default Storage Class
+
+.Annotate default storage class
+----
+      storageclass.kubernetes.io/is-default-class: 'true'
+----
