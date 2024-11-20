@@ -13,5 +13,4 @@ spec:
      pools.operator.machineconfiguration.openshift.io/worker: "" 
  containerRuntimeConfig:
    defaultRuntime: crun
-  
- ----
+----
