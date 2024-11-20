@@ -741,11 +741,13 @@ oc adm upgrade --to=<version>
 ----
 
 .Force the update
+[source,bash]
 ----
 oc patch clusterversion version --type json -p '[{"op": "add", "path": "/spec/desiredUpdate/force", "value": true}]'
 ----
 
 .To monitor upgrade
+[source,bash]
 ----
 oc adm upgrade
 ----
