@@ -42,15 +42,115 @@ spec:
   name: cluster-logging
   source: redhat-operators 
   sourceNamespace: openshift-marketplace
+---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
+  creationTimestamp: '2024-11-21T19:02:00Z'
+  generation: 1
+  labels:
+    operators.coreos.com/loki-operator.openshift-operators-redhat: ''
   name: loki-operator
-  namespace: openshift-operators-redhat 
+  namespace: openshift-operators-redhat
 spec:
-  channel: stable-5.8
+  channel: stable-6.1
   installPlanApproval: Automatic
   name: loki-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  startingCSV: loki-operator.v6.1.0
+----
+
+.Loki S3 Secret
+----
+kind: Secret
+apiVersion: v1
+metadata:
+  name: logging-loki-s3
+  namespace: openshift-logging
+stringData:
+  access_key_id: S9...
+  access_key_secret: r...
+  bucketnames: loki-bucket
+  endpoint: http://s3.s3-storage.svc.cluster.local:9000
+  region: us-west
+----
+
+.Loki Stack
+----
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  size: 1x.extra-small
+  storage:
+    schemas:
+    - effectiveDate: '2024-10-01'
+      version: v13
+    secret:
+      name: logging-loki-s3
+      type: s3
+  storageClassName: storageclass
+  tenants:
+    mode: openshift-logging
+----
+
+.Create SA and roles
+----
+oc create sa collector -n openshift-logging
+oc adm policy add-cluster-role-to-user logging-collector-logs-writer -z collector
+oc project openshift-logging
+oc adm policy add-cluster-role-to-user collect-application-logs -z collector
+oc adm policy add-cluster-role-to-user collect-audit-logs -z collector
+oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z collector
+
+----
+
+.Install Cluster Observability Operator for console plugins.
+----
+apiVersion: observability.openshift.io/v1alpha1
+kind: UIPlugin
+metadata:
+  name: logging
+spec:
+  type: Logging
+  logging:
+    lokiStack:
+      name: logging-loki
+----
+
+.Setup Log Forwarder to feed Loki
+----
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  serviceAccount:
+    name: collector
+  outputs:
+  - name: default-lokistack
+    type: lokiStack
+    lokiStack:
+      authentication:
+        token:
+          from: serviceAccount
+      target:
+        name: logging-loki
+        namespace: openshift-logging
+    tls:
+      ca:
+        key: service-ca.crt
+        configMapName: openshift-service-ca.crt
+  pipelines:
+  - name: default-logstore
+    inputRefs:
+    - application
+    - infrastructure
+    outputRefs:
+    - default-lokistack
 ----
