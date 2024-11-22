@@ -709,7 +709,7 @@ data:
 EOF
 ----
 
-.Set Update End Poit
+.Set Update End Point
 [source,bash]
 ----
 POLICY_ENGINE_GRAPH_URI="$(oc -n openshift-update-service get updateservice <update-service-name> -o jsonpath='{.status.policyEngineURI}/api/upgrades_info/v1/graph')"
@@ -724,6 +724,8 @@ oc patch image.config.openshift.io/cluster --patch '{"spec":{"additionalTrustedC
 ----
 
 == Updating Cluster
+
+WARNING: Before you upgrade, if you have any network attachment definitions, you have to export and delete the definitions. OCPBUGS-44195
 
 .Delete Insights Operator
 ----
