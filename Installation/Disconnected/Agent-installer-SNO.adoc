@@ -648,6 +648,7 @@ oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"custo
 == Setup Openshift Update Service
 
 .Update Services Operator
+[source,yaml]
 ----
 cat << EOF | oc apply -f -
 ---
@@ -728,6 +729,7 @@ oc patch image.config.openshift.io/cluster --patch '{"spec":{"additionalTrustedC
 WARNING: Before you upgrade, if you have any network attachment definitions, you have to export and delete the definitions. OCPBUGS-44195
 
 .Delete Insights Operator
+[source,bash]
 ----
 oc delete clusteroperator insights
 oc delete project openshift-insights
