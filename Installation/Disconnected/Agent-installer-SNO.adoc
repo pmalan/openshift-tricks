@@ -725,6 +725,11 @@ oc patch image.config.openshift.io/cluster --patch '{"spec":{"additionalTrustedC
 
 == Updating Cluster
 
+.Delete Insights Operator
+----
+oc delete clusteroperator insights
+----
+
 Change imagegset.yaml to reflect new version(s), and the mirror the latest images using oc mirror.
 
 NOTE: To see latest releases you can use the following link: https://console.redhat.com/openshift/releases
