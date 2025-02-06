@@ -1,1 +1,16 @@
 
+== Migrate from Disconnected to Connected OpenShift Deployment
+
+=== Update Image Registry Location 
+
+The location of the image registry holding the images is defined within an OpenShift cluster by utilizing one or more Custom Resource Definitions (CRDs), which vary depending on the specific version of OpenShift being used.
+
+These CRDs must be deleted, or updated if there are any specific customization done to remove any references to mirror registry.
+
+==== ImageContentSourcePolicy (ICSP) (Deprecated)
+
+==== ImageDigestMirrorSet (IDMS) 
+
+
+
+
