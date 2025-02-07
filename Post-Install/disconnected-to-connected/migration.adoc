@@ -15,6 +15,13 @@ These CRDs must be deleted, or updated if there are any specific customization d
 
 === Update Pull Secret 
 
+. Update global pullsecret
+----
+oc get secret/pull-secret -n openshift-config --template='{{index .data ".dockerconfigjson" | base64decode}}' >global_pullsecret.json
+oc registry login --registry="<registry>" --auth-basic="<username>:<password>" --to=global_pullsecret.json
+oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=global_pullsecret.json
+----
+
 
 
 
