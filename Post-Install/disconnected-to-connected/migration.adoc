@@ -15,6 +15,8 @@ These CRDs must be deleted, or updated if there are any specific customization d
 
 === Update Pull Secret 
 
+NOTE: To get pull secret - https://console.redhat.com/openshift/install/pull-secret
+
 Make sure that the pull secrets for the external registries like quay.io and registry.redhat.com are include in global pull secret.
 
 .Update global pullsecret
