@@ -24,7 +24,56 @@ oc registry login --registry="<registry>" --auth-basic="<username>:<password>" -
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=global_pullsecret.json
 ----
 
-=== Update Proxy Configuration
+=== Update Firewall Configuration
+
+Host names for OpenShift, allow access to port 443.
+
+==== quay.io host names 
+
+.CDN host names for quay.io
+----
+quay.io
+cdn.quay.io
+cdn01.quay.io
+cdn02.quay.io
+cdn03.quay.io
+cdn04.quay.io
+cdn05.quay.io
+cdn06.quay.io
+----
+
+==== registry.redhat.io and update services
+
+The Red Hat registries, registry.redhat.io and registry.access.redhat.com, return a header in the HTTP 302 redirect response which allows access only to specific content in the quay.io CDN for a short period of time. 
+
+.Additional host names
+----
+access.redhat.com
+registry.redhat.io
+registry.access.redhat.com
+registry.connect.redhat.com
+api.openshift.com
+mirror.openshift.com
+----
+
+==== Telemetry (Insights) and Console.redhat.com access
+
+.Telemetry host names
+----
+cert-api.access.redhat.com
+api.access.redhat.com
+infogw.api.openshift.com
+console.redhat.com
+----
+
+==== NTP servers, if using default NTP servers
+
+.NTP Servers
+----
+1.rhel.pool.ntp.org
+2.rhel.pool.ntp.org
+3.rhel.pool.ntp.org
+----
 
 
 
