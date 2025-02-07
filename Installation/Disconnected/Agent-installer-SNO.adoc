@@ -1,5 +1,11 @@
+:toc:
+:toc-placement!:
 
 = Agent Installer
+
+
+toc::[]
+
 
 ifdef::env-github[]
 :tip-caption: :bulb:
