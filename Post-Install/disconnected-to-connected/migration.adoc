@@ -1,5 +1,11 @@
+:toc:
+:toc-placement!:
 
 == Migrate from Disconnected to Connected OpenShift Deployment
+
+toc::[]
+
+
 
 === Update Image Registry Location 
 
