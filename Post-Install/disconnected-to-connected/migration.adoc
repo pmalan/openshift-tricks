@@ -83,7 +83,41 @@ console.redhat.com
 3.rhel.pool.ntp.org
 ----
 
+=== Create or Update Proxy Configuration
 
+.Proxy CA bundle
+----
+apiVersion: v1
+data:
+  ca-bundle.crt: | 
+    <MY_PEM_ENCODED_CERTS> 
+kind: ConfigMap
+metadata:
+  name: user-ca-bundle 
+  namespace: openshift-config 
+----
+
+.Modify proxy object, which will be empty if not configured:
+----
+oc edit proxy/cluster
+----
+
+.proxy.yaml
+----
+apiVersion: config.openshift.io/v1
+kind: Proxy
+metadata:
+  name: cluster
+spec:
+  httpProxy: http://<username>:<pswd>@<ip>:<port> 
+  httpsProxy: https://<username>:<pswd>@<ip>:<port> 
+  noProxy: example.com 
+  readinessEndpoints:
+  - http://www.google.com 
+  - https://www.google.com
+  trustedCA:
+    name: user-ca-bundle 
+----
 
 
 
