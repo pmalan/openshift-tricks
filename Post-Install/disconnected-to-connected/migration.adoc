@@ -93,7 +93,7 @@ data:
     <MY_PEM_ENCODED_CERTS> 
 kind: ConfigMap
 metadata:
-  name: user-ca-bundle 
+  name: proxy-ca-bundle 
   namespace: openshift-config 
 ----
 
@@ -116,7 +116,7 @@ spec:
   - http://www.google.com 
   - https://www.google.com
   trustedCA:
-    name: user-ca-bundle 
+    name: proxy-ca-bundle 
 ----
 
 
