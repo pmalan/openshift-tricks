@@ -1,0 +1,9 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: openapi-cred
+  namespace: openshift-lightspeed
+data:
+  api_key: ''
+  apitoken: ''
+type: Opaque
