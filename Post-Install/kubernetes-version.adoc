@@ -1,1 +1,7 @@
+== Determine Kubernetes Version
+
+.nodes
+----
+oc get nodes
+----
 
