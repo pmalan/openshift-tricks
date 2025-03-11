@@ -5,3 +5,13 @@
 oc get nodes
 ----
 
+.Output
+----
+NAME    STATUS   ROLES                  AGE    VERSION
+bm211   Ready    control-plane,master   119d   v1.30.9
+bm212   Ready    control-plane,master   119d   v1.30.9
+bm213   Ready    control-plane,master   119d   v1.30.9
+bm214   Ready    worker                 119d   v1.30.9
+bm215   Ready    worker                 119d   v1.30.9
+bm216   Ready    worker                 119d   v1.30.9
+----
