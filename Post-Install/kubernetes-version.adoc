@@ -15,3 +15,5 @@ bm214   Ready    worker                 119d   v1.30.9
 bm215   Ready    worker                 119d   v1.30.9
 bm216   Ready    worker                 119d   v1.30.9
 ----
+
+The kubernetes version is indicated by the VERSION column - in this case v1.30.9.
