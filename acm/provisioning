@@ -1,0 +1,12 @@
+== Enable BMC Provisioning
+
+.provisioning.yaml
+----
+apiVersion: metal3.io/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-configuration
+spec:
+  provisioningNetwork: Disabled
+  watchAllNamespaces: true
+----
