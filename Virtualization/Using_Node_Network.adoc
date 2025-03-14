@@ -1,0 +1,37 @@
+== Bridge Node Network to be used in VM
+
+To use the local node network in VMS:
+
+.NNCP
+----
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: br-ex-network
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/worker: '' 
+  desiredState:
+    ovn:
+      bridge-mappings:
+      - localnet: br-ex-network
+        bridge: br-ex 
+        state: present
+----
+
+.NAD
+----
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: br-ex-network
+  namespace: vms
+spec:
+  config: '{
+            "name":"br-ex-network",
+            "type":"ovn-k8s-cni-overlay",
+            "cniVersion":"0.4.0",
+            "topology":"localnet",
+            "netAttachDefName":"vmtest/br-ex-network"
+          }'
+----
