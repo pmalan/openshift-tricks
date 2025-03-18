@@ -1,0 +1,149 @@
+== Configuration for Mirror Registry
+
+=== Configure Agent Service
+
+.assisted-installer-mirror-config.yaml
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assisted-installer-mirror-config
+  namespace: multicluster-engine
+  labels:
+    app: assisted-service
+data:
+  ca-bundle.crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+  registries.conf: |
+    unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
+    short-name-mode = ""
+
+    [[registry]]
+    prefix = ""
+    location = "docker.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/dockeriocache"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/dockeriocache"
+      pull-from-mirror = "tag-only"
+
+    [[registry]]
+      prefix = ""
+      location = "quay.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/cachequayio"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/cachequayio"
+      pull-from-mirror = "tag-only"
+
+    [[registry]]
+      prefix = ""
+      location = "registry.redhat.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/registryredhatiocache"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/registryredhatiocache"
+      pull-from-mirror = "tag-only"
+----
+
+.Add mirror registry config refence in AgentServiceConfig
+----
+apiVersion: agent-install.openshift.io/v1beta1
+kind: AgentServiceConfig
+metadata:
+  namespace: multicluster-engine
+  name: agent
+...
+spec:
+....
+  mirrorRegistryRef:
+    name: 'assisted-installer-mirror-config'
+....
+----
+
+=== Configure Infrastructure Environment
+
+.mirror_registry.yaml
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mirror-registry-config
+  namespace: <infraenv>
+data:
+  ca-bundle.crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+  registries.conf: |
+    unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
+    short-name-mode = ""
+
+    [[registry]]
+    prefix = ""
+    location = "docker.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/dockeriocache"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/dockeriocache"
+      pull-from-mirror = "tag-only"
+
+    [[registry]]
+      prefix = ""
+      location = "quay.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/cachequayio"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/cachequayio"
+      pull-from-mirror = "tag-only"
+
+    [[registry]]
+      prefix = ""
+      location = "registry.redhat.io"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/registryredhatiocache"
+      pull-from-mirror = "digest-only"
+
+    [[registry.mirror]]
+      location = "quay.pietersmalan.com/registryredhatiocache"
+      pull-from-mirror = "tag-only"
+----
+
+.Update infraenv
+----
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  annotations:
+    infraenv.agent-install.openshift.io/enable-ironic-agent: 'true'
+  resourceVersion: '58076984'
+  name: <infraenv>
+  namespace: <infraenv>
+  finalizers:
+    - infraenv.agent-install.openshift.io/ai-deprovision
+  labels:
+    agentclusterinstalls.extensions.hive.openshift.io/location: FoothillRanchCA
+    networkType: dhcp
+spec:
+  ...
+  mirrorRegistryRef:
+    name: mirror-registry-config
+    namespace: <infraenv>
+  ...
+----
