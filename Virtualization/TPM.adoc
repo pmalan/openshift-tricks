@@ -1,0 +1,28 @@
+== Virtual TPM
+
+=== Setup Default storage class
+
+.hyperconverged.yaml
+----
+spec:
+   vmStateStorageClass: zfs-generic-nfs-csi
+----
+
+=== Add TPM to VM
+
+.vm.yaml
+----
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+...
+spec:
+  template:
+     spec:
+       domain:
+...
+    
+          tpm:
+            persistent: true
+    
+....   
+----
