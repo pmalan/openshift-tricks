@@ -1,0 +1,9 @@
+== Recovering from Bad NNCP
+
+If you lose network connectivity with following error message:
+
+Error syncing pod, skipping" err="network is not ready: container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: no CNI configuration file in /etc/kubernetes/cni/net.d/. Has your network provider started?
+
+=== Delete the bad nncp
+
+=== Recreate 
