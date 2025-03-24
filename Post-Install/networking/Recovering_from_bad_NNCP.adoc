@@ -10,6 +10,8 @@ oc delete nncp/policy-name
 
 === Recreate network configuration on bad nodes
 
+Recreate the missing file on failed node, with root.
+
 ./etc/kubernetes/cni/net.d/00-multus.conf
 ----
 {"binDir":"/var/lib/cni/bin","cniVersion":"0.3.1","logLevel":"verbose","logToStderr":true,"name":"multus-cni-network","clusterNetwork":"/host/run/multus/cni/net.d/10-ovn-kubernetes.conf","namespaceIsolation":true,"globalNamespaces":"default,openshift-multus,openshift-sriov-network-operator,openshift-cnv","type":"multus-shim","daemonSocketDir":"/run/multus/socket"}
@@ -17,5 +19,9 @@ oc delete nncp/policy-name
 
 === Force re-render of nodes
 
-
-
+.Execute on failed node as root
+----
+rm /etc/machine-config-daemon/currentconfig
+touch /run/machine-config-daemon-force
+reboot
+----
