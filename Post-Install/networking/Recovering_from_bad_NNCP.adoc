@@ -6,4 +6,16 @@ Error syncing pod, skipping" err="network is not ready: container runtime networ
 
 === Delete the bad nncp
 
-=== Recreate 
+oc delete nncp/policy-name
+
+=== Recreate network configuration on bad nodes
+
+./etc/kubernetes/cni/net.d/00-multus.conf
+----
+{"binDir":"/var/lib/cni/bin","cniVersion":"0.3.1","logLevel":"verbose","logToStderr":true,"name":"multus-cni-network","clusterNetwork":"/host/run/multus/cni/net.d/10-ovn-kubernetes.conf","namespaceIsolation":true,"globalNamespaces":"default,openshift-multus,openshift-sriov-network-operator,openshift-cnv","type":"multus-shim","daemonSocketDir":"/run/multus/socket"}
+----
+
+=== Force re-render of nodes
+
+
+
