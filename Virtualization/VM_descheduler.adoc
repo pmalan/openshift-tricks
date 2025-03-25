@@ -1,0 +1,22 @@
+== Descheduler For VMs
+
+Install Descheduler Operator.
+
+.cluster.yaml
+----
+apiVersion: operator.openshift.io/v1
+kind: KubeDescheduler
+metadata:
+  name: cluster
+  namespace: openshift-kube-descheduler-operator
+spec:
+  mode: Automatic
+  managementState: Managed
+  deschedulingIntervalSeconds: 60
+  profiles:
+  - SoftTopologyAndDuplicates
+  - EvictPodsWithPVC
+  - EvictPodsWithLocalStorage
+  profileCustomizations:
+    devEnableEvictionsInBackground: true
+----
