@@ -1,8 +1,11 @@
 == Fix for Openshift 4.18 ACM 2.13.1 MCE 2.8.0
 
-To fix the 4.19 ISO issue
+To fix the 4.19 ISO issue, where provisioning of baremetal is not working:
 
-.agentconfig.yaml
+
+=== Fix AgentServiceConfiguration
+
+.agentserviceconfig.yaml
 ----
 apiVersion: agent-install.openshift.io/v1beta1
 kind: AgentServiceConfig
@@ -33,4 +36,35 @@ spec:
       rootFSUrl: 'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/4.17.17/rhcos-live-rootfs.x86_64.img'
       url: 'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/4.17.17/rhcos-4.17.17-x86_64-live.x86_64.iso'
       version: 417.94.202501301529-0
+----
+
+== Correct reference to ISO version in InfraEnv
+
+.infrenv.yaml
+----
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  annotations:
+    infraenv.agent-install.openshift.io/enable-ironic-agent: 'true'
+  name: homelab-nodhcp
+  namespace: homelab-nodhcp
+  finalizers:
+    - infraenv.agent-install.openshift.io/ai-deprovision
+  labels:
+    agentclusterinstalls.extensions.hive.openshift.io/location: FoothillRanchCA
+    networkType: static
+spec:
+  agentLabels:
+    agentclusterinstalls.extensions.hive.openshift.io/location: FoothillRanchCA
+  cpuArchitecture: x86_64
+  imageType: minimal-iso
+  ipxeScriptType: DiscoveryImageAlways
+  nmStateConfigLabelSelector:
+    matchLabels:
+      infraenvs.agent-install.openshift.io: homelab-nodhcp
+  osImageVersion: '4.17'
+  pullSecretRef:
+    name: pullsecret-homelab-nodhcp
+  sshAuthorizedKey: xxxxxxxxx
 ----
