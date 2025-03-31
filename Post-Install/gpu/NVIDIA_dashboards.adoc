@@ -2,7 +2,7 @@
 
 Assuming you have the NVIDIA GPU operator already installed.
 
-./gpuconsole.sh
+.gpuconsole.sh
 ----
 #/bin/bash
 helm repo add rh-ecosystem-edge https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
