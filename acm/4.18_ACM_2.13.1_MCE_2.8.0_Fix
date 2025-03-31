@@ -1,0 +1,36 @@
+== Fix for Openshift 4.18 ACM 2.13.1 MCE 2.8.0
+
+To fix the 4.19 ISO issue
+
+.agentconfig.yaml
+----
+apiVersion: agent-install.openshift.io/v1beta1
+kind: AgentServiceConfig
+metadata:
+  name: agent
+spec:
+  databaseStorage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  filesystemStorage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Gi
+  imageStorage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 50Gi
+  osImages:
+    - cpuArchitecture: x86_64
+      openshiftVersion: '4.17'
+      rootFSUrl: 'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/4.17.17/rhcos-live-rootfs.x86_64.img'
+      url: 'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/4.17.17/rhcos-4.17.17-x86_64-live.x86_64.iso'
+      version: 417.94.202501301529-0
+----
