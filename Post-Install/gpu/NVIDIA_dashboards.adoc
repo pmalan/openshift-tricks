@@ -1,0 +1,13 @@
+== Installing NVIDIA Dashboards
+
+Assuming you have the NVIDIA GPU operator already installed.
+
+./gpuconsole.sh
+----
+#/bin/bash
+helm repo add rh-ecosystem-edge https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
+helm repo update
+helm install -n nvidia-gpu-operator console-plugin-nvidia-gpu rh-ecosystem-edge/console-plugin-nvidia-gpu
+oc apply -f dcgm-metrics-config.yaml
+oc patch clusterpolicies.nvidia.com gpu-cluster-policy --patch '{ "spec": { "dcgmExporter": { "config": { "name": "console-plugin-nvidia-gpu" } } } }' --type=merge
+----
