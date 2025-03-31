@@ -1,0 +1,33 @@
+== Sharing GPUs accross Containers
+
+If you want to "timeslice" gpus across multiple containers without the vgpu cabapility.
+
+In the following example 8 shares across 2 Quadro RTX 4000s.
+
+.device-plugin-config.yaml
+----
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: device-plugin-config
+  namespace: nvidia-gpu-operator
+data:
+  Quadro-RTX-4000: |-
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 8
+----
+
+Apply the device policy to the gpu-cluster-policy, and label nodes with Quadro-RTX-4000 to use device plugin configuration:
+----
+oc patch clusterpolicy gpu-cluster-policy \
+    -n nvidia-gpu-operator --type merge \
+    -p '{"spec": {"devicePlugin": {"config": {"name": "device-plugin-config"}}}}'
+oc label --overwrite node \
+    --selector=nvidia.com/gpu.product=Quadro-RTX-4000 \
+    nvidia.com/device-plugin.config=Quadro-RTX-4000
+----
+
