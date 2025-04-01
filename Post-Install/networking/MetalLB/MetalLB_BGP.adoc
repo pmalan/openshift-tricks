@@ -1,0 +1,50 @@
+== MetalLB BGP
+
+
+
+
+.bgppeer.yaml
+----
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: bgp-peer-sample1
+  namespace: metallb-system
+spec:
+  disableMP: false
+  myASN: 64512
+  peerASN: 64510
+  peerAddress: 10.0.1.1
+  peerPort: 179
+  routerID: 10.0.3.0
+----
+
+.bgpadvertisement.yaml
+----
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: bgp-adv-sample1
+  namespace: metallb-system
+spec:
+  aggregationLength: 32
+  aggregationLengthV6: 128
+  ipAddressPools:
+    - ip-addresspool-1
+  peers:
+    - ebgp-single-hop0
+----
+
+.l2advertisement.yaml
+----
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-adv-1
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - ip-addresspool-1
+
+----
+
