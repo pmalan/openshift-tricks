@@ -48,3 +48,16 @@ spec:
 
 ----
 
+.ipaddresspool.yaml
+----
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ip-addresspool-1
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.0.30.2 - 10.0.30.254
+  autoAssign: true
+  avoidBuggyIPs: true
+----
