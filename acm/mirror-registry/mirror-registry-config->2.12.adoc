@@ -20,7 +20,7 @@ data:
   ca-bundle.crt: |
 $(sed 's/^/        /' fullchain.pem)
 
-registries.conf:
+registries.conf: |
 $(sed 's/^/        /' registries.conf)
 
 EOF
