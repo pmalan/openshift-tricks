@@ -64,7 +64,7 @@ short-name-mode = ""
     location = "quay.pietersmalan.com/registryredhatiocache"
 ----
 
-.Resulting registries.conf on installed nodes:
+.Resulting /etc/containers/registries.conf on installed nodes:
 ----
 [root@bm211 containers]# more registries.conf
 [[registry]]
