@@ -62,5 +62,38 @@ short-name-mode = ""
 
   [[registry.mirror]]
     location = "quay.pietersmalan.com/registryredhatiocache"
+----
+
+.Resulting registries.con on installed nodes:
+----
+registries.conf
+[[registry]]
+location = "docker.io"
+insecure = false
+mirror-by-digest-only = true
+
+[[registry.mirror]]
+location = "quay.pietersmalan.com/dockeriocache"
+insecure = false
+
+
+[[registry]]
+location = "quay.io"
+insecure = false
+mirror-by-digest-only = true
+
+[[registry.mirror]]
+location = "quay.pietersmalan.com/cachequayio"
+insecure = false
+
+
+[[registry]]
+location = "registry.redhat.io"
+insecure = false
+mirror-by-digest-only = true
+
+[[registry.mirror]]
+location = "quay.pietersmalan.com/registryredhatiocache"
+insecure = false
 
 ----
