@@ -1,5 +1,7 @@
 == Configuration for Mirror Registry
 
+Not working for  > 2.12
+
 === Configure Agent Service
 
 .assisted-installer-mirror-config.yaml
