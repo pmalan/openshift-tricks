@@ -64,9 +64,9 @@ short-name-mode = ""
     location = "quay.pietersmalan.com/registryredhatiocache"
 ----
 
-.Resulting registries.con on installed nodes:
+.Resulting registries.conf on installed nodes:
 ----
-registries.conf
+[root@bm211 containers]# more registries.conf
 [[registry]]
 location = "docker.io"
 insecure = false
@@ -95,5 +95,6 @@ mirror-by-digest-only = true
 [[registry.mirror]]
 location = "quay.pietersmalan.com/registryredhatiocache"
 insecure = false
+
 
 ----
