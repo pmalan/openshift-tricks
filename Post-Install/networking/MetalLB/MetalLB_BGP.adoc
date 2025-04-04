@@ -61,3 +61,22 @@ spec:
   autoAssign: true
   avoidBuggyIPs: true
 ----
+
+
+=== Sample Mikrotik eBGP Configuration
+
+.eBGP configuration
+----
+/routing bgp connection
+add address-families=ip,ipv6,l2vpn,l2vpn-cisco,vpnv4 as=64510 disabled=no listen=yes local.address=10.0.1.1 .role=ebgp-provider multihop=no name=bgp1 output.keep-sent-attributes=yes remote.address=10.0.0.0/20 .as=64512 router-id=10.0.1.1 routing-table=main use-bfd=no vrf=main
+----
+
+.Print Sessions
+----
+/routing/bgp/session/print
+----
+
+.Print Advertisements
+----
+/routing/bgp/advertisements/print
+----
