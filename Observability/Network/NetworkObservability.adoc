@@ -1,16 +1,62 @@
 == Network Observability
 
-.x86_64
+Prereqs: 
+
+- Loki and Network Observability Operators
+- netobserv namespace
+
+
+=== Loki Stack for Network Observability Configuration
+
+.Create cluster-amin-group
 ----
-kind: Secret
+oc adm groups new cluster-admin
+oc adm groups add-users cluster-admin <admin-username>
+oc adm policy add-cluster-role-to-group cluster-admin cluster-admin
+----
+
+.loki-s3.yaml
+----
 apiVersion: v1
+kind: Secret
 metadata:
   name: loki-s3
-  namespace: netobserv
+  namespace: netobserv   
 stringData:
-  access_key_id: S9...
-  access_key_secret: r...
-  bucketnames: netobserv-bucket
-  endpoint: http://s3.s3-storage.svc.cluster.local:9000
-  region: us-west
+  access_key_id: ...
+  access_key_secret: ...
+  bucketnames: s3-bucket-name
+  endpoint: https://...
+  region: eu-central-1
 ----
+
+.loki-netobserv.yaml
+----
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: loki
+  namespace: netobserv
+spec:
+  tenants:
+    mode: openshift-network 
+    openshift:
+      adminGroups: 
+      - cluster-admin
+----
+
+=== Create Network Observability instance
+
+.flowcollector.yaml
+----
+apiVersion: flows.netobserv.io/v1beta2
+kind: FlowCollector
+metadata:
+  name: netobserv
+spec: 
+ loki:
+   mode: LokiStack
+   lokiStack:
+     name: loki
+----
+
