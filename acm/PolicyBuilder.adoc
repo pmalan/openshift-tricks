@@ -1,0 +1,50 @@
+== Policy Builder
+
+=== Binary Install
+
+Get the latest release from _https://github.com/open-cluster-management-io/policy-generator-plugin/releases_
+
+.Installation
+[source,bash]
+----
+mkdir -p ${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+cd ${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+curl https://github.com/open-cluster-management-io/policy-generator-plugin/releases/download/v1.16.0/linux-amd64-PolicyGenerator -o PolicyGenerator
+chmod +x PolicyGenerator
+----
+
+=== Namespace for Policies
+
+If required, you can create a namespace to hold all your policies.
+
+By default, there is a namespace called _open-cluster-management-policies_
+
+=== 
+
+=== Policy Namespace binding with Cluster Set
+
+To associate a policy namespace to cluster sets, we have to create a ManagedClusterSetBinding:
+
+----
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: default
+  namespace: open-cluster-management-policies
+spec:
+  clusterSet: default
+----
+
+=== Setup Policy Set
+
+.policy-set.yaml
+----
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: default-cluster-policy-set
+  namespace: open-cluster-management-policies
+spec:
+  description: ""
+  policies: []
+----

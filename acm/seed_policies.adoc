@@ -1,5 +1,25 @@
 == Seed Policies 
 
+=== Confirm role assignment
+
+To subscribe to policy channel, you need, for example assign role 'open-cluster-management:subscription-admin' to global-cluster-admin:
+
+.subscription-admin-clusteradmin.yaml
+----
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: open-cluster-management:subscription-admin
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: global-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'open-cluster-management:subscription-admin'
+----
+
 === Open Cluster Management 
 
 https://github.com/open-cluster-management-io/policy-collection
