@@ -12,7 +12,7 @@ oc delete nncp/policy-name
 
 Recreate the missing file on failed node, with root.
 
-./etc/kubernetes/cni/net.d/00-multus.conf
+./var/run/multus/cni/net.d/10-ovn-kubernetes.conf
 ----
 {"binDir":"/var/lib/cni/bin","cniVersion":"0.3.1","logLevel":"verbose","logToStderr":true,"name":"multus-cni-network","clusterNetwork":"/host/run/multus/cni/net.d/10-ovn-kubernetes.conf","namespaceIsolation":true,"globalNamespaces":"default,openshift-multus,openshift-sriov-network-operator,openshift-cnv","type":"multus-shim","daemonSocketDir":"/run/multus/socket"}
 ----
