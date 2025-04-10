@@ -1,0 +1,16 @@
+== Storage Profile
+
+If unknown storage class being used, you have to update the claimProperty in StorageProfile:
+
+.storageprofile.yaml
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: StorageProfile
+metadata:
+  name: zfs-generic-iscsi-csi
+spec:
+  claimPropertySets:
+    - accessModes:
+        - ReadWriteMany
+      volumeMode: Block
+----

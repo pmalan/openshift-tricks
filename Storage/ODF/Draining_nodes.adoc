@@ -1,0 +1,11 @@
+== ODF Node stuck in Drain
+
+.Drain force 
+----
+oc adm drain odf-node --force=true --ignore-daemonsets --delete-emptydir-data --disable-eviction=true
+----
+
+CRD -
+
+disruptionManagement:
+    managePodBudgets: false
