@@ -88,3 +88,17 @@ Or you want to use defaults, run the following command to get the base64 encoded
 ----
 multipath -t | base64 -w 0
 ----
+
+=== NVME 
+
+NOTE: Keep in mind that NVME drives are going to be added to multipath. If CSI configuration is already in use like ODF, then you have to add the nvme blacklist filter:
+
+----
+defaults {
+	user_friendly_names yes
+	find_multipaths yes
+}
+blacklist {
+        devnode "^nvme[0-9]*"
+}
+----

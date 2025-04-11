@@ -1,0 +1,8 @@
+== OC tips
+
+=== Auto complete
+
+.Auto Complete
+----
+source "$(oc completion bash)"
+----

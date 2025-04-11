@@ -14,3 +14,20 @@ spec:
         - ReadWriteMany
       volumeMode: Block
 ----
+
+If required, and the snapshot class was not picked up automatically, then you can specify as follow:
+
+.storageprofile
+----
+...
+claimPropertySets:
+    - accessModes:
+        - ReadWriteMany
+      volumeMode: Block
+snapshotClass: zfs-generic-iscsi-csi
+...
+----
+
+=== Controlling Data Import Cron target
+
+To control the import of target of data import cron jobs, you can set the 

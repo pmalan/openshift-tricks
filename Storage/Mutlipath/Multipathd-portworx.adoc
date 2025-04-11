@@ -6,4 +6,5 @@ Portworx requires the blacklist entries to be added to the multipath.conf, to ig
 blacklist {
         devnode "^pxd[0-9]*"
         devnode "^pxd*"
+        
 ....
