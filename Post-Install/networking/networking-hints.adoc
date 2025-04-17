@@ -1,0 +1,23 @@
+== ovs disable
+
+.Disable OVS configuration
+----
+touch /etc/nmstate/openshift/applied
+----
+
+== Apply custom network configuration
+
+.Custom nmstate configuration
+----
+/etc/nmstate/openshift/cluster.yml
+----
+
+.Custom nmstate - specific to a host
+----
+/etc/nmstate/openshift/${hostname}.yml
+----
+
+== Assigned IP
+
+/run/nodeip-configuration/primary-ip
+
