@@ -1,0 +1,1 @@
+https://amd64.ocp.releases.ci.openshift.org/
