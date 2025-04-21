@@ -41,7 +41,9 @@ mkdir calico-cr
 mv calico/01-cr-* calico-cr/
 ----
 
-==== Setup pull-secret if using upstream Tigera image registry
+NOTE: For Open Source Calico, use `https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/ocp.tgz`
+
+==== Setup pull-secret if using upstream Tigera image registry (Only EE)
 
 If you use image registry that requires authentication to pull Tigera images, such as default Tigera's `quay.io/tigera` image registry, then configure pull-secret in the `calico/02-pull-secret.yaml` file.
 
@@ -160,7 +162,7 @@ oc patch MachineConfigPool master --type='merge' --patch '{ "spec": { "paused": 
 oc patch MachineConfigPool worker --type='merge' --patch '{ "spec":{ "paused": false } }'
 ----
 
-=== Apply Calico Enterprise resources
+=== Apply Calico Enterprise resources (Only EE)
 
 Once Tigera Calico is available, deploy Calico Enterprise license
 

@@ -1,9 +1,27 @@
+:toc:
+:toc-placement!:
+
 = Openshift Tricks
+
+
+toc::[]
+
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+ifndef::env-github[]
+:imagesdir: ./
+endif::[]
 :url-repo: https://github.com/pmalan/openshift-tricks
 :sectnums:
 
 
-include::Install/Pull-running-install-config.adoc[Install - Pull Running install-config.yaml]
+include::Installation/Disconnected/Agent-installer-SNO.adoc[Single Node Disconnected Install]
 
 include::Registry/Nexus-pull-trhough.adoc[Registry - Pull trhough cache/proxy]
 
