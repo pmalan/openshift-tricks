@@ -41,7 +41,7 @@ mkdir calico-cr
 mv calico/01-cr-* calico-cr/
 ----
 
-NOTE: For Open Source Calico, use `https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/ocp.tgz`
+NOTE: For Open Source Calico, use `https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/ocp.tgz`, where $CALICO_VERSION is `v3.29.3`
 
 ==== Setup pull-secret if using upstream Tigera image registry (Only EE)
 
