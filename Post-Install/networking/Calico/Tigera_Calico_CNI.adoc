@@ -144,13 +144,19 @@ oc -n openshift-multus rollout restart daemonset/multus
 oc -n openshift-multus -w --timeout=2m rollout status daemonset/multus
 ----
 
-==== Remove OVN
+==== Change Default Network to Calico
 
 [source,bash]
 ----
 oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "migration": null } }'
 oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "defaultNetwork": { "ovnKubernetesConfig":null } } }'
 # if this command gets stuck reboot nodes
+----
+
+==== Remove OVN
+
+[source,bash]
+----
 oc delete namespace openshift-ovn-kubernetes
 ----
 
@@ -166,16 +172,113 @@ oc patch MachineConfigPool worker --type='merge' --patch '{ "spec":{ "paused": f
 
 Once Tigera Calico is available, deploy Calico Enterprise license
 
+.Check status of apiserver
 [source,bash]
 ----
 oc get tigerastatus apiserver -ojsonpath='{.status.conditions[?(@.type=="Available")].status}'
+----
+
+.When ready, apply license
+[source,bash]
+----
 oc apply -f /path/to/license.yaml
 ----
 
-Deploy Calico Enterprise remaining resources
+==== Create StorageClass for ElasticSearch
+
+TIP: Use an existing storage class definition for a file system based storage to create a similar StorageClass as below.
+
+.Sample Storage Class
+----
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: tigera-elasticsearch
+  labels:
+  annotations:
+    description: Tigera ElasticSearch Storage Class for Enterprise Features
+provisioner: topolvm.io
+parameters:
+  csi.storage.k8s.io/fstype: xfs
+  topolvm.io/device-class: vg1
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+----
+
+==== Apply Tiger Enterprise Resources
 
 [source,bash]
 ----
 oc create -f https://downloads.tigera.io/ee/v3.20.3/manifests/ocp/tigera-enterprise-resources.yaml
 #oc create -f https://downloads.tigera.io/ee/v3.20.3/manifests/ocp/tigera-prometheus-operator.yaml
+----
+
+==== Create a route to Tigera Manager
+
+[source,bash]
+----
+cat <<EOF> route.yaml
+route.yaml
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tigera-manager
+  namespace: tigera-manager
+spec:
+  host: manager
+  to:
+    kind: Service
+    name: tigera-manager
+    weight: 100
+  port:
+    targetPort: 9443
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+EOF
+
+oc apply -f route.yaml
+----
+
+==== Create Service Account
+
+[source,bash]
+----
+oc create sa calico-admin
+oc create clusterrolebinding calico-admin-access --clusterrole tigera-network-admin --serviceaccount default:calico-admin
+oc create token calico-admin --duration=24h -ojsonpath='{.status.token}'
+----
+
+
+== Sample Network Attachment for Reference
+
+.nad.yaml
+[source,yaml]
+----
+apiVersion: 'k8s.cni.cncf.io/v1'
+kind: NetworkAttachmentDefinition
+metadata:
+  name: additional-calico-network
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "calico",
+    "log_level": "info",
+    "datastore_type": "kubernetes",
+    "mtu": 1410,
+    "nodename_file_optional": false,
+    "ipam": {
+      "type": "calico-ipam",
+      "assign_ipv4": "true",
+      "assign_ipv6": "false"
+    },
+    "policy": {
+      "type": "k8s"
+    },
+    "kubernetes": {
+      "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+    }
+  }'
 ----
