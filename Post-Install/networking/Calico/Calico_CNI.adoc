@@ -1,0 +1,179 @@
+:toc:
+:toc-placement!:
+
+== OVNKubernetes to Tigera Calico migration
+
+
+toc::[]
+
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+ifndef::env-github[]
+:imagesdir: ./
+endif::[]
+
+These steps were followed to migrate existing OCP 4.17/4.18 cluster from OVNKuberentes CNI to Calico Enterprise v3.20 CNI
+
+=== Pause MachineConfigPool and prepare NetworkOperator to be migrated
+
+[source,bash]
+----
+oc patch MachineConfigPool master --type='merge' --patch '{ "spec": { "paused": true } }'
+oc patch MachineConfigPool worker --type='merge' --patch '{ "spec":{ "paused": true } }'
+oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "migration": null } }'
+oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "migration": { "networkType": "Calico" } } }'
+----
+
+=== Prepare Calico manifests
+
+[source,bash]
+----
+CALICO_VERSION=v3.20.3
+mkdir calico
+wget -qO- https://downloads.tigera.io/ee/$CALICO_VERSION/manifests/ocp.tgz | tar xvz --strip-components=1 -C calico
+mkdir calico-cr
+mv calico/01-cr-* calico-cr/
+----
+
+==== Setup pull-secret if using upstream Tigera image registry
+
+If you use image registry that requires authentication to pull Tigera images, such as default Tigera's `quay.io/tigera` image registry, then configure pull-secret in the `calico/02-pull-secret.yaml` file.
+
+If you use private image registry, then put all necessary images into the private image registry following [this doc](https://docs.tigera.io/calico-enterprise/latest/getting-started/install-on-clusters/private-registry/).
+
+==== Configure the Installation resource
+
+By default, Calico configures IPPool to use IPIP encapsulation. If you prefer VXLAN, or no encapsulation for pod network in the cluster, configure the `calicoNetwork` section in the `Installation` CR inside the `01-cr-installation.yaml` file.
+
+.Example configuration for the default IPPool in VXLAN mode
+[source,YAML]
+----
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  variant: TigeraSecureEnterprise
+
+  imagePullSecrets:
+    - name: tigera-pull-secret
+
+  # Registry to use for pulling Calico Enterprise images.
+  # registry: <my-registry>
+
+  calicoNetwork:
+    bgp: Disabled
+    ipPools:
+      - cidr: 10.128.0.0/14
+        encapsulation: VXLAN
+----
+
+NOTE: If you intend to peer your cluster over BGP with upstream routers or switches, then set `bgp: Enabled` in the `Installation` CR. It also can be done later when you configure BGP peering resources.
+
+=== Deploy tigera-operator and related resources
+
+Deploy namespaces and tigera-operator related resources
+
+[source,bash]
+----
+oc create -f calico/
+----
+
+==== Configure adminnetworkpolicy CRD to ignore unsupported warning
+
+NOTE: This is a workaround for an issue in tigera-operator which should be fixed in f
+uture release
+
+[source,bash]
+----
+oc patch crd adminnetworkpolicies.policy.networking.k8s.io --type=merge -p='{"metadata":{"annotations":{"unsupported.operator.tigera.io/ignore": "true"}}}'
+----
+
+==== Configure Calico dataplane
+
+[source,bash]
+----
+oc patch networks.operator.openshift.io cluster --type merge -p '{"spec":{"deployKubeProxy": true}}'
+----
+
+NOTE: If using eBPF dataplane, configure eBPF follow [eBPF doc](https://docs.tigera.io/calico/latest/operations/ebpf/enabling-ebpf) to configure Calico in eBPF mode
+
+==== Apply Calico CRs
+
+Check if Calico CRDs already deployed before applying CRs
+
+[source,bash]
+----
+oc get crds | grep projectcalico
+----
+
+When Calico CRDs are in place, apply Calico CRs
+
+[source,bash]
+----
+oc create -f calico-cr/
+----
+
+Wait for all components to become available
+
+[source,bash]
+----
+oc get tigerastatus
+----
+
+=== Convert OCP networking to Calico
+
+[source,bash]
+----
+oc patch Network.config.openshift.io cluster --type='merge' --patch '{ "spec": { "networkType": "Calico" } }'
+----
+
+==== Restart Multus
+
+[source,bash]
+----
+oc -n openshift-multus rollout restart daemonset/multus
+oc -n openshift-multus -w --timeout=2m rollout status daemonset/multus
+----
+
+==== Remove OVN
+
+[source,bash]
+----
+oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "migration": null } }'
+oc patch Network.operator.openshift.io cluster --type='merge' --patch '{ "spec": { "defaultNetwork": { "ovnKubernetesConfig":null } } }'
+# if this command gets stuck reboot nodes
+oc delete namespace openshift-ovn-kubernetes
+----
+
+=== Unpause MachineConfigPools
+
+[source,bash]
+----
+oc patch MachineConfigPool master --type='merge' --patch '{ "spec": { "paused": false } }'
+oc patch MachineConfigPool worker --type='merge' --patch '{ "spec":{ "paused": false } }'
+----
+
+=== Apply Calico Enterprise resources
+
+Once Tigera Calico is available, deploy Calico Enterprise license
+
+[source,bash]
+----
+oc get tigerastatus apiserver -ojsonpath='{.status.conditions[?(@.type=="Available")].status}'
+oc apply -f /path/to/license.yaml
+----
+
+Deploy Calico Enterprise remaining resources
+
+[source,bash]
+----
+oc create -f https://downloads.tigera.io/ee/v3.20.3/manifests/ocp/tigera-enterprise-resources.yaml
+#oc create -f https://downloads.tigera.io/ee/v3.20.3/manifests/ocp/tigera-prometheus-operator.yaml
+----
