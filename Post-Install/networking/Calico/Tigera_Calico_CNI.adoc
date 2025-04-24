@@ -53,6 +53,8 @@ If you use private image registry, then put all necessary images into the privat
 
 By default, Calico configures IPPool to use IPIP encapsulation. If you prefer VXLAN, or no encapsulation for pod network in the cluster, configure the `calicoNetwork` section in the `Installation` CR inside the `01-cr-installation.yaml` file.
 
+NOTE: If you prefer to use the free Calico versio, then you can set the variant to `Calico`.
+
 .Example configuration for the default IPPool in VXLAN mode
 [source,YAML]
 ----
