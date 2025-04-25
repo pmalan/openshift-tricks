@@ -248,9 +248,9 @@ oc apply -f route.yaml
 
 [source,bash]
 ----
-oc create sa calico-admin
+oc create sa calico-admin -n default
 oc create clusterrolebinding calico-admin-access --clusterrole tigera-network-admin --serviceaccount default:calico-admin
-oc create token calico-admin --duration=24h -ojsonpath='{.status.token}'
+oc create token calico-admin -n default--duration=24h -ojsonpath='{.status.token}'
 ----
 
 
