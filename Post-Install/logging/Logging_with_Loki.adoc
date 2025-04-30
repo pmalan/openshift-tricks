@@ -98,6 +98,34 @@ spec:
     mode: openshift-logging
 ----
 
+.Observability Operator
+----
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-cluster-observability-operator 
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true" 
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/cluster-observability-operator.openshift-cluster-observability: ''
+  name: cluster-observability-operator
+  namespace: openshift-cluster-observability-operator
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: cluster-observability-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cluster-observability-operator.v1.1.1
+----
+
 .Create SA and roles
 ----
 oc create sa collector -n openshift-logging
