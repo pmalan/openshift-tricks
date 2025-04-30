@@ -62,6 +62,7 @@ spec:
 ----
 
 .Loki S3 Secret
+[source,yaml]
 ----
 kind: Secret
 apiVersion: v1
@@ -77,6 +78,7 @@ stringData:
 ----
 
 .Loki Stack
+[source,yaml]
 ----
 apiVersion: loki.grafana.com/v1
 kind: LokiStack
@@ -99,8 +101,8 @@ spec:
 ----
 
 .Observability Operator
+[source,yaml]
 ----
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -127,6 +129,7 @@ spec:
 ----
 
 .Create SA and roles
+[source,yaml]
 ----
 oc create sa collector -n openshift-logging
 oc adm policy add-cluster-role-to-user logging-collector-logs-writer -z collector
@@ -138,6 +141,7 @@ oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z collector
 ----
 
 .Install Cluster Observability Operator for console plugins.
+[source,yaml]
 ----
 apiVersion: observability.openshift.io/v1alpha1
 kind: UIPlugin
@@ -151,6 +155,7 @@ spec:
 ----
 
 .Setup Log Forwarder to feed Loki
+[source,yaml]
 ----
 apiVersion: observability.openshift.io/v1
 kind: ClusterLogForwarder
