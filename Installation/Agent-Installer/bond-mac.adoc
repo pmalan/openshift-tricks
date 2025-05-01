@@ -1,0 +1,58 @@
+== Agent Installer with Bond
+
+=== Host "boot mac"
+
+The agent installer will use the first mac encountered in specified hosts->host->interfaces in the agent-config.yaml.
+
+If the bond mac address is not defined, and does not default to one of the known listed interface's mac address, you have to add it to hosts->host->interfaces:
+
+.agent-config.yaml
+[source,yaml]
+----
+apiVersion: v1alpha1
+  kind: AgentConfig
+  metadata:
+    name: sno-cluster
+  rendezvousIP: 10.0.1.217
+  hosts:
+    - hostname: master-0
+      interfaces:
+        - name: bond0
+          macAddress: 52:54:00:f7:40:22
+        - name: eno1
+          macAddress: a2:f1:2f:6f:49:06
+        - name: eno2
+          macAddress: 52:54:00:f7:40:b9
+      networkConfig:
+        interfaces:
+          - name: eno1
+            type: ethernet
+            state: up
+----
+
+During bootup of node, you will see something similar to this:
+
+.Agent boot 
+----
+Red Hat ....
+Openshift Agent Installer Image for ....
+SSH host key: ....
+bond0: 10.0.1.217
+enp1s0:
+enp4s0:
+----
+
+To check the mapping:
+----
+ssh core@node
+ls /run/ephemeral/etc/assisted/hostnames
+----
+
+In the ouput it should list the correct mac address for the node's bond interface, as defined in the agent-config.yaml for the specific host:
+----
+ls /run/ephemeral/etc/assisted/hostnames/
+total 4
+-rw-------. 1 root root 8 May  1 21:02 52:54:00:f7:40:22
+----
+
+
