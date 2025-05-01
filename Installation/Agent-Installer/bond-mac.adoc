@@ -43,16 +43,91 @@ enp4s0:
 ----
 
 To check the mapping:
+[code,bash]
 ----
-ssh core@node
+ssh core@rendezvous-node
 ls /run/ephemeral/etc/assisted/hostnames
 ----
 
 In the ouput it should list the correct mac address for the node's bond interface, as defined in the agent-config.yaml for the specific host:
+[code,bash]
 ----
 ls /run/ephemeral/etc/assisted/hostnames/
 total 4
 -rw-------. 1 root root 8 May  1 21:02 52:54:00:f7:40:22
+----
+
+On the target node:
+----
+ip a
+...
+4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:f7:40:22 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.1.217/24 brd 10.0.1.255 scope global noprefixroute bond0
+       valid_lft forever preferred_lft forever
+
+...
+----
+
+=== Reference
+
+For reference, an example for full hosts network configuration, with an assigned bond mac address:
+[code,yaml]
+----
+  hosts:
+    - hostname: master-0
+      interfaces:
+        - name: bond0
+          macAddress: 52:54:00:f7:40:22
+        - name: eno1
+          macAddress: a2:f1:2f:6f:49:06
+        - name: eno2
+          macAddress: 52:54:00:f7:40:b9
+      networkConfig:
+        interfaces:
+          - name: eno1
+            type: ethernet
+            state: up
+            mac-address: a2:f1:2f:6f:49:06
+            ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+          - name: eno2
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:f7:40:b9
+            ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+          - name: bond0
+            mac-address: 52:54:00:f7:40:22
+            ipv4:
+              enabled: true
+              address:
+              - ip: 10.0.1.217
+                prefix-length: 24
+              dhcp: false
+            ipv6:
+               enabled: false
+            link-aggregation:
+               mode: balance-xor
+               port:
+               - eno1
+               - eno2
+            state: up
+            type: bond
+        dns-resolver:
+          config:
+            server:
+              - 10.0.1.1
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 10.0.1.1
+              next-hop-interface: bond0
+              table-id: 254
 ----
 
 
