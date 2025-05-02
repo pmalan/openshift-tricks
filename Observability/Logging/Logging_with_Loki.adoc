@@ -1,6 +1,6 @@
 == Logging Operator Configuration wih Loki Stack
 
-=== Logging and Loki Operator Install
+=== Logging, Loki and Observability Operators Install
 
 .Logging Operator 
 [source,yaml]
@@ -42,7 +42,11 @@ spec:
   name: cluster-logging
   source: redhat-operators 
   sourceNamespace: openshift-marketplace
----
+----
+
+.Loki Operator
+[source,yaml]
+----
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -60,6 +64,36 @@ spec:
   sourceNamespace: openshift-marketplace
   startingCSV: loki-operator.v6.1.0
 ----
+
+.Observability Operator
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-cluster-observability-operator 
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true" 
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/cluster-observability-operator.openshift-cluster-observability: ''
+  name: cluster-observability-operator
+  namespace: openshift-cluster-observability-operator
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: cluster-observability-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cluster-observability-operator.v1.1.1
+----
+
+=== Configure Logging environment
 
 .Loki S3 Secret
 [source,yaml]
@@ -100,36 +134,10 @@ spec:
     mode: openshift-logging
 ----
 
-.Observability Operator
-[source,yaml]
-----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: openshift-cluster-observability-operator 
-  annotations:
-    openshift.io/node-selector: ""
-  labels:
-    openshift.io/cluster-monitoring: "true" 
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  labels:
-    operators.coreos.com/cluster-observability-operator.openshift-cluster-observability: ''
-  name: cluster-observability-operator
-  namespace: openshift-cluster-observability-operator
-spec:
-  channel: stable
-  installPlanApproval: Automatic
-  name: cluster-observability-operator
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-  startingCSV: cluster-observability-operator.v1.1.1
-----
+Allow collector to utilize Loki.
 
 .Create SA and roles
-[source,yaml]
+[source,bash]
 ----
 oc project openshift-logging
 oc create sa collector -n openshift-logging
@@ -139,6 +147,8 @@ oc adm policy add-cluster-role-to-user collect-audit-logs -z collector
 oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z collector
 
 ----
+
+=== Add console plugin to view logs in console.
 
 .Install Cluster Observability Operator for console plugins.
 [source,yaml]
