@@ -1,6 +1,6 @@
 == Agent Installer with Bond
 
-=== Host "boot mac"
+=== Host "boot mac" on bond
 
 The agent installer will use the first mac encountered in specified hosts->host->interfaces in the agent-config.yaml.
 
@@ -67,6 +67,54 @@ ip a
        valid_lft forever preferred_lft forever
 
 ...
+----
+
+=== Assign mac address from existing bond interface
+
+To assign mac address from existing interface to bond interface, specify the `primary` option in bond configuration, also make sure that it is listed as first mac address in hosts interfaces:
+
+.agent-config.yaml
+[code,yaml]
+----
+....
+   hosts:
+    - hostname: master-0
+      interfaces:
+        - name: eno1
+          macAddress: a2:f1:2f:6f:49:06
+        - name: eno2
+          macAddress: 52:54:00:f7:40:b9
+      networkConfig:
+        interfaces:
+          - name: eno1
+            type: ethernet
+            state: up
+            mac-address: a2:f1:2f:6f:49:06
+            ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+          - name: eno2
+           ....
+          - name: bond0
+            ipv4:
+              enabled: true
+              address:
+              - ip: 10.0.1.217
+                prefix-length: 24
+              dhcp: false
+            ipv6:
+               enabled: false
+            link-aggregation:
+               mode: balance-xor
+               options:
+                 primary: eno1
+               port:
+               - eno1
+               - eno2
+            state: up
+            type: bond
+....
 ----
 
 === Reference
