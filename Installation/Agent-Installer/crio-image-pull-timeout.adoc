@@ -1,0 +1,10 @@
+== Time on Agent Installer
+
+=== Patch time out for crio 
+
+./etc/crio/crio.conf.d/01-pull-progress-timeout
+[source]
+----
+[crio.image]
+pull_progress_timeout = "0"
+----
