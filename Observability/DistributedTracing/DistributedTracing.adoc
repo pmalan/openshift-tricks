@@ -1,0 +1,92 @@
+== Distributed Tracing
+
+=== Operators
+
+.Tempo Operator Install
+----
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    kubernetes.io/metadata.name: openshift-tempo-operator
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-tempo-operator
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-tempo-operator
+  namespace: openshift-tempo-operator
+spec:
+  upgradeStrategy: Default
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: tempo-product
+  namespace: openshift-tempo-operator
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: tempo-product
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+----
+
+=== Tempo Instance
+
+.Project
+----
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    kubernetes.io/metadata.name: openshift-tempo-operator
+    openshift.io/cluster-monitoring: "true"
+  name: observability
+----
+
+.S3 Secret
+----
+kind: Secret
+apiVersion: v1
+metadata:
+  name: tracing-s3
+  namespace: observability
+stringData:
+  access_key_id: S9...
+  access_key_secret: r...
+  bucket: loki-bucket
+  endpoint: https://s3.domain.com:9000
+  region: us-west
+----
+
+.
+----
+apiVersion: tempo.grafana.com/v1alpha1
+kind: TempoStack
+metadata:
+  name: stack
+  namespace: observability
+spec:
+  storageSize: 1Gi
+  storage:
+      secret:
+          name: tracing-s3
+          type: s3
+  resources:
+    total:
+      limits:
+        memory: 2Gi
+        cpu: 2000m
+template:
+    queryFrontend:
+      jaegerQuery:
+        # Enable the Jaeger UI
+        enabled: true
+        ingress:
+          route:
+            termination: edge
+          type: route
+----
