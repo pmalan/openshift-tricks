@@ -1,0 +1,122 @@
+== Infinidat Configuration
+
+=== Multipathd config 
+
+Raw multipathd.conf used in machineConfig for reference
+----
+defaults {
+  find_multipaths "yes"
+}
+
+devices {
+  device {
+    vendor "NFINIDAT"
+    product "InfiniBox"
+    path_grouping_policy "group_by_prio"
+    path_checker "tur"
+    features "0"
+    hardware_handler "1 alua"
+    prio "alua"
+    rr_weight "priorities"
+    no_path_retry "queue"
+    rr_min_io 1
+    rr_min_io_rq 1
+    flush_on_last_del "yes"
+    fast_io_fail_tmo 15
+    dev_loss_tmo "infinity"
+    path_selector "service-time 0"
+    failback "immediate"
+    detect_prio "no"
+    user_friendly_names "no"
+  }
+}
+----
+
+.99-worker-multipathd-config.yaml
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-multipathd-config
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - contents:
+            source: >-
+              data:text/plain;charset=utf-8;base64,ZGVmYXVsdHMgewogIGZpbmRfbXVsdGlwYXRocyAieWVzIgp9CgpkZXZpY2VzIHsKICBkZXZpY2UgewogICAgdmVuZG9yICJORklOSURBVCIKICAgIHByb2R1Y3QgIkluZmluaUJveCIKICAgIHBhdGhfZ3JvdXBpbmdfcG9saWN5ICJncm91cF9ieV9wcmlvIgogICAgcGF0aF9jaGVja2VyICJ0dXIiCiAgICBmZWF0dXJlcyAiMCIKICAgIGhhcmR3YXJlX2hhbmRsZXIgIjEgYWx1YSIKICAgIHByaW8gImFsdWEiCiAgICBycl93ZWlnaHQgInByaW9yaXRpZXMiCiAgICBub19wYXRoX3JldHJ5ICJxdWV1ZSIKICAgIHJyX21pbl9pbyAxCiAgICBycl9taW5faW9fcnEgMQogICAgZmx1c2hfb25fbGFzdF9kZWwgInllcyIKICAgIGZhc3RfaW9fZmFpbF90bW8gMTUKICAgIGRldl9sb3NzX3RtbyAiaW5maW5pdHkiCiAgICBwYXRoX3NlbGVjdG9yICJzZXJ2aWNlLXRpbWUgMCIKICAgIGZhaWxiYWNrICJpbW1lZGlhdGUiCiAgICBkZXRlY3RfcHJpbyAibm8iCiAgICB1c2VyX2ZyaWVuZGx5X25hbWVzICJubyIKICB9Cn0=
+          filesystem: root
+          mode: 420
+          path: /etc/multipath.conf
+    systemd:
+      units:
+        - enabled: true
+          name: multipathd.service
+----
+
+=== Module Configuration
+
+Setup queue depth for the different FC modules.
+
+Raw options used for machineConfig configuration, with specific option for LightPulse (lpfc), QLogic (qla) and Cisco UCS (fnic):
+----
+options lpfc lpfc_hba_queue_depth=4096 lpfc_lun_queue_depth=128
+options qla2xxx ql2xmaxqdepth=128
+options fnic fnic_max_qdepth=128
+----
+
+.99-worker-infinidat-required-modules.yaml
+----
+apiVersion: machineconfiguration.openshift.io/v1
+  metadata:
+    name: 99-worker-infinidat-required-modules
+    labels:
+      machineconfiguration.openshift.io/role: worker
+  spec:
+    config:
+      ignition:
+        version: 3.2.0
+      storage:
+        files:
+          - path: /etc/modprobe.d/infinidat.conf
+            mode: 0644
+        - contents:
+            source: >-
+              data:text/plain;charset=utf-8;base64,b3B0aW9ucyBscGZjIGxwZmNfaGJhX3F1ZXVlX2RlcHRoPTQwOTYgbHBmY19sdW5fcXVldWVfZGVwdGg9MTI4Cm9wdGlvbnMgcWxhMnh4eCBxbDJ4bWF4cWRlcHRoPTEyOApvcHRpb25zIGZuaWMgZm5pY19tYXhfcWRlcHRoPTEyOA==
+
+
+=== udev rules
+
+.Raw device rules used for machine configs 
+----
+ACTION=="add|change", KERNEL=="sd[a-z]*", SUBSYSTEM=="block", ENV{ID_VENDOR}=="NFINIDAT", ATTR{queue/scheduler}="none"
+ACTION=="add|change", KERNEL=="dm-*", SUBSYSTEM=="block", ENV{DM_SERIAL}=="36742b0f*", ATTR{queue/scheduler}="none"
+ACTION=="add|change", KERNEL=="sd[a-z]*", SUBSYSTEM=="block", ENV{ID_VENDOR}=="NFINIDAT", ATTR{queue/add_random}="0"
+ACTION=="add|change", KERNEL=="dm-*", SUBSYSTEM=="block", ENV{DM_SERIAL}=="36742b0f*", ATTR{queue/add_random}="0"
+ACTION=="add|change", KERNEL=="sd[a-z]*", SUBSYSTEM=="block", ENV{ID_VENDOR}=="NFINIDAT", ATTR{queue/rq_affinity}="2"
+ACTION=="add|change", KERNEL=="dm-*", SUBSYSTEM=="block", ENV{DM_SERIAL}=="36742b0f*", ATTR{queue/rq_affinity}="2"
+----
+
+.99-worker-infinidat-queue-rules.yaml
+----
+- kind: MachineConfig
+  # MachineConfig for udev queue tuning
+  apiVersion: machineconfiguration.openshift.io/v1
+  metadata:
+    name: 99-worker-infinidat-udev
+    labels:
+      machineconfiguration.openshift.io/role: worker
+  spec:
+    config:
+      ignition:
+        version: 3.2.0
+      storage:
+        files:
+          - path: /etc/udev/rules.d/99-infinidat-queue.rules
+            mode: 0644
+            contents:
+              source: data:;base64,QUNUSU9OPT0iYWRkfGNoYW5nZSIsIEtFUk5FTD09InNkW2Etel0qIiwgU1VCU1lTVEVNPT0iYmxvY2siLCBFTlZ7SURfVkVORE9SfT09Ik5GSU5JREFUIiwgQVRUUntxdWV1ZS9zY2hlZHVsZXJ9PSJub25lIgpBQ1RJT049PSJhZGR8Y2hhbmdlIiwgS0VSTkVMPT0iZG0tKiIsIFNVQlNZU1RFTT09ImJsb2NrIiwgRU5We0RNX1NFUklBTH09PSIzNjc0MmIwZioiLCBBVFRSe3F1ZXVlL3NjaGVkdWxlcn09Im5vbmUiCkFDVElPTj09ImFkZHxjaGFuZ2UiLCBLRVJORUw9PSJzZFthLXpdKiIsIFNVQlNZU1RFTT09ImJsb2NrIiwgRU5We0lEX1ZFTkRPUn09PSJORklOSURBVCIsIEFUVFJ7cXVldWUvYWRkX3JhbmRvbX09IjAiCkFDVElPTj09ImFkZHxjaGFuZ2UiLCBLRVJORUw9PSJkbS0qIiwgU1VCU1lTVEVNPT0iYmxvY2siLCBFTlZ7RE1fU0VSSUFMfT09IjM2NzQyYjBmKiIsIEFUVFJ7cXVldWUvYWRkX3JhbmRvbX09IjAiCkFDVElPTj09ImFkZHxjaGFuZ2UiLCBLRVJORUw9PSJzZFthLXpdKiIsIFNVQlNZU1RFTT09ImJsb2NrIiwgRU5We0lEX1ZFTkRPUn09PSJORklOSURBVCIsIEFUVFJ7cXVldWUvcnFfYWZmaW5pdHl9PSIyIgpBQ1RJT049PSJhZGR8Y2hhbmdlIiwgS0VSTkVMPT0iZG0tKiIsIFNVQlNZU1RFTT09ImJsb2NrIiwgRU5We0RNX1NFUklBTH09PSIzNjc0MmIwZioiLCBBVFRSe3F1ZXVlL3JxX2FmZmluaXR5fT0iMiI=
