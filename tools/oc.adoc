@@ -30,3 +30,10 @@ oc get pods -A --field-selector=spec.host=hotname
 ----
 oc delete pods -A --field-selector=status.phase!=Running
 ----
+
+.Patch object's finalizers to null - to do a `force unsafe` delete
+----
+patch='{"metadata":{"finalizers":null}}' 
+oc get bmh -n $namespace -o name | xargs -i oc patch -n $namespace {} -p $patch --type=merge
+oc delete bmh -n $names --all
+----
