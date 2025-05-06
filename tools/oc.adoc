@@ -26,3 +26,7 @@ oc delete pods -A --all
 oc get pods -A --field-selector=spec.host=hotname
 ----
 
+.Delete all pods not running state (Useful for cleaning prune job runs and completed installer jobs)
+----
+oc delete pods -A --field-selector=status.phase!=Running
+----
