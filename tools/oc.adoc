@@ -13,3 +13,16 @@ source "$(oc completion bash)"
 ----
 oc get pod -o yaml -no-managedfields
 ----
+
+=== Delete pods
+
+.Delete all pods
+----
+oc delete pods -A --all
+----
+
+.Delete all pods on node (for example stuck in update)
+----
+oc get pods -A --field-selector=spec.host=hotname
+----
+
