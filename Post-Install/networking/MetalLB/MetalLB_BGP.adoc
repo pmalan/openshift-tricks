@@ -1,6 +1,18 @@
 == MetalLB BGP
 
 
+.metallb.yaml
+----
+apiVersion: metallb.io/v1beta1
+kind: MetalLB
+metadata:
+  name: metallb
+  namespace: metallb-system
+spec:
+  bgpBackend: frr-k8s
+  logLevel: warn
+----
+
 
 
 .bgppeer.yaml

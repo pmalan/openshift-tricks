@@ -32,6 +32,6 @@ spec:
             "type":"ovn-k8s-cni-overlay",
             "cniVersion":"0.4.0",
             "topology":"localnet",
-            "netAttachDefName":"vmtest/br-ex-network"
+            "netAttachDefName":"vms/br-ex-network"
           }'
 ----

@@ -2,3 +2,30 @@
 
 === Host Information
 
+.RedFish API's
+[cols="1,1"]
+|===
+
+|/redfish/v1/Systems | List of systems (A list of host nodes, in case of a central control, single node if accessing node directly)
+
+|===
+
+==== Available Member's Endpoints
+
+.Get Member's Endpoints
+----
+curl -u ADMIN:ADMIN -k -s https://192.168.89.200/redfish/v1/Systems|jq -r '.Members[].["@odata.id"]'
+----
+
+.Output for direct node
+----
+/redfish/v1/Systems/1
+----
+
+.Output for a central RedFish Inventory
+----
+/redfish/v1/Systems/node1
+/redfish/v1/Systems/node2
+----
+
+
