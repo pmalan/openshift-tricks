@@ -1,0 +1,7 @@
+== Redeploy API Server
+
+.Trigger a redeploy of API Server
+[source,bash]
+----
+oc patch kubeapiserver cluster -p='{"spec": {"forceRedeploymentReason": "recovery-'"$( date --rfc-3339=ns )"'"}}' --type=merge
+----
