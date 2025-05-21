@@ -144,7 +144,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: rhel9-lldpad
+      app: node-lldpad
   template:
     metadata:
       creationTimestamp: null
