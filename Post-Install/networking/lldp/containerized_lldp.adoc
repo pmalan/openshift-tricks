@@ -134,6 +134,22 @@ spec:
         type: ovs-bridge
 ----
 
+.lldpd-configmap
+----
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: lldpd-config
+  namespace: lldp
+data:
+  lldpd.conf: |-
+    configure lldp status rx-and-tx
+    configure lldp agent-type nearest-bridge
+    configure lldp vlan-tx 1
+    configure lldp capabilities-advertisements
+
+----
+
 .daemonset
 ----
 kind: DaemonSet
