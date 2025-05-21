@@ -1,0 +1,116 @@
+== Enabling LLDP on Openshift
+
+=== Environment
+
+.namespace
+----
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: lldp
+  labels:
+    kubernetes.io/metadata.name: lldp
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+spec:
+  finalizers:
+    - kubernetes
+----
+
+.service account
+----
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: lldp-sa
+  namespace: lldp
+----
+
+.Role Bindings
+----
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: admin
+  namespace: lldp
+subjects:
+  - kind: User
+    apiGroup: rbac.authorization.k8s.io
+    name: admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+----
+
+=== Buid Config
+
+.Image Stream
+----
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: rhel9-lldpad
+  namespace: lldp
+----
+
+.Buid Config
+----
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: lldp
+  namespace: lldp
+  spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'rhel9-lldpad:latest'
+  resources: {}
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: 'registry.access.redhat.com/ubi9/ubi-init:latest'
+      env:
+        - name: ORG_ID
+          value: ''                                     <- Replace with org id
+        - name: ACTIVATION_KEY
+          value: ''                                     <- Replace with Activitaion Key
+  postCommit: {}
+  source:
+    type: Dockerfile
+    dockerfile: |-
+      FROM registry.access.redhat.com/ubi9/ubi-init:latest
+
+      ENV ACTIVATION_KEY=$ACTIVATION_KEY
+      ENV ORG_ID=$ORG_ID
+
+      RUN subscription-manager register --activationkey=$ACTIVATION_KEY --org=$ORG_ID; dnf install -y lldpad; dnf install -y lldpd; subscription-manager clean
+
+      ENV ACTIVATION_KEY=
+      ENV ORG_ID=ENV TINI_VERSION=v0.19.0
+      ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+      RUN chmod +x /tini
+      ENTRYPOINT ["/tini", "--"]
+      ENV PATH=$PATH:/usr/sbin
+
+      # Enable lldp on local interfaces
+      RUN echo "#!/bin/bash\n" > lldp.sh
+      RUN echo "for i in \`ls /sys/class/net/ | grep 'eth\|ens\|eno'\` ; do echo "enabling lldp for interface: \$i" ; lldptool set-lldp -i \$i adminStatus=rxtx ; lldptool -T -i \$i -V sysName enableTx=yes; lldptool -T -i \$i -V portDesc enableTx=yes ; lldptool -T -i $i -V sysDesc enableTx=yes; lldptool -T -i \$i -V sysCap enableTx=yes; lldptool -T -i \$i -V mngAddr enableTx=yes; done" >> lldp.sh
+      RUN echo "rm -Rf /var/lldp/socket" >> lldp.sh
+      RUN echo "lldpd -d -S \$HOSTNAME -M 1 -c -I eth*,en* -m *:*" >> lldp.sh
+
+      RUN chmod +x lldp.sh
+
+      #ENTRYPOINT ["lldpad"]
+      CMD ["/usr/bin/bash","lldp.sh"]
+  runPolicy: Serial
+----
+
