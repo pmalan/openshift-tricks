@@ -111,7 +111,7 @@ metadata:
   runPolicy: Serial
 ----
 
-=== Network Policy to enable LLDP
+=== Node Network Policy to enable LLDP
 
 .nncp-enable-lldp
 ----
@@ -119,8 +119,6 @@ apiVersion: nmstate.io/v1
 kind: NodeNetworkConfigurationPolicy
 metadata:
   name: enable-lldp-on-enp0s1
-  resourceVersion: '31903195'
-  uid: 7d25a490-6107-48e1-8a38-da7a06c082f2
 spec:
   desiredState:
     interfaces:
