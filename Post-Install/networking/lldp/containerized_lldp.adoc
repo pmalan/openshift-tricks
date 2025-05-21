@@ -118,33 +118,6 @@ metadata:
 apiVersion: nmstate.io/v1
 kind: NodeNetworkConfigurationPolicy
 metadata:
-  annotations:
-    nmstate.io/webhook-mutating-timestamp: '1747728032985232986'
-  creationTimestamp: '2025-05-20T07:08:06Z'
-  generation: 7
-  managedFields:
-    - apiVersion: nmstate.io/v1
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:spec':
-          .: {}
-          'f:desiredState':
-            .: {}
-            'f:interfaces': {}
-      manager: Mozilla
-      operation: Update
-      time: '2025-05-20T08:00:32Z'
-    - apiVersion: nmstate.io/v1
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:status':
-          .: {}
-          'f:conditions': {}
-          'f:lastUnavailableNodeCountUpdate': {}
-      manager: manager
-      operation: Update
-      subresource: status
-      time: '2025-05-20T08:00:49Z'
   name: enable-lldp-on-enp0s1
   resourceVersion: '31903195'
   uid: 7d25a490-6107-48e1-8a38-da7a06c082f2
