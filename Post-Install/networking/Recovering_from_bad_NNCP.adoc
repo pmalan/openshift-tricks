@@ -10,15 +10,17 @@ oc delete nncp/policy-name
 
 === If no network
 
-Edit boot command line, add an S to end of line, for single user mode.
+Edit GRUB boot command line, add an S to end of line, for single user mode.
 
 ----
 password root
+...
+exit
 ----
 
-Reboot system, login in as root.
+Login in as root.
 
-Start network with expected ip, or dhcp.
+Start network with expected ip, or dhcp, using nmtui and the interface originally specified during configuration.
 
 === Recreate network configuration on bad nodes
 
@@ -27,6 +29,16 @@ Recreate the missing file on failed node, with root.
 ./var/run/multus/cni/net.d/10-ovn-kubernetes.conf
 ----
 {"binDir":"/var/lib/cni/bin","cniVersion":"0.3.1","logLevel":"verbose","logToStderr":true,"name":"multus-cni-network","clusterNetwork":"/host/run/multus/cni/net.d/10-ovn-kubernetes.conf","namespaceIsolation":true,"globalNamespaces":"default,openshift-multus,openshift-sriov-network-operator,openshift-cnv","type":"multus-shim","daemonSocketDir":"/run/multus/socket"}
+----
+
+=== Restart all services
+
+----
+systemctl stop kubelet
+systemctl restart crio
+systemctl restart ovsdb-server.service 
+systemctl restart ovs-vswitchd.service
+systemctl start kubelet
 ----
 
 === Force re-render of nodes
