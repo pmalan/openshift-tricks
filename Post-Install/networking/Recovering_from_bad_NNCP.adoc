@@ -8,6 +8,18 @@ Error syncing pod, skipping" err="network is not ready: container runtime networ
 
 oc delete nncp/policy-name
 
+=== If no network
+
+Edit boot command line, add an S to end of line, for single user mode.
+
+----
+password root
+----
+
+Reboot system, login in as root.
+
+Start network with expected ip, or dhcp.
+
 === Recreate network configuration on bad nodes
 
 Recreate the missing file on failed node, with root.
