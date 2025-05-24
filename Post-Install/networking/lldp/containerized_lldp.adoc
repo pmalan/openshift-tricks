@@ -113,6 +113,8 @@ metadata:
 
 === Node Network Policy patch to enable LLDP on interfaces
 
+WARNING: Not working killing nodes .... investigating....
+
 .nncp-enable-lldp
 ----
 apiVersion: nmstate.io/v1
