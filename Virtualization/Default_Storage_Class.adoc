@@ -14,3 +14,5 @@ In the default virt storage class add the following annotation:
 
 ## Create storageprofiles (if required)
 
+cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+
