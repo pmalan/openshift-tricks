@@ -44,6 +44,17 @@ spec:
   sourceNamespace: openshift-marketplace
 ----
 
+.Create SA and assign roles
+[source,bash]
+----
+oc project openshift-logging
+oc create sa collector -n openshift-logging
+oc adm policy add-cluster-role-to-user logging-collector-logs-writer -z collector
+oc adm policy add-cluster-role-to-user collect-application-logs -z collector
+oc adm policy add-cluster-role-to-user collect-audit-logs -z collector
+oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z collector
+----
+
 === LogForwarder Configuration Sample
 
 To troubleshoot and get insight into ClusterLogForwarder you can deploy a forwarder, which forwards to an HTTP endpoint. This will allow you to see the payload and also test your configuration of the filter capabilities.
