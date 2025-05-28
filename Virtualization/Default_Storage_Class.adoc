@@ -14,5 +14,7 @@ In the default virt storage class add the following annotation:
 
 ## Create storageprofiles (if required)
 
+== If storage class not bind immediate, may be
+
 cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
 
