@@ -1,16 +1,57 @@
 == Log Forwarder Configuration and Troubleshooting
 
-=== Logging Operator
+=== Logging Operator Install
 
+.Logging Operator
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-logging
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-operators-redhat
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true"
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging
+spec:
+  targetNamespaces:
+  - openshift-logging
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging
+spec:
+  channel: stable
+  name: cluster-logging
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+----
 
-
-=== LogForwarder Configuration
+=== LogForwarder Configuration Sample
 
 To troubleshoot and get insight into ClusterLogForwarder you can deploy a forwarder, which forwards to an HTTP endpoint. This will allow you to see the payload and also test your configuration of the filter capabilities.
 
 In the following configuration the we forward to logs to an HTTP endpoint, filter on namespace, dropping any logs not in the my-project namespace.
 
 .clusterlogforwarder.yaml
+[source,yaml]
 ----
 apiVersion: logging.openshift.io/v1
 kind: ClusterLogForwarder
@@ -64,6 +105,7 @@ The image used was ghcr.io/mendhak/http-https-echo:34 and its github page is ava
 In the example above, content of logs are filter on specified values, to look at the available fiels to filter on, we can look at the contents of a log entry:
 
 .sample log entry - body
+[source,json]
 ----
 {
    "@timestamp":"2024-09-03T16:31:25.995191094Z",
@@ -125,13 +167,14 @@ service_name unknown_service
 ----
 
 
-=== Samples
+=== Addtiotnal Samples
 
 ==== Forwarding logs for a set of namespaces
 
 Foward all logs for projects in "my-*" names, for example my-project, my-test:
 
 .instance.yaml
+[source,yaml]
 ----
 apiVersion: logging.openshift.io/v1
 kind: ClusterLogForwarder
@@ -166,6 +209,7 @@ spec:
 Forward logs for qualified namespaces, for example my-project and the democratic-csi projects:
 
 .instance.yaml
+[source,yaml]
 ----
 apiVersion: logging.openshift.io/v1
 kind: ClusterLogForwarder
@@ -200,6 +244,7 @@ spec:
 Forward logs for qualified namespaces, for example my-project to my http logger on port 88888 and my-project2 to http logger on port 8889:
 
 .instance.yaml
+[source,yaml]
 ----
 apiVersion: logging.openshift.io/v1
 kind: ClusterLogForwarder
@@ -221,12 +266,12 @@ spec:
       http:
         method: POST
       type: http
-      url: 'http://node3.pietersmalan.com:8888/'
+      url: 'http://{podmanhost:8888}/'
     - name: remote-http-8889
       http:
         method: POST
       type: http
-      url: 'http://node3.pietersmalan.com:8889/'
+      url: 'http://{podmanhost:8889}/'
   pipelines:
     - name: forward-to-remote-8888
       detectMultilineErrors: true
