@@ -1,5 +1,9 @@
 == Log Forwarder Configuration and Troubleshooting
 
+=== Logging Operator
+
+
+
 === LogForwarder Configuration
 
 To troubleshoot and get insight into ClusterLogForwarder you can deploy a forwarder, which forwards to an HTTP endpoint. This will allow you to see the payload and also test your configuration of the filter capabilities.
