@@ -111,7 +111,7 @@ metadata:
   runPolicy: Serial
 ----
 
-TIP: ACTIVATION_KEY - https://console.redhat.com/insights/connector/activation-keys/ocp
+TIP: ACTIVATION_KEY - https://console.redhat.com/insights/connector/activation-keys
 
 TIP: ORG_ID - Available in Red Hat Console, if you click on you name, top right hand corner.
 
