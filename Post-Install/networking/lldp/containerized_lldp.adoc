@@ -111,6 +111,10 @@ metadata:
   runPolicy: Serial
 ----
 
+TIP: ACTIVATION_KEY - https://console.redhat.com/insights/connector/activation-keys/ocp
+
+TIP: ORG_ID - Available in Red Hat Console, if you click on you name, top right hand corner.
+
 === Node Network Policy patch to enable LLDP on interfaces
 
 WARNING: Not working killing nodes .... investigating....
