@@ -1,0 +1,9 @@
+== Prune Images on Nodes
+
+To prune images not in use, or outdated images, you can request crio to prune the images on a node.
+
+Execute on Nodes
+[code,bash]
+----
+crictl rmi --prune
+----
