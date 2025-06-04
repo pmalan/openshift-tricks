@@ -82,7 +82,7 @@ blacklist {
 }
 ----
 
-Or you want to use defaults, run the following command to get the base64 encoded defaults:
+Or you want to use defaults, run the following command to get the base64 encoded defaults, without any existing multipath.conf in the etc folder:
 
 .All defaults:
 ----
