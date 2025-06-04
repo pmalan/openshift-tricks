@@ -1,0 +1,5 @@
+== Make Master Nodes Schedulable/Unschedulable
+
+.Make Master
+
+Set the mastersSchedulable spec to false to disallow master nodes to be schedulable. The value is set to false by default.
