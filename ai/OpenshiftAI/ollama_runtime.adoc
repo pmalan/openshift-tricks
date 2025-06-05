@@ -4,18 +4,12 @@
 ----
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
+labels:
+  opendatahub.io/dashboard: "true"
 metadata:
   annotations:
-    opendatahub.io/accelerator-name: migrated-gpu
-    opendatahub.io/apiProtocol: REST
-    opendatahub.io/hardware-profile-name: migrated-gpu-mglzi-serving
-    opendatahub.io/template-display-name: Ollama
-    opendatahub.io/template-name: ollama
-    openshift.io/display-name: granite-3b-code-base-2k
-  name: ollama-serving-runtime
-  namespace: ai-project
-  labels:
-    opendatahub.io/dashboard: 'true'
+    openshift.io/display-name: Ollama
+  name: ollama
 spec:
   builtInAdapter:
     modelLoadingTimeoutMillis: 90000
