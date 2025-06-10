@@ -1,0 +1,80 @@
+== Scale down a AI deployment
+
+=== Vertical Pod Auto Scaler
+
+Install the Vertical Pod Autoscaler Operator
+
+.Default Vertical Pod Autoscaler Controller
+[source,yaml]
+----
+apiVersion: autoscaling.openshift.io/v1
+kind: VerticalPodAutoscalerController
+metadata:
+  name: default
+  namespace: openshift-vertical-pod-autoscaler
+spec:
+  deploymentOverrides:
+    admission:
+      container:
+        resources: {}
+    recommender:
+      container:
+        resources: {}
+    updater:
+      container:
+        resources: {}
+  minReplicas: 2
+  podMinCPUMillicores: 500
+  podMinMemoryMb: 2000
+  recommendationOnly: false
+  safetyMarginFraction: 0.15
+----
+
+=== RHODS Dashbaord scaling down replicas
+
+Dashboards seems to have a replica count of 5.
+
+.Horizontal Pod Autoscaler
+[source,yaml]
+----
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+metadata:
+  name: rhods-dashboard-hz-scaler
+  namespace: redhat-ods-applications
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: rhods-dashboard
+    apiVersion: apps/v1
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+----
+
+Automatic Sacling of the 2Gb memory allocation per replica
+
+.Vertical Pod Autoscaler
+[source,yaml]
+----
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-recommender
+  namespace: redhat-ods-applications
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rhods-dashboard
+  updatePolicy:
+    minReplicas: 1
+    updateMode: Auto
+----
+
