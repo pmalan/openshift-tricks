@@ -23,7 +23,7 @@ spec:
     updater:
       container:
         resources: {}
-  minReplicas: 2
+  minReplicas: 1
   podMinCPUMillicores: 500
   podMinMemoryMb: 2000
   recommendationOnly: false
@@ -48,7 +48,7 @@ spec:
     name: rhods-dashboard
     apiVersion: apps/v1
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 5
   metrics:
     - type: Resource
       resource:
