@@ -37,3 +37,8 @@ patch='{"metadata":{"finalizers":null}}'
 oc get bmh -n $namespace -o name | xargs -i oc patch -n $namespace {} -p $patch --type=merge
 oc delete bmh -n $names --all
 ----
+
+.Labels/Field Selector
+----
+oc get pods -A -l k8s-app=='machine-config-daemon' --field-selector=spec.host=bm213.pietersmalan.com 
+----
