@@ -36,7 +36,7 @@ spec:
   reason: "Test node maintenance"
 ----
 
-.Quering the status/progress of the drain process
+.Querying the status/progress of the drain process
 ----
 oc get nm nodemaintenance-sample
 ----
