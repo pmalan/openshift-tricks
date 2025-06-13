@@ -25,10 +25,64 @@ spec:
   sourceNamespace: openshift-marketplace
 ----
 
+.Put a node in maintenance
+----
+apiVersion: nodemaintenance.medik8s.io/v1beta1
+kind: NodeMaintenance
+metadata:
+  name: nodemaintenance-sample
+spec:
+  nodeName: node02
+  reason: "Test node maintenance"
+----
 
+.Quering the status/progress of the drain process
+----
+oc get nm nodemaintenance-sample
+----
+
+NOTE: There is also the capability added to console under Compute->Nodes->Node under Actions, Start Maintenance.
 
 ==== Node Health Check / Self Node Remediation
 
 ==== Kube Descheduler
+
+.Descheduler configuration
+----
+apiVersion: operator.openshift.io/v1
+kind: KubeDescheduler
+metadata:
+  name: cluster
+  namespace: openshift-kube-descheduler-operator
+  resourceVersion: '31779572'
+  uid: b4d7f1cf-a7df-4549-be2a-7557ffde7270
+spec:
+  logLevel: Normal
+  mode: Automatic
+  operatorLogLevel: Normal
+  deschedulingIntervalSeconds: 60
+  profileCustomizations:
+    devEnableEvictionsInBackground: true
+  observedConfig:
+    servingInfo:
+      cipherSuites:
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+      minTLSVersion: VersionTLS12
+  profiles:
+    - EvictPodsWithPVC
+    - DevKubeVirtRelieveAndMigrate
+  managementState: Managed
+  unsupportedConfigOverrides: null
+----
+
+NOTE: If using Virtualization, then the "profileCustomizations: devEnableEvictionsInBackground: true" is a required setting
 
 === Firmware
