@@ -1,0 +1,34 @@
+== Configure Fail over and General Maintenance
+
+=== Operators
+
+==== Node Maintenance
+
+.Subscription
+----
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: openshift-workload-availability
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: node-maintenance-operator
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: node-maintenance-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+----
+
+
+
+==== Node Health Check / Self Node Remediation
+
+==== Kube Descheduler
+
+=== Firmware
