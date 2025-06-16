@@ -1,10 +1,10 @@
 == Configure Fail over and General Maintenance
 
-=== Operators
-
-==== Node Maintenance
+=== Node Maintenance
 
 Gives a programmatic way of putting hosts in maintenance mode, with added functionality in the console.
+
+==== Node Maintenance Operator
 
 .Subscription for Node Maintenance Operator
 [source,yaml]
@@ -50,11 +50,13 @@ oc get nm nodemaintenance-sample
 
 NOTE: There is also the capability added to console under Compute->Nodes->Node under Actions, Start Maintenance.
 
-==== Node Health Check / Self Node Remediation
+---
+
+=== Node Health Check / Self Node Remediation
 
 Allows a manual configuration to pick up any host issues, faster than the standard kubernetes time outs, and remediation.
 
-===== Self Node Remediation
+==== Self Node Remediation
 
 .Operator Subscription
 [source,yaml]
@@ -144,9 +146,12 @@ spec:
       type: Ready
 ----
 
+---
+
 ==== Kube Descheduler
 
 .Descheduler configuration
+[source,yaml]
 ----
 apiVersion: operator.openshift.io/v1
 kind: KubeDescheduler
@@ -184,4 +189,4 @@ spec:
 
 NOTE: If using Virtualization, then the "profileCustomizations: devEnableEvictionsInBackground: true" is a required setting
 
-=== Firmware
+
