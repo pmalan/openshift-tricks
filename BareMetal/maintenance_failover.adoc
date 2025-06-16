@@ -1,3 +1,5 @@
+:toc2:
+
 == Configure Fail over and General Maintenance
 
 === Node Maintenance
