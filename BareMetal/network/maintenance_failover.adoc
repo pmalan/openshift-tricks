@@ -6,7 +6,8 @@
 
 Gives a programmatic way of putting hosts in maintenance mode, with added functionality in the console.
 
-.Subscription fro Operator
+.Subscription for Node Maintenance Operator
+[code,yaml]
 ----
 ---
 kind: Namespace
@@ -30,6 +31,7 @@ spec:
 NOTE: No extra configuration required for the operator.
 
 .Put a node in maintenance
+[code,yaml]
 ----
 apiVersion: nodemaintenance.medik8s.io/v1beta1
 kind: NodeMaintenance
@@ -41,6 +43,7 @@ spec:
 ----
 
 .Querying the status/progress of the drain process
+[code,bash]
 ----
 oc get nm nodemaintenance-sample
 ----
@@ -49,11 +52,12 @@ NOTE: There is also the capability added to console under Compute->Nodes->Node u
 
 ==== Node Health Check / Self Node Remediation
 
-Allows a manual configuration to pick up any host issues, earlier than the standard kubernetes time outs.
+Allows a manual configuration to pick up any host issues, faster than the standard kubernetes time outs, and remediation.
 
 ===== Self Node Remediation
 
 .Operator Subscription
+[code,yaml]
 ----
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -70,6 +74,7 @@ spec:
 ----
 
 .Default Self Node Remediation Configuration
+[code,yaml]
 ----
 apiVersion: self-node-remediation.medik8s.io/v1alpha1
 kind: SelfNodeRemediationConfig
@@ -92,6 +97,7 @@ spec:
 ==== Node Health Check Operator
 
 .Node Check Operator Subscription
+[code,yaml]
 ----
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -105,6 +111,37 @@ spec:
   source: redhat-operators
   sourceNamespace: openshift-marketplace
   startingCSV: node-healthcheck-operator.v0.9.0
+----
+
+.Node Health Configuration, using above created Remediaton Template
+[code,yaml]
+----
+apiVersion: remediation.medik8s.io/v1alpha1
+kind: NodeHealthCheck
+metadata:
+  name: nodehealthcheck
+spec:
+  minHealthy: 50%
+  remediationTemplate:
+    apiVersion: self-node-remediation.medik8s.io/v1alpha1
+    kind: SelfNodeRemediationTemplate
+    name: self-node-remediation-automatic-strategy-template
+    namespace: openshift-workload-availability
+  selector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/worker
+        operator: Exists
+        values: []
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        values: []
+  unhealthyConditions:
+    - duration: 100s
+      status: 'False'
+      type: Ready
+    - duration: 300s
+      status: Unknown
+      type: Ready
 ----
 
 ==== Kube Descheduler
