@@ -4,7 +4,7 @@
 
 ==== Node Maintenance
 
-Gives a programmitc way of putting hosts in maintenance mode, with added functionality in the console.
+Gives a programmatic way of putting hosts in maintenance mode, with added functionality in the console.
 
 .Subscription fro Operator
 ----
@@ -49,6 +49,8 @@ NOTE: There is also the capability added to console under Compute->Nodes->Node u
 
 ==== Node Health Check / Self Node Remediation
 
+Allows a manual configuration to pick up any host issues, earlier than the standard kubernetes time outs.
+
 ===== Self Node Remediation
 
 .Operator Subscription
@@ -87,6 +89,23 @@ spec:
   maxApiErrorThreshold: 3
 ----
 
+==== Node Health Check Operator
+
+.Node Check Operator Subscription
+----
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: node-healthcheck-operator
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: node-healthcheck-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: node-healthcheck-operator.v0.9.0
+----
 
 ==== Kube Descheduler
 
