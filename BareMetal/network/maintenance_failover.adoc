@@ -4,7 +4,9 @@
 
 ==== Node Maintenance
 
-.Subscription
+Gives a programmitc way of putting hosts in maintenance mode, with added functionality in the console.
+
+.Subscription fro Operator
 ----
 ---
 kind: Namespace
@@ -25,6 +27,8 @@ spec:
   sourceNamespace: openshift-marketplace
 ----
 
+NOTE: No extra configuration required for the operator.
+
 .Put a node in maintenance
 ----
 apiVersion: nodemaintenance.medik8s.io/v1beta1
@@ -44,6 +48,45 @@ oc get nm nodemaintenance-sample
 NOTE: There is also the capability added to console under Compute->Nodes->Node under Actions, Start Maintenance.
 
 ==== Node Health Check / Self Node Remediation
+
+===== Self Node Remediation
+
+.Operator Subscription
+----
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: self-node-remediation
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: self-node-remediation
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: self-node-remediation.v0.10.0
+----
+
+.Default Self Node Remediation Configuration
+----
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationConfig
+metadata:
+  name: self-node-remediation-config
+  namespace: openshift-workload-availability
+spec:
+  apiServerTimeout: 5s
+  peerApiServerTimeout: 5s
+  hostPort: 30001
+  isSoftwareRebootEnabled: true
+  watchdogFilePath: /dev/watchdog
+  peerDialTimeout: 5s
+  peerUpdateInterval: 15m
+  apiCheckInterval: 15s
+  peerRequestTimeout: 5s
+  maxApiErrorThreshold: 3
+----
+
 
 ==== Kube Descheduler
 
