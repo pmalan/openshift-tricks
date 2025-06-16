@@ -1,0 +1,187 @@
+:toc2:
+
+== SiteConfig - Zero Touch Provisioning using Yaml
+
+=== Enable Site Config in ACM
+
+.Patch multiclustergub to enable siteconfig
+[source,bash]
+----
+oc patch multiclusterhubs.operator.open-cluster-management.io multiclusterhub -n open-cluster-management --type json --patch '[{"op": "add", "path":"/spec/overrides/components/-", "value": {"name":"siteconfig","enabled": true}}]'
+----
+
+=== Build out Cluster
+
+In this example the cluster is going to be called "sno", a single node OpenShift cluster.
+
+==== Create Namespace
+
+.Namespace to hold all cluster related artifacts.
+[source,bash]
+----
+oc new-project sno
+----
+
+---
+
+Or yaml based namespace
+
+.namespace.yaml
+[source,yaml]
+----
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: sno
+----
+
+.Create namespace
+[source,bash]
+----
+oc apply -f namespace.yaml
+----
+
+---
+
+==== Pull Secret
+
+Get your pull secret from https://console.redhat.com/openshift/downloads
+
+.Create pull secret from downloaded pull-secret.txt
+[source,bash]
+----
+oc create secret docker-registry pullsecret --from-file=pull-secret.txt -n sno
+----
+
+==== BareMetal BMC Credentails
+
+For each node, create a BMC username and password.
+
+.bmc-bm217
+[source,bash]
+----
+oc create secret generic bmc-bm217 \
+  --from-literal=username=admin \
+  --from-literal=password=password -n sno
+----
+
+==== Cluster Configuration
+
+.sno-cluster.yaml
+----
+apiVersion: siteconfig.open-cluster-management.io/v1alpha1
+kind: ClusterInstance
+metadata:
+  name: sno
+  namespace: sno
+spec:
+  apiVIPs:
+    - "10.0.1.217"
+  ingressVIPS:
+    - "10.0.1.217"
+  baseDomain: "pietersmalan.com"
+  clusterName: "sno"
+  clusterType: SNO
+  platformType: None
+  clusterImageSetNameRef: img4.18.17-x86-64-appsub
+  holdInstallation: false
+  networkType: "OVNKubernetes"
+  clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
+  machineNetwork:
+    - cidr: 10.0.1.0/24
+  serviceNetwork:
+    - cidr: 172.30.0.0/16
+  nodes:
+  - hostName: "bm217.pietersmalan.com"
+    templateRefs:
+      - name: ibi-node-templates-v1
+        namespace: open-cluster-management
+    bmcCredentialsName:
+      name: bmc-bm217
+    bmcAddress: "redfish-virtualmedia://10.0.1.10:8800/redfish/v1/Systems/node1/bm217"
+    automatedCleaningMode: metadata
+    bootMACAddress: "A2:F1:2F:6F:49:07"
+    bootMode: UEFI
+    ironicInspect: disabled
+    role: master
+    nodeNetwork:
+      config:
+        dns-resolver:
+          config:
+            server:
+              - 10.0.1.1
+        interfaces:
+        - ipv4:
+            address:
+            - ip: 10.0.1.217
+              prefix-length: 24
+            enabled: true
+          name: enp1s0
+          state: up
+          type: ethernet
+          mtu: 8900
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 10.0.1.1
+              next-hop-interface: enp1s0
+      interfaces:
+        - macAddress: A2:F1:2F:6F:49:06
+          name: enp1s0
+  pullSecretRef:
+    name: pullsecret
+  templateRefs:
+    - name: ibi-cluster-templates-v1
+      namespace: open-cluster-management
+  sshPublicKey: ssh-ed25519 A...G openshift@node3.pietersmalan.com
+----
+
+
+---
+
+Where :
+
+.clusterType: is one of:
+
+- SNO
+- HighlyAvailable
+
+.platformType:
+
+- BareMetal
+- None
+- External
+- VSphere
+- Nutanix
+
+
+.clusterImageSetNameRef is one of 
+----
+oc get clusterimageset -l visible=='true'
+----
+
+.templateRefs is one of ai (Assisted Installer) or ibi (Image Based Installer) and whether referenced on cluster level or node level, all in configMaps in namespace open-cluster-management:
+----
+ai-cluster-templates-v1
+ai-node-templates-v1
+
+ibi-cluster-templates-v1
+ibi-node-templates-v1
+----
+
+And for each node, pointing to the relevant bmc credential:
+
+.bmcCredentialsName
+----
+ nodes:
+  - hostName: "bm217"
+    templateRefs:
+      - name: ai-node-templates-v1
+        namespace: open-cluster-management
+    bmcCredentialsName:
+      name: bmc-bm217-secret
+----
+
+NOTE: In above example clusterType: SNO and platformType: None are the defaults for a single node cluster.
