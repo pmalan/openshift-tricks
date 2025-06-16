@@ -7,7 +7,7 @@
 Gives a programmatic way of putting hosts in maintenance mode, with added functionality in the console.
 
 .Subscription for Node Maintenance Operator
-[code,yaml]
+[source,yaml]
 ----
 ---
 kind: Namespace
@@ -31,7 +31,7 @@ spec:
 NOTE: No extra configuration required for the operator.
 
 .Put a node in maintenance
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: nodemaintenance.medik8s.io/v1beta1
 kind: NodeMaintenance
@@ -43,7 +43,7 @@ spec:
 ----
 
 .Querying the status/progress of the drain process
-[code,bash]
+[source,bash]
 ----
 oc get nm nodemaintenance-sample
 ----
@@ -57,7 +57,7 @@ Allows a manual configuration to pick up any host issues, faster than the standa
 ===== Self Node Remediation
 
 .Operator Subscription
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -74,7 +74,7 @@ spec:
 ----
 
 .Default Self Node Remediation Configuration
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: self-node-remediation.medik8s.io/v1alpha1
 kind: SelfNodeRemediationConfig
@@ -97,7 +97,7 @@ spec:
 ==== Node Health Check Operator
 
 .Node Check Operator Subscription
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -114,7 +114,7 @@ spec:
 ----
 
 .Node Health Configuration, using above created Remediaton Template
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: remediation.medik8s.io/v1alpha1
 kind: NodeHealthCheck
