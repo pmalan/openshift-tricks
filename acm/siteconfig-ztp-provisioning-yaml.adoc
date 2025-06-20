@@ -10,7 +10,9 @@
 oc patch multiclusterhubs.operator.open-cluster-management.io multiclusterhub -n open-cluster-management --type json --patch '[{"op": "add", "path":"/spec/overrides/components/-", "value": {"name":"siteconfig","enabled": true}}]'
 ----
 
-=== Build out Cluster
+=== Build out Cluster for Image Basse Install
+
+https://docs.redhat.com/en/documentation/openshift_container_platform/4.17/html/edge_computing/image-based-installation-for-single-node-openshift#ibi-install-ibi-operator_ibi-edge-image-based-install
 
 In this example the cluster is going to be called "sno", a single node OpenShift cluster.
 
