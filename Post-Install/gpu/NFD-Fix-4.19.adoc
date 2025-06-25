@@ -1,0 +1,112 @@
+== NFD Operator - Node Feature Discovery Pods nfd-worker/nfd-master Failure 4.19
+
+Add relevant persmision to API: nfd.k8s-sigs.io
+
+nfd-worker.yaml
+[source,yaml]
+----
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfd-worker
+  namespace: openshift-nfd
+rules:
+  - verbs:
+      - get
+      - create
+      - update
+      - delete
+    apiGroups:
+      - nfd.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - nodefeatures
+  - verbs:
+      - update
+      - get
+      - create
+      - delete
+    apiGroups:
+      - nfd.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - nodefeatures/finalizers
+  - verbs:
+      - use
+    apiGroups:
+      - security.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - securitycontextconstraints
+    resourceNames:
+      - nfd-worker
+  - verbs:
+      - use
+    apiGroups:
+      - policy
+    resources:
+      - podsecuritypolicies
+    resourceNames:
+      - nfd-worker
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - pods
+----
+
+nfd-master.yaml
+[source,yaml]
+----
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfd-worker
+  namespace: openshift-nfd
+rules:
+  - verbs:
+      - get
+      - create
+      - update
+      - delete
+    apiGroups:
+      - nfd.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - nodefeatures
+  - verbs:
+      - update
+      - get
+      - create
+      - delete
+    apiGroups:
+      - nfd.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - nodefeatures/finalizers
+  - verbs:
+      - use
+    apiGroups:
+      - security.openshift.io
+      - nfd.k8s-sigs.io
+    resources:
+      - securitycontextconstraints
+    resourceNames:
+      - nfd-worker
+  - verbs:
+      - use
+    apiGroups:
+      - policy
+    resources:
+      - podsecuritypolicies
+    resourceNames:
+      - nfd-worker
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - pods
+
+----
