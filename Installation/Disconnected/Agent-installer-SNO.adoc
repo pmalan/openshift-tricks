@@ -159,7 +159,7 @@ platform:
   none: {}
 pullSecret: ''
 sshKey: |
-  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPHOkTjC/ErGlk/jjjl0kFeT2ypOojwwLWtdcnXcRqAz ai@disconnected.pietersmalan.com
+  ssh-ed25519 A...com
 imageDigestSources:
 - mirrors:
   - <mirror-registry>/<mirror-repo>/openshift4/openshift/release
