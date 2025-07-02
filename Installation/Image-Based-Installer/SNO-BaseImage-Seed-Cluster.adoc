@@ -133,6 +133,8 @@ WARNING: At the moment only IPV4 is supported.
 
 WARNING: Do need install any ACM related artifacts, ie. don't register cluster with ACM.
 
+WARNING: Do not configure storage or any networking.
+
 === Capture the Seed Image
 
 ==== Pull Secret including your target image registry credentials
