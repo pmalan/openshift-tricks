@@ -11,9 +11,11 @@ After configuration of the seed cluster with operators and configurations requir
 This seed image, is then used to create clusters, with pre-seeded operators and configurations.
 
 
-=== /var/lib/containers Partition
+=== Create a cluster with a mounted /var/lib/containers Partition
 
 Follow the guide https://www.redhat.com/en/blog/a-guide-to-creating-a-separate-disk-partition-at-installation-time
+
+Adding a partition to an existing cluster is also possible - https://access.redhat.com/solutions/4952011
 
 === Install Life Cycle Agent
 
@@ -167,14 +169,14 @@ The status of the CR, indicates the state of the operator, but will you will loo
 NOTE: After a few minutes, and creation of the image on the specified registry, you would be able to see the final status.
 
 .seedgenerator.yaml
-[source,yaml]apiVersion: 
+[source,yaml]
 ----
-lca.openshift.io/v1
+apiVersion: lca.openshift.io/v1
 kind: SeedGenerator
 metadata:
   name: seedimage 
 spec:
-  seedImage: <seed_container_image> 
+  seedImage: <registry/myrepo/seed-container-sno:4.19.2> 
 ----
 
 
