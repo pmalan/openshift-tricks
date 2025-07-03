@@ -2,6 +2,12 @@
 
 == Image Based Installer
 
+. Create a base image of deployed cluster with operators
+. Create a bootable iso and install on targer nodes
+. Boot image on target node, and shutdown
+. Create IBI Cluster Install in ACM
+. ACM will power up node and do the final cluster configuration
+
 *Prerequisites* 
 
 . A configured seed image. See `xref:SNO-BaseImage-Seed-Cluster.adoc[Single Node Base Image Seed Cluster]`
