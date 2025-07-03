@@ -48,6 +48,8 @@ ifconfig
 
 ====
 
+NOTE: Parameters - https://github.com/openshift-kni/lifecycle-agent/blob/release-4.19/api/ibiconfig/ibiconfig.go
+
 .image-based-installation-config.yaml
 [,yaml]
 ----
