@@ -1,2 +1,88 @@
+:toc2:
+
 == Image Based Installer
 
+*Prerequisites* 
+
+. A configured seed image. See `xref:SNO-BaseImage-Seed-Cluster.adoc[Single Node Base Image Seed Cluster]`
+. Have openshift-install available `https://console.redhat.com/openshift/downloads[Red Hat Hybrid Console - Openshift Downloads]`
+
+=== Build the ISO image 
+
+.Create a working directory
+[source,bash]
+----
+mkdir ibi-iso-workdir
+----
+
+.Optional to create a template
+[%collapsible]
+====
+[source,bash]
+----
+openshift-install image-based create image-config-template --dir ibi-iso-workdir
+----
+====
+
+.Modify the image-based-installation-config.yaml to suite your environment.
+[%collapsible]
+====
+
+Easiest way is to boot Red Hat Enterprise Linux CoreOS (RHCOS) and run the following commands to extract required values.
+
+.rhcos-boot.iso
+----
+https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/latest/rhcos-live-iso.x86_64.iso
+----
+
+.List disks
+----
+lsblk
+----
+
+.list Network Interface
+----
+ifconfig
+----
+
+
+====
+
+.image-based-installation-config.yaml
+[,yaml]
+----
+apiVersion: v1beta1
+kind: ImageBasedInstallationConfig
+metadata:
+  name: example-image-based-installation-config
+seedImage: quay.io/pmalan_rhh/seed/snobi:4.19
+seedVersion: "4.19.0"
+extraPartitionStart: "-240G"
+installationDisk: /dev/vda
+sshKey: 'ssh-ed25519 AAAA.. .com'
+pullSecret: '`https://console.redhat.com/openshift/downloads#tool-pull-secret`'
+networkConfig:
+    interfaces:
+      - name: enp1s0 
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          auto-dns: false
+          address:
+            - ip: 10.0.1.217
+              prefix-length: 24
+        ipv6:
+          enabled: false
+    dns-resolver:
+      config:
+        server:
+          - 10.0.1.1
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        metric: 150
+        next-hop-address: 10.0.1.217
+        next-hop-interface: enp1s0 
+----
