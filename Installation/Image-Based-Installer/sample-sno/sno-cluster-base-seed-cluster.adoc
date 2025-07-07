@@ -1,5 +1,6 @@
 == Single node install using Assistent Installer
 
+This represent the single node base seed cluster with correct partitioning applied.
 
 === Install aicli
 
