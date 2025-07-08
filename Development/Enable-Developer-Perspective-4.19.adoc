@@ -1,0 +1,9 @@
+== Enable Developer Perspective
+
+In OpenShift 4.19 the Developer Perspective is disabled by default.
+
+.Enable Developer Perspective
+[,bash]
+----
+oc patch console.operator.openshift.io/cluster --type='merge' -p '{"spec":{"customization":{"perspectives":[{"id":"dev","visibility":{"state":"Enabled"}}]}}}'
+----
