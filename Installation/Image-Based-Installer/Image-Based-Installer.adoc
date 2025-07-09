@@ -97,6 +97,19 @@ networkConfig:
 
 === ACM IBI Cluster Install
 
+Create a ClusterImageSet referencing your base seed image,see `xref:SNO-BaseImage-Seed-Cluster.adoc[Single Node Base Image Seed Cluster]`.
+
+.ibi-4.19-sno
+[,yaml]
+----
+apiVersion: hive.openshift.io/v1
+kind: ClusterImageSet
+metadata:
+  name: ibi-4.19-sno
+spec:
+  releaseImage: 'quay.io/pmalan_rhh/seed/snobi@sha256:0581f9532af83bff3de6311d6b56d11fcbc21759e25cbf51c6eafa3f9351891a' <-- Reference to newly created base seed image
+----
+
 Create workspace for cluster, then create the ClusterInstance and referenced pullsecret.
 
 .pullsecret.yaml
@@ -113,6 +126,7 @@ type: kubernetes.io/dockerconfigjson
 ----
 
 .sno-cluster-instance.yaml
+[,yaml]
 ----
 apiVersion: siteconfig.open-cluster-management.io/v1alpha1
 kind: ClusterInstance
