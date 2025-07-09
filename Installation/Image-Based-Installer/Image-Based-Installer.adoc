@@ -3,7 +3,7 @@
 == Image Based Installer
 
 . Create a base image of deployed cluster with operators
-. Create a bootable iso and install on targer nodes
+. Create a bootable iso and install on target nodes
 . Boot image on target node, and shutdown
 . Create IBI Cluster Install in ACM
 . ACM will power up node and do the final cluster configuration
@@ -94,3 +94,84 @@ networkConfig:
         next-hop-address: 10.0.1.217
         next-hop-interface: enp1s0 
 ----
+
+=== ACM IBI Cluster Install
+
+Create workspace for cluster, then create the ClusterInstance and referenced pullsecret.
+
+.pullsecret.yaml
+----
+----
+
+.sno-cluster-instance.yaml
+----
+apiVersion: siteconfig.open-cluster-management.io/v1alpha1
+kind: ClusterInstance
+metadata:
+  name: sno
+  namespace: sno
+spec:
+  cpuPartitioningMode: None
+  clusterName: sno
+  clusterImageSetNameRef: ibi-4.19-sno
+  machineNetwork:
+    - cidr: 10.0.1.0/24
+  networkType: OVNKubernetes
+  platformType: None
+  sshPublicKey: ssh-ed25519 A.. openshift@example.com
+  apiVIPs:
+    - 10.0.1.217
+  nodes:
+    - automatedCleaningMode: metadata
+      nodeNetwork:
+        config:
+          dns-resolver:
+            config:
+              server:
+                - 10.0.1.1
+          interfaces:
+            - ipv4:
+                address:
+                  - ip: 10.0.1.217
+                    prefix-length: 24
+                enabled: true
+              mtu: 8900
+              name: enp1s0
+              state: up
+              type: ethernet
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: 10.0.1.1
+                next-hop-interface: enp1s0
+        interfaces:
+          - macAddress: 'A2:F1:2F:6F:49:06'
+            name: enp1s0
+      bmcCredentialsName:
+        name: bmc-bm217
+      ironicInspect: disabled
+      hostName: bm217.pietersmalan.com
+      bootMode: UEFI
+      role: master
+      bootMACAddress: 'A2:F1:2F:6F:49:07'
+      templateRefs:
+        - name: ibi-node-templates-v1
+          namespace: open-cluster-management
+      cpuArchitecture: x86_64
+      #bmcAddress: 'redfish-virtualmedia://10.0.1.10:8800/redfish/v1/Systems/node1/bm217'
+  clusterType: SNO
+  clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
+  baseDomain: pietersmalan.com
+  holdInstallation: false
+  serviceNetwork:
+    - cidr: 172.30.0.0/16
+  templateRefs:
+    - name: ibi-cluster-templates-v1
+      namespace: open-cluster-management
+  cpuArchitecture: x86_64
+  pullSecretRef:
+    name: pullsecret
+----
+
