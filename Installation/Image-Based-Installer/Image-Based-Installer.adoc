@@ -101,6 +101,15 @@ Create workspace for cluster, then create the ClusterInstance and referenced pul
 
 .pullsecret.yaml
 ----
+kind: Secret
+apiVersion: v1
+metadata:
+  name: pullsecret
+  namespace: sno
+data:
+  .dockerconfigjson: pullsecret dockerjson in base64
+type: kubernetes.io/dockerconfigjson
+
 ----
 
 .sno-cluster-instance.yaml
