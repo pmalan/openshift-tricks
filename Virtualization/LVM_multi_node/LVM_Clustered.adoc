@@ -35,10 +35,7 @@ spec:
           name: thin-pool-1
           overprovisionRatio: 10
           sizePercent: 90
-  tolerations:
-    - effect: NoSchedule
-      key: name
-      value: bm214.pietersmalan.com                                           <-- Node Name
+  
 ----
 
 === Reconfigure Storage Classes 
