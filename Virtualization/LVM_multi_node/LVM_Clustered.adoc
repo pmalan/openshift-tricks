@@ -1,0 +1,97 @@
+== Uisng Local Storage through LVM
+
+=== Configure LVM Instances per node
+
+Target Node and specific node storage devices.
+
+.lvm-cluster-node1.yaml
+[,yaml]
+----
+apiVersion: lvm.topolvm.io/v1alpha1
+kind: LVMCluster
+metadata:
+  name: my-lvmcluster
+  namespace: openshift-storage
+spec:
+  storage:
+    deviceClasses:
+      - default: true
+        deviceSelector:
+          forceWipeDevicesAndDestroyAllData: true
+          paths:
+            - /dev/vdb                                                        <-- Node specific storage
+        fstype: xfs
+        name: vg1
+        nodeSelector:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: name
+                  operator: In
+                  values:
+                    - bm214.pietersmalan.com                                  <-- Node Name
+        thinPoolConfig:
+          chunkSizeCalculationPolicy: Static
+          metadataSizeCalculationPolicy: Host
+          name: thin-pool-1
+          overprovisionRatio: 10
+          sizePercent: 90
+  tolerations:
+    - effect: NoSchedule
+      key: name
+      value: bm214.pietersmalan.com                                           <-- Node Name
+----
+
+=== Reconfigure Storage Classes 
+
+Copy original created storage class, rename with the `volumeBindingMode:` set to Immediate.
+
+.change-original-lvm-storage-class.yaml
+----
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: lvms-bm214
+  labels:
+    owned-by.topolvm.io/group: lvm.topolvm.io
+    owned-by.topolvm.io/kind: LVMCluster
+    owned-by.topolvm.io/name: my-lvmcluster
+    owned-by.topolvm.io/namespace: openshift-storage
+    owned-by.topolvm.io/uid: bba59af7-f074-4c09-b26e-b984d80ca458
+    owned-by.topolvm.io/version: v1alpha1
+  annotations:
+    description: Provides RWO and RWOP Filesystem & Block volumes
+provisioner: topolvm.io
+parameters:
+  csi.storage.k8s.io/fstype: xfs
+  topolvm.io/device-class: vg1
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate                                             <-- Changed to Immediate
+
+----
+
+=== Create a project to host Node Specific VMS
+
+.Create project
+[,bash]
+----
+oc create project vms-bm214
+----
+
+Add annotation on namespace level to limit workloads to specific node.
+
+.vms-bm214.yaml
+[,yaml]
+----
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: vms-bm214
+  ....
+  labels:
+    kubernetes.io/metadata.name: vms-bm214
+    ....
+  annotations:
+    openshift.io/node-selector: topology.topolvm.io/node=bm214.pietersmalan.com  <-- Only run workload on specified node
+    ....
+----
