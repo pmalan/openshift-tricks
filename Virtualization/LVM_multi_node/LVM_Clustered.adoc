@@ -25,7 +25,7 @@ spec:
         nodeSelector:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: name
+                - key: topology.topolvm.io/node
                   operator: In
                   values:
                     - bm214.pietersmalan.com                                  <-- Node Name
@@ -94,4 +94,44 @@ metadata:
   annotations:
     openshift.io/node-selector: topology.topolvm.io/node=bm214.pietersmalan.com  <-- Only run workload on specified node
     ....
+----
+
+=== Create local template to use
+
+.yaml
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataImportCron
+metadata:
+  annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+    cdi.kubevirt.io/storage.import.imageStreamDockerRef: 'registry.redhat.io/rhel9/rhel-guest-image@sha256:f2085aeaae97822ee41f1f768684534f8145787266cc5838fe80db13c45a8ec6'
+    cdi.kubevirt.io/storage.import.sourceDesiredDigest: 'sha256:f2085aeaae97822ee41f1f768684534f8145787266cc5838fe80db13c45a8ec6'
+    cdi.kubevirt.io/storage.import.storageClass: lvms-bm214
+    operator-sdk/primary-resource: openshift-cnv/ssp-kubevirt-hyperconverged
+    operator-sdk/primary-resource-type: SSP.ssp.kubevirt.io
+  name: rhel9-image-cron
+    namespace: vms-bm214
+  labels:
+    app.kubernetes.io/component: templating
+    app.kubernetes.io/managed-by: ssp-operator
+    app.kubernetes.io/name: data-sources
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.18.8
+    kubevirt.io/dynamic-credentials-support: 'true'
+spec:
+  garbageCollect: Outdated
+  managedDataSource: rhel9
+  schedule: 32 0/12 * * *
+  template:
+    metadata: {}
+    spec:
+      source:
+        registry:
+          imageStream: rhel9-guest
+          pullMethod: node
+      storage:
+        resources:
+          requests:
+            storage: 30Gi
 ----
