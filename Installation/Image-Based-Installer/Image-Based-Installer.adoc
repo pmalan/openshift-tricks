@@ -56,7 +56,7 @@ ifconfig
 
 NOTE: Parameters - https://github.com/openshift-kni/lifecycle-agent/blob/release-4.19/api/ibiconfig/ibiconfig.go
 
-.image-based-installation-config.yaml
+.ibi-iso-workdir/image-based-installation-config.yaml
 [,yaml]
 ----
 apiVersion: v1beta1
@@ -95,6 +95,13 @@ networkConfig:
         next-hop-interface: enp1s0 
 ----
 
+.Generate Boot ISO, keeping a copy of image-based-installation-config.yaml
+[,bash]
+----
+cp ibi-iso-workdir/image-based-installation-config.yaml image-based-installation-config.yaml
+openshift-install image-based create image --dir ibi-iso-workdir
+----
+
 === ACM IBI Cluster Install
 
 Create a ClusterImageSet referencing your base seed image,see `xref:SNO-BaseImage-Seed-Cluster.adoc[Single Node Base Image Seed Cluster]`.
@@ -113,6 +120,7 @@ spec:
 Create workspace for cluster, then create the ClusterInstance and referenced pullsecret.
 
 .pullsecret.yaml
+[,yaml]
 ----
 kind: Secret
 apiVersion: v1
