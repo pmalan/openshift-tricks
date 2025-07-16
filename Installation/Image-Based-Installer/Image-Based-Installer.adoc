@@ -96,7 +96,7 @@ networkConfig:
 ----
 
 .Generate Boot ISO, keeping a copy of image-based-installation-config.yaml
-[,bash]
+[code,bash]
 ----
 cp ibi-iso-workdir/image-based-installation-config.yaml image-based-installation-config.yaml
 openshift-install image-based create image --dir ibi-iso-workdir
@@ -117,7 +117,16 @@ spec:
   releaseImage: 'quay.io/pmalan_rhh/seed/snobi@sha256:0581f9532af83bff3de6311d6b56d11fcbc21759e25cbf51c6eafa3f9351891a' <-- Reference to newly created base seed image
 ----
 
-Create workspace for cluster, then create the ClusterInstance and referenced pullsecret.
+Create namespace for cluster, then create the ClusterInstance and referenced pullsecret inside namespace (project).
+
+.sno-namespace.yaml
+[,yaml]
+----
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: sno
+----
 
 .pullsecret.yaml
 [,yaml]
@@ -189,7 +198,7 @@ spec:
         - name: ibi-node-templates-v1
           namespace: open-cluster-management
       cpuArchitecture: x86_64
-      #bmcAddress: 'redfish-virtualmedia://10.0.1.10:8800/redfish/v1/Systems/node1/bm217'
+      bmcAddress: 'redfish-virtualmedia://10.0.1.10:8800/redfish/v1/Systems/node1/bm217'
   clusterType: SNO
   clusterNetwork:
     - cidr: 10.128.0.0/14
@@ -204,5 +213,11 @@ spec:
   cpuArchitecture: x86_64
   pullSecretRef:
     name: pullsecret
+----
+
+.bmc-credentials.yaml
+[,yaml]
+----
+
 ----
 
