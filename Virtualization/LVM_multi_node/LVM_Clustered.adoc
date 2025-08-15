@@ -99,7 +99,7 @@ metadata:
     ....
 ----
 
-Note: The label "topology.topolvm.io/node" is only created after lvm deployed correctly.
+NOTE: The label "topology.topolvm.io/node" is only created after lvm deployed correctly.
 
 === Create Virtual Machine
 
