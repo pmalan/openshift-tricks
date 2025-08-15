@@ -99,6 +99,8 @@ metadata:
     ....
 ----
 
+Note: The label "topology.topolvm.io/node" is only created after lvm deployed correctly.
+
 === Create Virtual Machine
 
 Create Virtual Machine in project, and make sure root disk storage class points to the local node's lvm storage class.
