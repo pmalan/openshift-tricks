@@ -4,6 +4,12 @@
 
 Target Node and specific node storage devices.
 
+.Label target node
+[,bash]
+----
+oc label nodes bm214.pietersmalan.com lvm/vg1
+----
+
 .lvm-cluster-node1.yaml
 [,yaml]
 ----
@@ -25,10 +31,10 @@ spec:
         nodeSelector:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: topology.topolvm.io/node
+                - key: lvm
                   operator: In
                   values:
-                    - bm214.pietersmalan.com                                  <-- Node Name
+                    - vg1                                                     <-- Node specific label
         thinPoolConfig:
           chunkSizeCalculationPolicy: Static
           metadataSizeCalculationPolicy: Host
