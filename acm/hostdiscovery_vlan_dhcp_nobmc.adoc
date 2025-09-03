@@ -1,0 +1,70 @@
+== To register a host in Host Inventory, within a VLAN and DHCP on VLAN, without BMC/RedFish
+
+=== Create a Host Inventory
+
+    Create an Inventory, using Static IP, bridges and bonds. 
+
+=== Create a NMStateConfig for each host in same namespace as Inventory
+
+Link VLAN to interface, and MAC address. 
+  
+NOTE: In the example interface with mac address xx:xx:xx:xx:xx:xx, on VLAN 27, with DHCP enabled.
+
+NOTE: The "ethx" is just a place holder, will be replaced with correct interface name during cluster install.
+
+.nmstate-node1.yaml
+----  
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: nmstate-node1
+  namespace: ocp                                    <- InfraEnv namespace
+  labels:
+    infraenvs.agent-install.openshift.io: ocp
+spec:
+  interfaces:
+  - name: "eth0"
+    macAddress: xx:xx:xx:xx:xx:xx                  
+  config:
+    interfaces:
+    - name: eth0
+      type: ethernet
+      state: up
+      mac-address: xx:xx:xx:xx:xx:xx
+      ipv4:
+        enabled: false
+        dhcp: false
+      ipv6:
+        enabled: false
+    - name: eth0.27                                <- Base Interface + .VLAN ID
+      type: vlan
+      state: up
+      vlan:
+        base-iface: eth0
+        id: "27"                                   <- VLAN ID
+      ipv4:
+        enabled: true
+        dhcp: true
+      ipv6:
+        enabled: false
+    dns-resolver:
+      config:
+        search:
+        - domain.com
+        server:
+        - 10.0.1.1
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: 10.0.1.1
+        next-hop-interface: eth0.27              <- VLAN interface 
+        table-id: 254
+----
+
+
+=== Generate Discovery ISO 
+
+NOTE: Remember that ISO will be updated when nmstates are deleted or created. Also note that the iso name refers to InfraEnv, and will stay the same.
+
+
+
