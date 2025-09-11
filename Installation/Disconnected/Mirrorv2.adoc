@@ -101,5 +101,11 @@ cd ~/working-dir
 oc mirror -c imageSetConfiguration-v2-4.16.16.yaml --workspace file://$PWD docker://$QUAY_HOST_NAME:$QUAY_PORT/$MIRROR_REPO --v2
 ----
 
+=== Mirror to file system
 
-
+.Mirror to file system
+----
+mkdir working-dir
+cd working-dir
+oc mirror -config ../imageset-config.yaml file://./data
+----
