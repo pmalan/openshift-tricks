@@ -35,3 +35,29 @@ spec:
             "netAttachDefName":"vms/br-ex-network"
           }'
 ----
+
+
+=== In Openshift 4.19 and later
+
+Only a NAD is required,as there is already a physnet bridge available:
+
+.NAD
+----
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition                                                                 
+metadata:                                                                                                                         
+  name: machine-net                                                                               
+  namespace: default                                                                                                                                                                                                                                      
+spec:
+  config: |-
+    {                                                                                             
+      "cniVersion": "0.4.0",                                                                      
+      "name": "machine-net",                                                                                                                                                                        
+      "type": "ovn-k8s-cni-overlay",                                                              
+      "topology": "localnet",                                                                     
+      "netAttachDefName": "default/machine-net",                                                  
+      "physicalNetworkName": "physnet",          
+      "mtu": 1500,                                                                                
+      "ipam": {}                                                                                                                                                                                    
+    } 
+----
