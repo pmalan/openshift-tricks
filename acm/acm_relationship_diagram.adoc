@@ -1,0 +1,22 @@
+== ACM Relationship Diagram
+
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+....
+---
+title: Order example
+---
+erDiagram
+    "InfraStructure Namespace" only one--zero or more Agent : contains
+    Agent ||--|| ClusterDeployment : references
+    Agent {
+      ClusterDeploymentNamespace ClusterNamespace
+      ClusterDeploymentName ClusterDeploymentName
+      HostName hostname
+      Role nodeRole
+      Approved trueFalse
+    }
+    ClusterDeployment }|..|{ Agent : filters
+    "Cluster Namespace" 1--1 ClusterDeployment : contains
+....
