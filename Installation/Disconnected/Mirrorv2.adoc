@@ -138,3 +138,51 @@ mkdir working-dir
 cd working-dir
 oc mirror -config ../imageset-config.yaml file://./data
 ----
+
+
+=== Populating Pull Through Cache
+
+To populate a pull through cahe, set the local registries.coonf to reflect remote repositories:
+
+./etc/containers/registries.conf
+----
+unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
+short-name-mode = ""
+additional-layer-store-auth-helper = ""
+
+[[registry]]
+  prefix = ""
+  location = "docker.io"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/dockeriocache"
+    pull-from-mirror = "digest-only"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/dockeriocache"
+    pull-from-mirror = "tag-only"
+
+[[registry]]
+  prefix = ""
+  location = "quay.io"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/cachequayio"
+    pull-from-mirror = "digest-only"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/cachequayio"
+    pull-from-mirror = "tag-only"
+
+[[registry]]
+  prefix = ""
+  location = "registry.redhat.io"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/registryredhatiocache"
+    pull-from-mirror = "digest-only"
+
+  [[registry.mirror]]
+    location = "remote.cache.com/registryredhatiocache"
+    pull-from-mirror = "tag-only"
+----
