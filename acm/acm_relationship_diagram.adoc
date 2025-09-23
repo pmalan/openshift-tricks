@@ -5,7 +5,7 @@
 ifdef::env-github[[source,mermaid]]
 ....
 ---
-title: Order example
+title: Registered ACM Installed Cluster
 ---
 erDiagram
     "InfraStructure Namespace" only one--zero or more Agent : contains
@@ -14,9 +14,64 @@ erDiagram
       ClusterDeploymentNamespace ClusterNamespace
       ClusterDeploymentName ClusterDeploymentName
       HostName hostname
-      Role nodeRole
+      Role nodeRole_master_worker
       Approved trueFalse
     }
-    ClusterDeployment }|..|{ Agent : filters
+    ClusterDeployment }|..|{ Agent : agentSelector
     "Cluster Namespace" 1--1 ClusterDeployment : contains
+    "Cluster Namespace" 1--1 AgentClusterInstall : contains
+    ClusterDeployment {
+      string baseDomain
+      AgentClusterInstall clusterInstallRef
+      ClusterMetadata adminKubeConfigSecretRef
+      ClusterMetadata adminPasswordSecretRef
+      ClusterMetadata clusterID
+      ClusterMetadata infraID
+      string clusterName
+      bolean installed
+      PullSecret pullSecretRef
+      platform agentBareMetal
+      AgentBareMetal agentSelector
+    }
+    ClusterDeployment ||--|| PullSecret : references
+    ClusterDeployment ||--|| AdminKubeConfigSecret : references
+    ClusterDeployment ||--|| AdminPasswordSecret : references
+    ClusterDeployment ||--|| AgentClusterInstall : references
+    AgentClusterInstall ||--|| AdminKubeConfigSecret : references
+    AgentClusterInstall ||--|| AdminPasswordSecret : references
+    AgentClusterInstall ||--|| ClusterImageSet : references
+    AdminKubeConfigSecret {
+      base64encrypted kubeconfig
+      base64encrypted raw-kubeconfig
+    }
+    AdminPasswordSecret {
+      base64encoded username
+      base64encoded passwword
+    }
+    PullSecret {
+      base64encoded dockerconfigjson
+    }
+    AgentClusterInstall {
+      apiVIP api-ip
+      ClusterDeployment clusterDeploymentRef
+      ClusterMetadata adminKubeConfigSecretRef
+      ClusterMetadata adminPasswordSecretRef
+      ClusterMetadata clusterID
+      ClusterMetadata infraID
+      ClusterImageSet imageSetRef
+      ingressVip ingress-ip
+      networking clusterNetwork
+      networking networkType
+      networking serviceNetwork
+      networking userMangedNetworking_true_or_false
+      provisioningRequirements controlPlaneAgents
+      provisoningRequirements workerAgents
+      sshPublicKey raw-ssh-key
+      
+    }
+
+    ClusterImageSet {
+      URL releaseImage
+    }
+
 ....

@@ -76,6 +76,35 @@ NOTE: For more images - see https://quay.io/organization/containerdisks
   - name: registry.redhat.io/rhel9/rhel-guest-image:latest
 ----
 
+Sample for 4.19
+
+.imageSetConfiguration-v2-4.19.12.yaml
+----
+kind: ImageSetConfiguration
+apiVersion: mirror.openshift.io/v2alpha1
+mirror:
+  platform:
+    channels:
+    - name: stable-4.19
+      minVersion: 4.19.12
+      maxVersion: 4.16.12
+    graph: true
+  operators:
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.19
+      packages:
+       - name: kubevirt-hyperconverged
+       - name: mtv-operator
+       - name: local-storage-operator
+       - name: lvms-storage-operator
+       - name: kubernetes-nmstate-operator
+       - name: web-terminal
+  additionalImages:
+  - name: quay.io/containerdisks/centos-stream:9
+  - name: quay.io/containerdisks/fedora:latest
+  - name: registry.redhat.io/rhel8/rhel-guest-image:latest
+  - name: registry.redhat.io/rhel9/rhel-guest-image:latest
+---- 
+
 === Login into All registries.
 
 Download the pull secret from https://console.redhat.com/openshift/downloads and create a file pull-secret.txt in home folder on the connected host. (original file, if downloaded, is pull-secret.txt)
