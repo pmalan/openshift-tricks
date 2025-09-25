@@ -133,12 +133,14 @@ spec:
     namespace: openshift-workload-availability
   selector:
     matchExpressions:
-      - key: node-role.kubernetes.io/worker
-        operator: Exists
-        values: []
-      - key: node-role.kubernetes.io/master
-        operator: Exists
-        values: []
+      - operator: Or
+      expressions:
+        - node-role.kubernetes.io/worker
+          operator: Exists
+          values: []
+        - node-role.kubernetes.io/master
+          operator: Exists
+          values: []
   unhealthyConditions:
     - duration: 100s
       status: 'False'
