@@ -1,0 +1,7 @@
+== Retrieve Clsuter ID
+
+.oc command
+[source,bash]
+----
+oc get clusterversion -o json|jq '.items[].spec.clusterID'
+----

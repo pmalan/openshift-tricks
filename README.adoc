@@ -1,8 +1,8 @@
-:toc:
-:toc-placement!:
-
 = Openshift Tricks
 
+:toc:
+
+:toc-placement!:
 
 toc::[]
 
