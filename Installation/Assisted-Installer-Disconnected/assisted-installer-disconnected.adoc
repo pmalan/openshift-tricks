@@ -22,17 +22,17 @@ Boot the ISO image on the first node. This node will be assigned as the "rendezv
 
 After the boot process, you will see a screen similar to below:
 
-image::./images/roundezvous-boot.png[Assisted Installer booted]
+image::images/roundezvous_boot.png[Assisted Installer booted]
 
 Select the "This is the rendezvous node"
 
 Select the correct IP address, and confirm to start the services.
 
-image::ready_start_services.png[Start Services]
+image::images/ready_start_services.png[Start Services]
 
 Wait until the services are started, and access the URL shown on the screen.
 
-image::./images/assisted-installer-ready.png[Assisted Installer Ready]
+image::images/assisted-installer-ready.png[Assisted Installer Ready]
 
 ==== Create the cluster using the Assisted Installer UI
 
