@@ -1,3 +1,5 @@
+:toc2:
+
 == Assisted Installer Disconnected
 
 This document describes how to install OpenShift using the Assisted Installer in a disconnected environment.
@@ -12,7 +14,7 @@ Click next on the summary page, and you will see the "Download ISO" button.
 
 Download the using the "Download ISO" button.
 
-NOTE: At the momnent the ISO image is only catering for the Openshift Virt Operators. For other operators, you will need to add them post install, using a mirror registry.
+NOTE: At the moment the ISO image is only catering for the Openshift Virt Operators. For other operators, you will need to add them post install, using a mirror registry.
 
 === Cluster Install
 
@@ -44,11 +46,11 @@ On the Host Discovery step, start the other nodes, using the same ISO image, and
 
 When all nodes are showing, and all nodes are in "Ready" state, you can start the installation. 
 
-image::images/installation-progress.png[Intallation in progress]
+image::images/installation-progress.png[Installation in progress]
 
-Wait until you see the followingf page, and click on the console:
+Wait until you see the following page, and click on the console:
 
-image::images/installation-finzalizing.png[Installation Finaziling]
+image::images/installation-finzalizing.png[Installation Finalizing]
 
 NOTE: At this point the cluster is fully functional, and you can access the cluster using the kubeadmin password downloaded during the cluster creation step. Login on into console using kubeadmin and the password contained in the kubeadmin file.
 
@@ -57,15 +59,16 @@ NOTE: At this point the cluster is fully functional, and you can access the clus
 
 ==== Update Mirror Registry Configuration
 
-Delete installer registry settings
-
+.Delete installer registry settings
 [source,bash]
+----
 oc delete idms --all
 oc delete itms --all
+----
 
 Add Mirror Registry Configuration
 
-NOTE: See link:/Installation/Disconnected/Mirrorv2.adoc[Mirror Registry Configuration] for more details.
+NOTE: See link:/Installation/Disconnected/Mirrorv2.adoc[Mirror Registry Configuration] for more details on how to configure a mirror registry. The image set yamls, will be available in the "working-dir", after the mirroring process is completed.
 
 .imageTagMirrorSet.yaml
 [source,yaml]
@@ -113,7 +116,7 @@ spec:
       source: docker.io
 ----
 
-Patch Operator Hub to enable operators to use the mirror registry.
+==== Patch Operator Hub to enable operators to use the mirror registry.
 
 .cluster.yaml
 [source,yaml]
@@ -125,3 +128,21 @@ metadata:
 spec: {}
 ----
 
+==== Allow upgrades
+
+NOTE: If you want to allow upgrades, as the cluster is disconnected, you will need populate the mirror registry with the necessary images. 
+
+To allow upgrades, you will need to patch the FeatureGate to allow automatic updates.
+
+.feature-gate.yaml
+[source,yaml]
+----
+apiVersion: config.openshift.io/v1
+kind: FeatureGate
+metadata:
+  name: cluster
+spec:
+  customNoUpgrade:
+    disabled:
+      - NoRegistryClusterOperations
+  featureSet: CustomNoUpgrade
