@@ -44,4 +44,84 @@ On the Host Discovery step, start the other nodes, using the same ISO image, and
 
 When all nodes are showing, and all nodes are in "Ready" state, you can start the installation. 
 
+image::images/installation-progress.png[Intallation in progress]
+
+Wait until you see the followingf page, and click on the console:
+
+image::images/installation-finzalizing.png[Installation Finaziling]
+
+NOTE: At this point the cluster is fully functional, and you can access the cluster using the kubeadmin password downloaded during the cluster creation step. Login on into console using kubeadmin and the password contained in the kubeadmin file.
+
+
+=== Post Install
+
+==== Update Mirror Registry Configuration
+
+Delete installer registry settings
+
+[source,bash]
+oc delete idms --all
+oc delete itms --all
+
+Add Mirror Registry Configuration
+
+NOTE: See link:/Installation/Disconnected/Mirrorv2.adoc[Mirror Registry Configuration] for more details.
+
+.imageTagMirrorSet.yaml
+[source,yaml]
+----
+apiVersion: config.openshift.io/v1
+kind: ImageTagMirrorSet
+metadata:
+  name: quay-tag-mirror
+spec:
+  imageTagMirrors:
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/cachequayio
+      source: quay.io
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/registryredhatiocache
+      source: registry.redhat.io
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/dockeriocache
+      source: docker.io
+----
+
+.imageDigestMirrorSet.yaml
+[source,yaml]
+----
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: quay-digest-mirror
+spec:
+  imageDigestMirrors:
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/cachequayio
+      source: quay.io
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/registryredhatiocache
+      source: registry.redhat.io
+    - mirrorSourcePolicy: AllowContactingSource
+      mirrors:
+        - quay.pietersmalan.com/dockeriocache
+      source: docker.io
+----
+
+Patch Operator Hub to enable operators to use the mirror registry.
+
+.cluster.yaml
+[source,yaml]
+----
+apiVersion: config.openshift.io/v1
+kind: OperatorHub
+metadata:
+  name: Cluster
+spec: {}
+----
 
