@@ -42,6 +42,8 @@ Access the URL shown on the screen, and supply the necessary information to crea
 
 NOTE: The rendezvous node will be automatically added as the first master node.
 
+WARNING: The ISO contains the images required to populate the local registries for each host. Do not remove the ISO during first boot from hard drive. 
+
 On the Host Discovery step, start the other nodes, using the same ISO image, and specify the rendezvous node IP address when asked.
 
 When all nodes are showing, and all nodes are in "Ready" state, you can start the installation. 
@@ -55,7 +57,7 @@ image::images/installation-finzalizing.png[Installation Finalizing]
 NOTE: At this point the cluster is fully functional, and you can access the cluster using the kubeadmin password downloaded during the cluster creation step. Login on into console using kubeadmin and the password contained in the kubeadmin file.
 
 
-=== Post Install
+=== Switching Registries after install
 
 ==== Update Mirror Registry Configuration
 
