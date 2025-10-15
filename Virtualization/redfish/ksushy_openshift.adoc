@@ -115,8 +115,6 @@ spec:
               value: admin
             - name: KSUSHY_DEBUG
               value: 'true'
-            - name: KSUSHY_BOOTONCE
-              value: 'true'
           ports:
             - containerPort: 8080
               protocol: TCP
