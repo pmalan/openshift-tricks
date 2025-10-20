@@ -1,0 +1,65 @@
+== Kube Virt Relieve And Migrate Descheduler
+
+WARNING: This is a developement preview feature. Use at your own risk.
+
+=== Descheduler Operator
+
+Install the descheduler operator, make sure that the monitoring option is selected for the namespace "openshift-kube-descheduler-operator".
+
+=== Descheduler
+
+.kubedescheduler.yaml
+[source,yaml]
+----
+apiVersion: operator.openshift.io/v1
+kind: KubeDescheduler
+metadata:
+  name: cluster
+  namespace: openshift-kube-descheduler-operator
+spec:
+  logLevel: Normal
+  mode: Automatic
+  operatorLogLevel: Normal
+  deschedulingIntervalSeconds: 30
+  profileCustomizations:
+    devActualUtilizationProfile: PrometheusCPUCombined
+    devDeviationThresholds: AsymmetricLow
+    devEnableSoftTainter: true
+    namespaces: {}
+  observedConfig:
+    servingInfo:
+      cipherSuites:
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+      minTLSVersion: VersionTLS12
+  profiles:
+    - DevKubeVirtRelieveAndMigrate
+  managementState: Managed
+  unsupportedConfigOverrides: null
+----
+
+=== Enable PSI Metrics on Nodes
+
+.99-openshift-machine-config-psi-karg.yaml
+[source,yaml]
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: '2025-10-14T08:22:53Z'
+  generation: 1
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-openshift-machineconfig-worker-psi-karg
+spec:
+  kernelArguments:
+    - psi=1
+----
+
