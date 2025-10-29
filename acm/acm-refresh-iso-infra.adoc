@@ -1,0 +1,7 @@
+
+
+.refresh iso
+[code,yaml]
+----
+oc annotate infraenv "${INFRAENV}" -n "${NAMESPACE}" agent-install.openshift.io/refresh-iso=true --overwrite
+----
