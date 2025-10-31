@@ -26,3 +26,5 @@ spec:
     
 ....   
 ----
+
+NOTE: Some csi drivers support a miimum size, to fix, annotate StorageProflie with cdi.kubevirt.io/minimumSupportedPvcSize=1Gi
