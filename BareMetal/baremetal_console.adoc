@@ -2,4 +2,4 @@
 
 The metal3-plugin was removed in >4.19 release, but until it is put back, you can access the bare metal machine using the following URL:
 
-https://console-openshift-console.apps.ocp.pietersmalan.com/k8s/ns/openshift-machine-api/metal3.io~v1alpha1~BareMetalHost
+URL: https://console-openshift-console.apps.ocp.pietersmalan.com/k8s/ns/openshift-machine-api/metal3.io~v1alpha1~BareMetalHost
