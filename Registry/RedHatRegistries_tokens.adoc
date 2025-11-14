@@ -1,0 +1,38 @@
+== How to get Red Hat registry and Quay registry tokens
+
+=== Red Hat registry token
+
+As an organization administrator, you can create a Red Hat registry token to allow your organization to pull container images from the Red Hat registry.
+
+First step is to create a service account for your organization. Follow the instructions in [Creating a service account](https://access.redhat.com/articles/RegistryAuthentication#Creatingaserviceaccount) to create a service account.
+
+Next, create a Red Hat registry token for your organization. Follow the instructions in [Creating a registry token](https://access.redhat.com/articles/RegistryAuthentication#Creatingaregistrytoken) to create a registry token.
+
+
+For example, I have a podman-desktop service account, looking at the service account details:
+
+https://access.redhat.com/terms-based-registry/
+
+You can see the registry token created for this service account, if click on the service account name. Then select the method you want to use to pull images from the tabs displayed:
+
+For example: https://access.redhat.com/terms-based-registry/token/podman-desktop/openshift-secret
+
+
+=== Quay registry token (for Openshift Container Platform images only, not general quay usage)
+
+To get a valid Quay registry token:
+
+1.  Download the token from the https://console.redhat.com/openshift/downloads#tool-pull-secret as a organization owner.
+2. Extract the token from the downloaded pull-secret file. The file is in JSON format, and the token is located under the "auths" section for "quay.io/openshift-release-dev". The token is base64 encoded, so you will need to decode it to get the actual token.
+
+An example:
+
+"quay.io":{"auth":"b3BlbnNoaW....","email":"pmalan+rhh@redhat.com"}
+
+When you decode64 the auth value:
+
+echo "b3BlbnNoaW...." | base64 --decode
+
+you get:
+
+openshift-release-dev:token, where token is the actual Quay registry token you can use to pull images from the Quay registry, and the username is "openshift-release-dev". 
