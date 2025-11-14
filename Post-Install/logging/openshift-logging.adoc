@@ -1,0 +1,73 @@
+== OpenShift Logging Operator Installation
+
+The OpenShift Logging Operator can be installed via the OpenShift Web Console OperatorHub or via the command line. The following example shows how to install the Logging Operator via the command line by creating the necessary namespaces, operator group, and subscription.
+
+=== Logging Operator Install
+
+.Logging Operator
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-logging
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-operators-redhat
+  annotations:
+    openshift.io/node-selector: ""
+  labels:
+    openshift.io/cluster-monitoring: "true"
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging
+spec:
+  targetNamespaces:
+  - openshift-logging
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging
+spec:
+  channel: stable
+  name: cluster-logging
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+----
+
+.Create SA and assign roles
+[source,bash]
+----
+oc project openshift-logging
+oc create sa logcollector -n openshift-logging
+oc adm policy add-cluster-role-to-user logging-collector-logs-writer -z logcollector
+oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z logcollector
+oc adm policy add-cluster-role-to-user collect-application-logs -z logcollector
+oc adm policy add-cluster-role-to-user collect-audit-logs -z logcollector
+oc adm policy add-cluster-role-to-user collect-infrastructure-logs -z logcollector
+----
+
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: logging-all-application-logs-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-logging-application-view 
+subjects: 
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io
