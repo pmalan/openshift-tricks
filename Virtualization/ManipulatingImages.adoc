@@ -1,0 +1,17 @@
+== Manipulating Disk Images on Linux
+
+=== Install qemu-nbd
+
+- dnf install qemu-img
+- dnf install ntfs-3g (if ntfs partitions)
+
+
+=== Mount disk
+
+----
+modprobe nbd max_part=8
+qemu-nbd --connect=/dev/nbd[0..7] image.[qcow2/vhd/img/iso]
+partprobe /dev/nbd[0..7]
+mkdir virtdrive
+mount /dev/nbd0[p1..] virtdrive
+----
