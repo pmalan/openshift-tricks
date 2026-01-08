@@ -1,4 +1,4 @@
-== CoreOS Customoziation
+== CoreOS Customization
 
 === NetworkManager KeyFile
 
