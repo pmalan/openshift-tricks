@@ -1,0 +1,70 @@
+== CoreOS Customoziation
+
+=== NetworkManager KeyFile
+
+.vlan100.nmconnection
+[code]
+----
+[connection]
+id=vlan100
+type=vlan
+interface-name=eth0.100
+mac-address=AA:BB:CC:DD:EE:FF  # <-- MAC address associated with eth0
+
+[vlan]
+base-iface=eth0
+id=100
+
+[ipv4]
+method=manual
+address1=10.0.10.1/24,10.0.10.1
+dns=10.0.10.1
+
+[ipv6]
+method=disabled
+----
+
+.CoreOS ISO customization
+[,bash]
+----
+coreos-installer iso customize --network-keyfile vlan100.nmconnection -o custom-rcos.iso rhcos-live.iso
+----
+
+
+To captue actual configuration for a node:
+
+- boot rhcos
+- configure network 
+- capture the connection's keyfile in "/etc/NetworkManager/system-connections/".
+
+=== Add user
+
+.coreos-user.json
+[,YAML]
+----
+{
+  "ignition": {
+    "version": 3
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/sudoers.d/coreos",
+        "contents": "coreos ALL=(ALL) NOPASSWD: ALL\n",
+        "mode": 0644,
+        "user": "root",
+        "group": "root"
+      }
+    ]
+  },
+  "users": [
+    {
+      "name": "coreos",
+      "password": "coreos",
+      "groups": ["wheel"],
+      "shell": "/bin/bash",
+      "home": "/home/coreos"
+    }
+  ]
+}
+----
