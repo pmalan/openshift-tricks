@@ -27,7 +27,7 @@ method=disabled
 .CoreOS ISO customization
 [,bash]
 ----
-coreos-installer iso customize --network-keyfile vlan100.nmconnection -o custom-rcos.iso rhcos-live.iso
+coreos-installer iso customize --network-keyfile vlan100.nmconnection -o custom-rhcos.iso rhcos-live.iso
 ----
 
 
@@ -68,3 +68,8 @@ To captue actual configuration for a node:
   ]
 }
 ----
+
+
+=== RHCOS Download
+
+https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/latest/rhcos-installer-iso.x86_64.iso
