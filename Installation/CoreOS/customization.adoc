@@ -72,4 +72,4 @@ To captue actual configuration for a node:
 
 === RHCOS Download
 
-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/latest/rhcos-installer-iso.x86_64.iso
+https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/latest/rhcos-live-iso.x86_64.iso
