@@ -1,0 +1,16 @@
+== Create Ingress and API certificates
+
+.createUpdateCerts.sh
+[code,bash]
+----
+#!/bin/sh
+oc delete configmap custom-ca -n openshift-config
+oc create configmap custom-ca --from-file=ca-bundle.crt=fullchain.pem -n openshift-config
+oc delete secret tlssecret -n openshift-ingress
+oc create secret tls tlssecret --cert=fullchain.pem --key=privkey.pem -n openshift-ingress
+oc patch ingresscontroller.operator default --type=merge -p '{"spec":{"defaultCertificate": {"name": "tlssecret"}}}' -n openshift-ingress-operator
+oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"custom-ca"}}}'
+----
+
+- Where fullchain is the custom cert plus full certificate chain, intermediate and CA certs, in pem format
+- privkey.pem is the private key in pem format
