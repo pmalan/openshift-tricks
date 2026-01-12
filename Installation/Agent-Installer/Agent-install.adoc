@@ -1,1 +1,8 @@
-== 
+== Test install-config.yaml before Agent Creation
+
+If you run into JSON issues on the roundezvous host, first validate cluster configuration, by doing a:
+
+[,bash]
+----
+openshift-install create manifests
+----
