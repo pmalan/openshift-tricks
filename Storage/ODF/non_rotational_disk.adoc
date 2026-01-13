@@ -1,0 +1,50 @@
+== ODF Requires SSD Type Hard Disks
+
+ODF test the rotational value stored in /sys/block/DEV/queue/rotational, which should be 0.
+
+If this value is 1, for example running under a Hypervisor, then you have to force it to 0.
+
+Execute the following script, update the KERNEL=="YOURDEV[a-z]" if required, to reflect you drive assingments.
+
+.non-rotational.sh
+[code,bash]
+----
+export MY_UDEV_RULES=$(base64 -w0 <<< 'ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="nvme[0-2]n[0-1]",  ATTR{queue/rotational}="0"
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="xvd[a-z]",  ATTR{queue/rotational}="0"
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="vd[a-z]",  ATTR{queue/rotational}="0"')
+
+cat << EOF > 99-worker-udev-configuration.yaml
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: worker-udev-configuration
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,${MY_UDEV_RULES}
+          verification: {}
+        filesystem: root
+        mode: 420
+        path: /etc/udev/rules.d/99-odf.rules
+  osImageURL: ""
+EOF
+
+----
+
+
+[code,bash]
+----
+oc apply -f 99-worker-udev-configuration.yaml 
+----
