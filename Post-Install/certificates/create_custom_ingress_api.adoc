@@ -1,5 +1,7 @@
 == Create Ingress and API certificates
 
+Use the follwoing script to update certificates:
+
 .createUpdateCerts.sh
 [code,bash]
 ----
@@ -12,5 +14,8 @@ oc patch ingresscontroller.operator default --type=merge -p '{"spec":{"defaultCe
 oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"custom-ca"}}}'
 ----
 
+
+Assuming the following:
+- Session is established with cluster (KUBECONFIG or oc login)
 - Where fullchain is the custom cert plus full certificate chain, intermediate and CA certs, in pem format
 - privkey.pem is the private key in pem format
