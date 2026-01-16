@@ -1,6 +1,7 @@
 == Enable HTTP/2 Ingress
 
-  [code,bash]
-  ----
-  oc annotate ingresses.config/cluster ingress.operator.openshift.io/default-enable-http2=true
-  ----
+
+[,bash]
+----
+oc annotate ingresses.config/cluster ingress.operator.openshift.io/default-enable-http2=true
+----
