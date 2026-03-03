@@ -1,0 +1,16 @@
+== Sample Kubeconfig 
+
+.yaml
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: dynamic-node
+spec:
+  autoSizingReserved: true
+  kubeletConfig:
+    maxPods: 1000
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/master: ''
+----
