@@ -1,6 +1,9 @@
 == Sample Kubeconfig 
 
+Sample Kubeconfig to automatically scale reserved size and set the pod count, in this example 1000.
+
 .yaml
+[source,yaml]
 ----
 apiVersion: machineconfiguration.openshift.io/v1
 kind: KubeletConfig
