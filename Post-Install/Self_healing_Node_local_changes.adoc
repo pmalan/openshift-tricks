@@ -4,6 +4,113 @@ To protect nodes from unauthorized changes, the following code will monitor edit
 
 ## Monitored Files 
 
+[,bash]
+----
+#!/bin/bash
+# Script to extract all files and systemd units monitored by the MCO
+
+# 1. Select the Machine Config Pool (defaults to worker)
+POOL=${1:-worker}
+RENDERED_CONFIG=$(oc get mcp "$POOL" -o jsonpath='{.status.configuration.name}')
+
+if [ -z "$RENDERED_CONFIG" ]; then
+    echo "Error: Could not find rendered config for pool '$POOL'. Ensure you are logged in."
+    exit 1
+fi
+
+echo "--- MCO Monitored Files: $POOL ($RENDERED_CONFIG) ---"
+
+# 2. Extract and format file paths, modes, and sources
+oc get machineconfig "$RENDERED_CONFIG" -o json | jq -r '
+  .spec.config.storage.files[] | 
+  "Path: \(.path)\nMode: \(.mode | tostring)\n---"'
+
+echo ""
+echo "--- MCO Monitored Systemd Units ---"
+
+# 3. List all managed systemd units
+oc get machineconfig "$RENDERED_CONFIG" -o json | jq -r '
+  .spec.config.systemd.units[].name'
 ----
 
+## Self Healing Daemon
+
+[,yaml]
 ----
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-reader-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:privileged
+  namespace: openshift-machine-config-operator
+subjects:
+  - kind: ServiceAccount
+    name: daemonset-admin
+    namespace: openshift-machine-config-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mcd-auto-repair
+  namespace: openshift-machine-config-operator
+spec:
+  selector:
+    matchLabels:
+      name: mcd-auto-repair
+  template:
+    metadata:
+      labels:
+        name: mcd-auto-repair
+    spec:
+      serviceAccountName: daemonset-admin
+      hostNetwork: true
+      containers:
+      - name: repair-loop
+        image: registry.redhat.io/openshift4/ose-cli:latest
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            while true; do
+              # Check local node status for the specific drift error
+              # The MCO marks the node annotation when drift is detected
+              MSG=$(oc get node ${NODE_NAME} -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/state}')
+              
+              if [[ "$MSG" == *"unexpected on-disk state validating against rendered-worker"* ]]; then
+                echo "Detected drift on ${NODE_NAME}. Creating force file..."
+                touch /host-run/machine-config-daemon-force
+                echo "Force file created. Node should reboot shortly."
+                sleep 300 # Avoid rapid re-triggering during reboot
+              fi
+              sleep 60
+            done
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: run-dir
+          mountPath: /host-run
+      volumes:
+      - name: run-dir
+        hostPath:
+          path: /run
+          type: Directory
+----
+
