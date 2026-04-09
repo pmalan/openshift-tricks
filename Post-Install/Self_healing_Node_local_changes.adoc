@@ -1,0 +1,9 @@
+# Self Healing Node
+
+To protect nodes from unauthorized changes, the following code will monitor editing of Machine Config generated files.
+
+## Monitored Files 
+
+----
+
+----
