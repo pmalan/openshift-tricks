@@ -1,0 +1,21 @@
+## Servicemonitor observability-thanos-query Fails
+
+There is no network policy to allow inter namespace communitation, allow ingress from monitoring group:
+
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-prometheus-scraping
+  namespace: open-cluster-management-observability
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: monitoring
+  policyTypes:
+    - Ingress
+----
