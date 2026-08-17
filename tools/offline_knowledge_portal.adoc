@@ -1,6 +1,6 @@
 == Offline Knowledge Portal
 
-NOTE: Red Hat Satellite subscription (SKU MCT3718) is required.
+NOTE: Red Hat Satellite subscription (SKU MCT3718) is required for knowledge based content and search index.
 
 === Login to registry.redhat.io
 
@@ -16,6 +16,8 @@ podman login registry.redhat.io
 Generate a key, accept all the required propmts. https://access.redhat.com/offline/access/[Access key Generator]
 
 === Start OKP container
+
+NOTE: If you don't have an ACCESS_KEY, just omit it from script.
 
 .startOKP.sh
 [source,bash]
