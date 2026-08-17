@@ -1,0 +1,28 @@
+== Offline Knowledge Portal
+
+NOTE: Red Hat Satellite subscription (SKU MCT3718) is required.
+
+=== Login to registry.redhat.io
+
+Login into registry.redhat.io, by using/creating service account - http://access.redhat.com/terms-based-registry[Registry Service Accounts]
+
+[code,bash]
+----
+podman login registry.redhat.io
+----
+
+=== Get offline token
+
+Generate a key, accept all the required propmts. https://access.redhat.com/offline/access/[Access key Generator]
+
+=== Start OKP container
+
+.startOKP.sh
+[source,bash]
+----
+#!/bin/bash
+
+podman run --rm -p 8080:8080 -p 8443:8443 \
+--env "ACCESS_KEY=< access key generated in above step >" \
+-d registry.redhat.io/offline-knowledge-portal/rhokp-rhel9:latest
+----
