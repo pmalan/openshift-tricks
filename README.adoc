@@ -1,64 +1,82 @@
 = OpenShift Tricks
 
+A collection of useful guides, commands, and troubleshooting tips for OpenShift administrators and developers.
+
 == Table of Contents
 
-* [acm](acm/)
-** [4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc](acm/4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc)
-** [Applications_subscription-admin.adoc](acm/Applications_subscription-admin.adoc)
-** [Enable_BMC_Provisioning.adoc](acm/Enable_BMC_Provisioning.adoc)
-** [Managing_Infrastructure.adoc](acm/Managing_Infrastructure.adoc)
-** [PolicyBuilder.adoc](acm/PolicyBuilder.adoc)
-** [acm-refresh-iso-infra.adoc](acm/acm-refresh-iso-infra.adoc)
-** [acm_edge.adoc](acm/acm_edge.adoc)
-** [acm_relationship_diagram.adoc](acm/acm_relationship_diagram.adoc)
-** [clusterinstance_ztp-provisioning-gitops.yaml](acm/clusterinstance_ztp-provisioning-gitops.yaml)
-** [hostdiscovery_vlan_dhcp_nobmc.adoc](acm/hostdiscovery_vlan_dhcp_nobmc.adoc)
-** [rhem-ztp-provisioning.adoc](acm/rhem-ztp-provisioning.adoc)
-** [seed_policies.adoc](acm/seed_policies.adoc)
-** [servicemonitor_observability-thanos-query-fails.adoc](acm/servicemonitor_observability-thanos-query-fails.adoc)
-** [siteconfig-ztp-provisioning-yaml.adoc](acm/siteconfig-ztp-provisioning-yaml.adoc)
-* [ai](ai/)
-** [openshift-ai_scaling.adoc](ai/openshift-ai_scaling.adoc)
-* [appdev](appdev/)
-* [BareMetal](BareMetal/)
-** [baremetal_console.adoc](BareMetal/baremetal_console.adoc)
-** [maintenance_failover.adoc](BareMetal/maintenance_failover.adoc)
-* [Development](Development/)
-** [Enable-Developer-Perspective-4.19.adoc](Development/Enable-Developer-Perspective-4.19.adoc)
-* [Installation](Installation/)
-** [RedFish_Host_Info.adoc](Installation/RedFish_Host_Info.adoc)
-* [Observability](Observability/)
-* [Post-Install](Post-Install/)
-** [ContainerRuntine_crun.adoc](Post-Install/ContainerRuntine_crun.adoc)
-** [Global-PullSecret.adoc](Post-Install/Global-PullSecret.adoc)
-** [Pull-running-install-config.adoc](Post-Install/Pull-running-install-config.adoc)
-** [Redeploy_APIServer.adoc](Post-Install/Redeploy_APIServer.adoc)
-** [Retrieve_Cluster_id.adoc](Post-Install/Retrieve_Cluster_id.adoc)
-** [Self_healing_Node_local_changes.adoc](Post-Install/Self_healing_Node_local_changes.adoc)
-** [http2_enable.adoc](Post-Install/http2_enable.adoc)
-** [kubernetes-version.adoc](Post-Install/kubernetes-version.adoc)
-** [operator-hubs.adoc](Post-Install/operator-hubs.adoc)
-** [recover_kubeconfig.adoc](Post-Install/recover_kubeconfig.adoc)
-** [recreate_kubeadmin_pwd.adoc](Post-Install/recreate_kubeadmin_pwd.adoc)
-* [Registry](Registry/)
-** [Nexus-pull-trhough.adoc](Registry/Nexus-pull-trhough.adoc)
-** [Quay_Standalone.adoc](Registry/Quay_Standalone.adoc)
-** [RedHatRegistries_tokens.adoc](Registry/RedHatRegistries_tokens.adoc)
-* [Storage](Storage/)
-** [Delete_All_Released_PVs.adoc](Storage/Delete_All_Released_PVs.adoc)
-** [Set_Default_StorageClass.adoc](Storage/Set_Default_StorageClass.adoc)
-* [tools](tools/)
-** [Change_tracking_Cincinnati.adoc](tools/Change_tracking_Cincinnati.adoc)
-** [oc.adoc](tools/oc.adoc)
-** [offline_knowledge_portal.adoc](tools/offline_knowledge_portal.adoc)
-* [Virtualization](Virtualization/)
-** [Default_Storage_Class.adoc](Virtualization/Default_Storage_Class.adoc)
-** [KubeVirtRelieveAndMigrate.adoc](Virtualization/KubeVirtRelieveAndMigrate.adoc)
-** [ManipulatingImages.adoc](Virtualization/ManipulatingImages.adoc)
-** [PXEBooting.adoc](Virtualization/PXEBooting.adoc)
-** [Storage_Profiles.adoc](Virtualization/Storage_Profiles.adoc)
-** [TPM.adoc](Virtualization/TPM.adoc)
-** [Using_Node_Network.adoc](Virtualization/Using_Node_Network.adoc)
-** [VM_descheduler.adoc](Virtualization/VM_descheduler.adoc)
-** [limit_minimum_csi_size.adoc](Virtualization/limit_minimum_csi_size.adoc)
-** [mtv_Install.adoc](Virtualization/mtv_Install.adoc)
+=== ACM (Advanced Cluster Management)
+* [Fix for Openshift 4.18 ACM 2.13.1 MCE 2.8.0](acm/4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc)
+* [Granting Application Subscribtion Admin](acm/Applications_subscription-admin.adoc)
+* [Enable BMC Provisioning](acm/Enable_BMC_Provisioning.adoc)
+* [Managing Registered Hosts](acm/Managing_Infrastructure.adoc)
+* [Policy Builder](acm/PolicyBuilder.adoc)
+* [Refresh ISO Infrastructure](acm/acm-refresh-iso-infra.adoc)
+* [ACM Edge Management](acm/acm_edge.adoc)
+* [ACM Relationship Diagram](acm/acm_relationship_diagram.adoc)
+* [Cluster Instance with ZTP GitOps](acm/clusterinstance_ztp-provisioning-gitops.yaml)
+* [Host Discovery via VLAN/DHCP without BMC/RedFish](acm/hostdiscovery_vlan_dhcp_nobmc.adoc)
+* [ZTP RHEM Configuration Templates](acm/rhem-ztp-provisioning.adoc)
+* [Seed Policies & Role Assignment](acm/seed_policies.adoc)
+* [Servicemonitor Observability Thanos Query Fix](acm/servicemonitor_observability-thanos-query-fails.adoc)
+* [SiteConfig - Zero Touch Provisioning using Yaml](acm/siteconfig-ztp-provisioning-yaml.adoc)
+
+=== AI
+* [OpenShift AI Scaling](ai/openshift-ai_scaling.adoc)
+
+=== AppDev
+*(Coming soon)*
+
+=== Bare Metal
+* [BareMetal Console Access](BareMetal/baremetal_console.adoc)
+* [Maintenance & Failover Procedures](BareMetal/maintenance_failover.adoc)
+
+=== Development
+* [Enable Developer Perspective 4.19](Development/Enable-Developer-Perspective-4.19.adoc)
+
+=== Installation
+* [RedFish Host Information](Installation/RedFish_Host_Info.adoc)
+
+=== Observability
+*(Coming soon)*
+
+=== Post-Install
+* [Container Runtime (crun) Configuration](Post-Install/ContainerRuntine_crun.adoc)
+* [Global Pull Secret Management](Post-Install/Global-PullSecret.adoc)
+* [Pull-running-install-config Guide](Post-Install/Pull-running-install-config.adoc)
+* [Redeploy API Server](Post-Install/Redeploy_APIServer.adoc)
+* [Retrieve Cluster ID](Post-Install/Retrieve_Cluster_id.adoc)
+* [Self-healing Node Local Changes](Post-Install/Self_healing_Node_local_changes.adoc)
+* [HTTP2 Enablement](Post-Install/http2_enable.adoc)
+* [Kubernetes Version Management](Post-Install/kubernetes-version.adoc)
+* [Operator Hubs Guide](Post-Install/operator-hubs.adoc)
+* [Recover Kubeconfig](Post-Install/recover_kubeconfig.adoc)
+* [Recreate Kubeadmin Password](Post-Install/recreate_kubeadmin_pwd.adoc)
+
+=== Registry
+* [Nexus Pull-through Cache](Registry/Nexus-pull-trhough.adoc)
+* [Quay Standalone Setup](Registry/Quay_Standalone.adoc)
+* [Red Hat Registries Tokens](Registry/RedHatRegistries_tokens.adoc)
+
+=== Storage
+* [Delete All Released PVs](Storage/Delete_All_Released_PVs.adoc)
+* [Set Default StorageClass](Storage/Set_Default_StorageClass.adoc)
+
+=== Tools
+* [Change Tracking (Cincinnati)](tools/Change_tracking_Cincinnati.adoc)
+* [OpenShift CLI (oc) Tips](tools/oc.adoc)
+* [Offline Knowledge Portal](tools/offline_knowledge_portal.adoc)
+
+=== Virtualization
+* [Default Storage Class Configuration](Virtualization/Default_Storage_Class.adoc)
+* [KubeVirt Relieve and Migrate](Virtualization/KubeVirtRelieveAndMigrate.adoc)
+* [Manipulating Images](Virtualization/ManipulatingImages.adoc)
+* [PXE Booting Guide](Virtualization/PXEBooting.adoc)
+* [Storage Profiles](Virtualization/Storage_Profiles.adoc)
+* [TPM Configuration](Virtualization/TPM.adoc)
+* [Using Node Network](Virtualization/Using_Node_Network.adoc)
+* [VM Descheduler](Virtualization/VM_descheduler.adoc)
+* [Limit Minimum CSI Size](Virtualization/limit_minimum_csi_size.adoc)
+* [MTV Installation](Virtualization/mtv_Install.adoc)
+
+---
+*Happy Troubleshooting!*
