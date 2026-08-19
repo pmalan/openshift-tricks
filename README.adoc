@@ -1,82 +1,192 @@
 = OpenShift Tricks
 
-A collection of useful guides, commands, and troubleshooting tips for OpenShift administrators and developers.
+== ACM
+=== Arm
+link:acm/arm/arm-environment.adoc[Arm environment]
 
-== Table of Contents
+=== Mirror Registry
+link:acm/mirror-registry/mirror-registry-config.adoc[Mirror registry config]
+link:acm/mirror-registry/mirror-registry-config->2.12.adoc[Mirror registry config >2.12]
 
-=== ACM (Advanced Cluster Management)
-* [Fix for Openshift 4.18 ACM 2.13.1 MCE 2.8.0](acm/4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc)
-* [Granting Application Subscribtion Admin](acm/Applications_subscription-admin.adoc)
-* [Enable BMC Provisioning](acm/Enable_BMC_Provisioning.adoc)
-* [Managing Registered Hosts](acm/Managing_Infrastructure.adoc)
-* [Policy Builder](acm/PolicyBuilder.adoc)
-* [Refresh ISO Infrastructure](acm/acm-refresh-iso-infra.adoc)
-* [ACM Edge Management](acm/acm_edge.adoc)
-* [ACM Relationship Diagram](acm/acm_relationship_diagram.adoc)
-* [Cluster Instance with ZTP GitOps](acm/clusterinstance_ztp-provisioning-gitops.yaml)
-* [Host Discovery via VLAN/DHCP without BMC/RedFish](acm/hostdiscovery_vlan_dhcp_nobmc.adoc)
-* [ZTP RHEM Configuration Templates](acm/rhem-ztp-provisioning.adoc)
-* [Seed Policies & Role Assignment](acm/seed_policies.adoc)
-* [Servicemonitor Observability Thanos Query Fix](acm/servicemonitor_observability-thanos-query-fails.adoc)
-* [SiteConfig - Zero Touch Provisioning using Yaml](acm/siteconfig-ztp-provisioning-yaml.adoc)
+=== Policy Builder
+link:acm/policybuilder/patching.adoc[Patching]
+link:acm/PolicyBuilder.adoc[Policybuilder]
 
-=== AI
-* [OpenShift AI Scaling](ai/openshift-ai_scaling.adoc)
+=== Redfish
+link:acm/redfish/redfish_acm.adoc[Redfish acm]
 
-=== AppDev
-*(Coming soon)*
+=== General
+link:acm/4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc[4.18 acm 2.13.1 mce 2.8.0 fix]
+link:acm/acm-refresh-iso-infra.adoc[Acm refresh iso infra]
+link:acm/acm_edge.adoc[Acm edge]
+link:acm/acm_relationship_diagram.adoc[Acm relationship diagram]
+link:acm/Applications_subscription-admin.adoc[Applications subscription admin]
+link:acm/Enable_BMC_Provisioning.adoc[Enable bmc provisioning]
+link:acm/hostdiscovery_vlan_dhcp_nobmc.adoc[Hostdiscovery vlan dhcp nobmc]
+link:acm/Managing_Infrastructure.adoc[Managing infrastructure]
+link:acm/rhem-ztp-provisioning.adoc[ZTP RHEM]
+link:acm/seed_policies.adoc[Seed policies]
+link:acm/servicemonitor_observability-thanos-query-fails.adoc[Servicemonitor observability-thanos-query Fails]
+link:acm/siteconfig-ztp-provisioning-yaml.adoc[Siteconfig ztp provisioning yaml]
 
-=== Bare Metal
-* [BareMetal Console Access](BareMetal/baremetal_console.adoc)
-* [Maintenance & Failover Procedures](BareMetal/maintenance_failover.adoc)
+== AI
+=== Lightspeed
+link:ai/lightspeed/install.adoc[OpenShift Lightspeed]
 
-=== Development
-* [Enable Developer Perspective 4.19](Development/Enable-Developer-Perspective-4.19.adoc)
+=== General
+link:ai/openshift-ai_scaling.adoc[Openshift ai scaling]
 
-=== Installation
-* [RedFish Host Information](Installation/RedFish_Host_Info.adoc)
+== AppDev
+=== GitLab
+link:appdev/gitlab/gitlabrunner.adoc[Gitlabrunner]
 
-=== Observability
-*(Coming soon)*
+== BareMetal
+=== Network
+link:BareMetal/network/BareMetal_VMWare.adoc[Baremetal vmware]
+link:BareMetal/network/Managing_BMH_Instances.adoc[Managing bmh instances]
+link:BareMetal/network/Redfish_urls.adoc[Redfish urls]
 
-=== Post-Install
-* [Container Runtime (crun) Configuration](Post-Install/ContainerRuntine_crun.adoc)
-* [Global Pull Secret Management](Post-Install/Global-PullSecret.adoc)
-* [Pull-running-install-config Guide](Post-Install/Pull-running-install-config.adoc)
-* [Redeploy API Server](Post-Install/Redeploy_APIServer.adoc)
-* [Retrieve Cluster ID](Post-Install/Retrieve_Cluster_id.adoc)
-* [Self-healing Node Local Changes](Post-Install/Self_healing_Node_local_changes.adoc)
-* [HTTP2 Enablement](Post-Install/http2_enable.adoc)
-* [Kubernetes Version Management](Post-Install/kubernetes-version.adoc)
-* [Operator Hubs Guide](Post-Install/operator-hubs.adoc)
-* [Recover Kubeconfig](Post-Install/recover_kubeconfig.adoc)
-* [Recreate Kubeadmin Password](Post-Install/recreate_kubeadmin_pwd.adoc)
+=== General
+link:BareMetal/baremetal_console.adoc[Baremetal console]
+link:BareMetal/maintenance_failover.adoc[Maintenance failover]
 
-=== Registry
-* [Nexus Pull-through Cache](Registry/Nexus-pull-trhough.adoc)
-* [Quay Standalone Setup](Registry/Quay_Standalone.adoc)
-* [Red Hat Registries Tokens](Registry/RedHatRegistries_tokens.adoc)
+== Development
+link:Development/Enable-Developer-Perspective-4.19.adoc[Enable developer perspective 4.19]
 
-=== Storage
-* [Delete All Released PVs](Storage/Delete_All_Released_PVs.adoc)
-* [Set Default StorageClass](Storage/Set_Default_StorageClass.adoc)
+== Installation
+=== Agent Installer
+link:Installation/Agent-Installer/Agent-install.adoc[Agent install]
+link:Installation/Agent-Installer/bond-mac.adoc[Bond mac]
+link:Installation/Agent-Installer/crio-image-pull-timeout.adoc[Crio image pull timeout]
 
-=== Tools
-* [Change Tracking (Cincinnati)](tools/Change_tracking_Cincinnati.adoc)
-* [OpenShift CLI (oc) Tips](tools/oc.adoc)
-* [Offline Knowledge Portal](tools/offline_knowledge_portal.adoc)
+=== Assisted Installer Disconnected
+link:Installation/Assisted-Installer-Disconnected/assisted-installer-disconnected.adoc[Assisted installer disconnected]
 
-=== Virtualization
-* [Default Storage Class Configuration](Virtualization/Default_Storage_Class.adoc)
-* [KubeVirt Relieve and Migrate](Virtualization/KubeVirtRelieveAndMigrate.adoc)
-* [Manipulating Images](Virtualization/ManipulatingImages.adoc)
-* [PXE Booting Guide](Virtualization/PXEBooting.adoc)
-* [Storage Profiles](Virtualization/Storage_Profiles.adoc)
-* [TPM Configuration](Virtualization/TPM.adoc)
-* [Using Node Network](Virtualization/Using_Node_Network.adoc)
-* [VM Descheduler](Virtualization/VM_descheduler.adoc)
-* [Limit Minimum CSI Size](Virtualization/limit_minimum_csi_size.adoc)
-* [MTV Installation](Virtualization/mtv_Install.adoc)
+=== CoreOS
+link:Installation/CoreOS/customization.adoc[Customization]
 
----
-*Happy Troubleshooting!*
+=== Disconnected
+link:Installation/Disconnected/Agent-installer-SNO.adoc[Agent installer sno]
+link:Installation/Disconnected/Mirrorv1.adoc[Mirrorv1]
+link:Installation/Disconnected/Mirrorv2.adoc[Mirrorv2]
+link:Installation/Disconnected/Podman-AI-Disconnected.adoc[Move iso and sha256sum to serving directory]
+link:Installation/Disconnected/SelfSignedCA.adoc[Selfsignedca]
+
+=== Image Based Installer
+link:Installation/Image-Based-Installer/Image-Based-Installer.adoc[Image based installer]
+link:Installation/Image-Based-Installer/SNO-BaseImage-Seed-Cluster.adoc[Sno baseimage seed cluster]
+link:Installation/Image-Based-Installer/sample-sno/sno-cluster-base-seed-cluster.adoc[Generated by Butane]
+
+=== Local Hosted Assisted Installer
+link:Installation/Local-hosted-Assisted-Installer/Podman-AI-Installer.adoc[Get all the channels]
+
+=== Network
+link:Installation/Network/Tigera-Calico.adoc[Tigera calico]
+link:Installation/Network/mtu_testing.adoc[Mtu testing]
+
+=== Redfish
+link:Installation/RedFish_Host_Info.adoc[Redfish host info]
+
+== Observability
+=== Distributed Tracing
+link:Observability/DistributedTracing/DistributedTracing.adoc[Enable the Jaeger UI]
+
+=== Logging
+link:Observability/Logging/Logging_with_Loki.adoc[Logging with loki]
+
+=== Network
+link:Observability/Network/NetworkObservability.adoc[Networkobservability]
+
+== Post-Install
+=== Certificates
+link:Post-Install/certificates/Bulk-approving-certificates-requests.adoc[Bulk approving certificates requests]
+link:Post-Install/certificates/Bulk-approving-certificates-without-kubeconfig.adoc[Bulk approving certificates without kubeconfig]
+link:Post-Install/certificates/create_custom_ingress_api.adoc[Create custom ingress api]
+link:Post-Install/certificates/machineconfig-certs.adoc[Machineconfig certs]
+
+=== Container Images
+link:Post-Install/container-images/prune.adoc[Prune]
+
+=== Disconnected to Connected
+link:Post-Install/disconnected-to-connected/migration.adoc[Migration]
+
+=== GPU
+link:Post-Install/gpu/NFD-Fix-4.19.adoc[Nfd fix 4.19]
+link:Post-Install/gpu/NVIDIA_dashboards.adoc[Nvidia dashboards]
+link:Post-Install/gpu/NVIDIA_gpu_sharing_wo_vgpu.adoc[Nvidia gpu sharing wo vgpu]
+
+=== HTTP2
+link:Post-Install/http2_enable.adoc[Http2 enable]
+
+=== Kernel
+link:Post-Install/kernel/cve-vulnerabilities.adoc[Vulnerabilities]
+
+=== Kubelet
+link:Post-Install/kubelet/sample-dynamic-kubelet-1000-pods.adoc[Sample dynamic kubelet 1000 pods]
+
+=== Kubernetes
+link:Post-Install/kubernetes-version.adoc[Kubernetes version]
+
+=== Logging
+link:Post-Install/logging/LogForwarder.adoc[Logforwarder]
+link:Post-Install/logging/openshift-logging.adoc[Openshift logging]
+
+=== Machine
+link:Post-Install/machine/master_scheduable.adoc[Master scheduable]
+link:Post-Install/machine/rerender-machine.adoc[Rerender machine]
+
+=== Networking
+link:Post-Install/networking/Calico/Tigera_Calico_CNI.adoc[Tigera calico cni]
+link:Post-Install/networking/MetalLB/MetalLB_BGP.adoc[Metallb bgp]
+link:Post-Install/networking/Recovering_from_bad_NNCP.adoc[Recovering from bad nncp]
+link:Post-Install/networking/dev-access-to-service.adoc[Dev access to service]
+link:Post-Install/networking/lldp/containerized_lldp.adoc[Enable lldp on local interfaces]
+link:Post-Install/networking/namespace-egress-ip.adoc[Namespace egress IP]
+link:Post-Install/networking/networking-hints.adoc[Networking hints]
+
+=== Operator Hubs
+link:Post-Install/operator-hubs.adoc[Operator hubs]
+
+=== Other
+link:Post-Install/ContainerRuntine_crun.adoc[Containerruntine crun]
+link:Post-Install/Global-PullSecret.adoc[Global pullsecret]
+link:Post-Install/Pull-running-install-config.adoc[Pull running install config]
+link:Post-Install/Redeploy_APIServer.adoc[Redeploy apiserver]
+link:Post-Install/Retrieve_Cluster_id.adoc[Retrieve cluster id]
+link:Post-Install/Self_healing_Node_local_changes.adoc[Self Healing Node]
+link:Post-Install/recover_kubeconfig.adoc[Recover kubeconfig]
+link:Post-Install/recreate_kubeadmin_pwd.adoc[Recreate kubeadmin pwd]
+
+== Registry
+link:Registry/Nexus-pull-trhough.adoc[Allow large uploads of files]
+link:Registry/Quay_Standalone.adoc[Quay standalone]
+link:Registry/RedHatRegistries_tokens.adoc[Redhatregistries tokens]
+
+== Storage
+link:Storage/Delete_All_Released_PVs.adoc[Delete all released pvs]
+link:Storage/Infinitdat/machine-config-inifinidat.adoc[MachineConfig for udev queue tuning]
+link:Storage/Mutlipath/Multipathd-service-enable.adoc[Multipathd service enable]
+link:Storage/ODF/Draining_nodes.adoc[Draining nodes]
+link:Storage/ODF/non_rotational_disk.adoc[Non rotational disk]
+link:Storage/Portworx/Multipathd-portworx.adoc[Multipathd portworx]
+link:Storage/Set_Default_StorageClass.adoc[Set default storageclass]
+link:Storage/ZFS/zfs-generic-democratic.adoc[ZFS generic democratic]
+
+== Tools
+link:tools/Change_tracking_Cincinnati.adoc[Change tracking cincinnati]
+link:tools/oc.adoc[Oc]
+link:tools/offline_knowledge_portal.adoc[Offline knowledge portal]
+
+== Virtualization
+link:Virtualization/Default_Storage_Class.adoc[CDI Default storage class]
+link:Virtualization/KubeVirtRelieveAndMigrate.adoc[Kubevirtrelieveandmigrate]
+link:Virtualization/LVM_multi_node/LVM_Clustered.adoc[Lvm clustered]
+link:Virtualization/ManipulatingImages.adoc[Manipulatingimages]
+link:Virtualization/PXEBooting.adoc[Pxebooting]
+link:Virtualization/Storage_Profiles.adoc[Storage profiles]
+link:Virtualization/TPM.adoc[Tpm]
+link:Virtualization/Using_Node_Network.adoc[Using node network]
+link:Virtualization/VM_descheduler.adoc[Vm descheduler]
+link:Virtualization/limit_minimum_csi_size.adoc[Limit minimum csi size]
+link:Virtualization/mtv_Install.adoc[Mtv install]
+link:Virtualization/redfish/ksushy_openshift.adoc[Ksushy openshift]
