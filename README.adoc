@@ -1,28 +1,64 @@
-= Openshift Tricks
+= OpenShift Tricks
 
-:toc:
+== Table of Contents
 
-:toc-placement!:
-
-toc::[]
-
-
-ifdef::env-github[]
-:tip-caption: :bulb:
-:note-caption: :information_source:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-endif::[]
-ifndef::env-github[]
-:imagesdir: ./
-endif::[]
-:url-repo: https://github.com/pmalan/openshift-tricks
-:sectnums:
-
-
-include::Installation/Disconnected/Agent-installer-SNO.adoc[Single Node Disconnected Install]
-
-include::Registry/Nexus-pull-trhough.adoc[Registry - Pull trhough cache/proxy]
-
-
+* [acm](acm/)
+** [4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc](acm/4.18_ACM_2.13.1_MCE_2.8.0_Fix.adoc)
+** [Applications_subscription-admin.adoc](acm/Applications_subscription-admin.adoc)
+** [Enable_BMC_Provisioning.adoc](acm/Enable_BMC_Provisioning.adoc)
+** [Managing_Infrastructure.adoc](acm/Managing_Infrastructure.adoc)
+** [PolicyBuilder.adoc](acm/PolicyBuilder.adoc)
+** [acm-refresh-iso-infra.adoc](acm/acm-refresh-iso-infra.adoc)
+** [acm_edge.adoc](acm/acm_edge.adoc)
+** [acm_relationship_diagram.adoc](acm/acm_relationship_diagram.adoc)
+** [clusterinstance_ztp-provisioning-gitops.yaml](acm/clusterinstance_ztp-provisioning-gitops.yaml)
+** [hostdiscovery_vlan_dhcp_nobmc.adoc](acm/hostdiscovery_vlan_dhcp_nobmc.adoc)
+** [rhem-ztp-provisioning.adoc](acm/rhem-ztp-provisioning.adoc)
+** [seed_policies.adoc](acm/seed_policies.adoc)
+** [servicemonitor_observability-thanos-query-fails.adoc](acm/servicemonitor_observability-thanos-query-fails.adoc)
+** [siteconfig-ztp-provisioning-yaml.adoc](acm/siteconfig-ztp-provisioning-yaml.adoc)
+* [ai](ai/)
+** [openshift-ai_scaling.adoc](ai/openshift-ai_scaling.adoc)
+* [appdev](appdev/)
+* [BareMetal](BareMetal/)
+** [baremetal_console.adoc](BareMetal/baremetal_console.adoc)
+** [maintenance_failover.adoc](BareMetal/maintenance_failover.adoc)
+* [Development](Development/)
+** [Enable-Developer-Perspective-4.19.adoc](Development/Enable-Developer-Perspective-4.19.adoc)
+* [Installation](Installation/)
+** [RedFish_Host_Info.adoc](Installation/RedFish_Host_Info.adoc)
+* [Observability](Observability/)
+* [Post-Install](Post-Install/)
+** [ContainerRuntine_crun.adoc](Post-Install/ContainerRuntine_crun.adoc)
+** [Global-PullSecret.adoc](Post-Install/Global-PullSecret.adoc)
+** [Pull-running-install-config.adoc](Post-Install/Pull-running-install-config.adoc)
+** [Redeploy_APIServer.adoc](Post-Install/Redeploy_APIServer.adoc)
+** [Retrieve_Cluster_id.adoc](Post-Install/Retrieve_Cluster_id.adoc)
+** [Self_healing_Node_local_changes.adoc](Post-Install/Self_healing_Node_local_changes.adoc)
+** [http2_enable.adoc](Post-Install/http2_enable.adoc)
+** [kubernetes-version.adoc](Post-Install/kubernetes-version.adoc)
+** [operator-hubs.adoc](Post-Install/operator-hubs.adoc)
+** [recover_kubeconfig.adoc](Post-Install/recover_kubeconfig.adoc)
+** [recreate_kubeadmin_pwd.adoc](Post-Install/recreate_kubeadmin_pwd.adoc)
+* [Registry](Registry/)
+** [Nexus-pull-trhough.adoc](Registry/Nexus-pull-trhough.adoc)
+** [Quay_Standalone.adoc](Registry/Quay_Standalone.adoc)
+** [RedHatRegistries_tokens.adoc](Registry/RedHatRegistries_tokens.adoc)
+* [Storage](Storage/)
+** [Delete_All_Released_PVs.adoc](Storage/Delete_All_Released_PVs.adoc)
+** [Set_Default_StorageClass.adoc](Storage/Set_Default_StorageClass.adoc)
+* [tools](tools/)
+** [Change_tracking_Cincinnati.adoc](tools/Change_tracking_Cincinnati.adoc)
+** [oc.adoc](tools/oc.adoc)
+** [offline_knowledge_portal.adoc](tools/offline_knowledge_portal.adoc)
+* [Virtualization](Virtualization/)
+** [Default_Storage_Class.adoc](Virtualization/Default_Storage_Class.adoc)
+** [KubeVirtRelieveAndMigrate.adoc](Virtualization/KubeVirtRelieveAndMigrate.adoc)
+** [ManipulatingImages.adoc](Virtualization/ManipulatingImages.adoc)
+** [PXEBooting.adoc](Virtualization/PXEBooting.adoc)
+** [Storage_Profiles.adoc](Virtualization/Storage_Profiles.adoc)
+** [TPM.adoc](Virtualization/TPM.adoc)
+** [Using_Node_Network.adoc](Virtualization/Using_Node_Network.adoc)
+** [VM_descheduler.adoc](Virtualization/VM_descheduler.adoc)
+** [limit_minimum_csi_size.adoc](Virtualization/limit_minimum_csi_size.adoc)
+** [mtv_Install.adoc](Virtualization/mtv_Install.adoc)
