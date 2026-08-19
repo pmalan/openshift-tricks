@@ -6,7 +6,7 @@
 
 === Mirror Registry
 * link:acm/mirror-registry/mirror-registry-config.adoc[Mirror registry config]
-* link:acm/mirror-registry/mirror-registry-config->2.12.adoc[Mirror registry config >2.12]
+* link:acm/mirror-registry/mirror-registry-config-2.12.adoc[Mirror registry config >2.12]
 
 === Policy Builder
 * link:acm/policybuilder/patching.adoc[Patching]
