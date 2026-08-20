@@ -19,3 +19,22 @@ spec:
   policyTypes:
     - Ingress
 ----
+
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-thanos-internal
+  namespace: open-cluster-management-observability
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 9090
+  policyTypes:
+  - Ingress
+----
