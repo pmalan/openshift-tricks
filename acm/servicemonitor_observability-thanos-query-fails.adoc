@@ -20,25 +20,21 @@ spec:
     - Ingress
 ----
 
-And then allow Grafana and Thanos to communicate:
+And then allow Grafana and Thanos to communicate, in namespace:
 
 [source,yaml]
 ----
-apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
 metadata:
   name: allow-thanos-internal
   namespace: open-cluster-management-observability
 spec:
   podSelector: {}
   ingress:
-  - from:
-    - podSelector: {}
-    ports:
-    - protocol: TCP
-      port: 9090
-    - protocol: TCP
-      port: 8080
+    - from:
+        - podSelector: {}
   policyTypes:
-  - Ingress
+    - Ingress
+
 ----
