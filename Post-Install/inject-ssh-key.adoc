@@ -3,7 +3,7 @@
 To be able to ssh into an Openshift node, you have to inject the ssh key during installation. If for some reason, you have to replace or inject a new key into the node, you can use a yaml similar to this:
 
 .99-inject-ssh-infra.yaml
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
@@ -21,3 +21,5 @@ spec:
           sshAuthorizedKeys:
             - <URLEncoded_SSH_Public_Key>
 ----
+
+NOTE: Replace "machineconfiguration.openshift.io/role:" with worker for a worker node, or your own node's role.
