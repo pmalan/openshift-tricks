@@ -1,0 +1,11 @@
+== Clean up Old ReplicaSets
+
+.Delete Old ReplicaSets
+[code,bash]
+----
+oc get rs -A -o jsonpath='{range .items[?(@.spec.replicas==0)]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}' | while read -r ns name; do
+    if [ -n "$ns" ] && [ -n "$name" ]; then
+        oc delete rs "$name" -n "$ns"
+    fi
+done
+----
