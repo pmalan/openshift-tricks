@@ -299,6 +299,7 @@ spec:
             source: data:,nvme-tcp
           mode: 420
           path: /etc/modules-load.d/nvme-tcp.conf
+          overwrite: false
         - contents:
             source: data:,#%20Load%20nvme-tcp%20on%20boot%0Amodules-load=nvme-tcp
           mode: 420
