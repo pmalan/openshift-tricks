@@ -274,6 +274,64 @@ helm upgrade --install --namespace democratic-csi \
 
 Democratic can also enable nvmeof of ZVOLs which enables a faster protocol than iSCSI.
 
+=== Openshift Configuration
+
+Load required modules on boot up.
+
+WARNING: Still to be confirmed if required.
+
+.99-worker-nvme-tcp.yaml
+[code,yaml]
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-nvme-tcp
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - contents:
+            source: data:,nvme-tcp
+          mode: 420
+          path: /etc/modules-load.d/nvme-tcp.conf
+        - contents:
+            source: data:,#%20Load%20nvme-tcp%20on%20boot%0Amodules-load=nvme-tcp
+          mode: 420
+          path: /etc/cmdline.d/nvme-tcp.conf
+----
+
+Create cluster role for democratic.
+
+.democratic-csi-cluster-role.yaml
+[code,yaml]
+----
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: democratic-csi-node-privileged
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+- kind: ServiceAccount
+  name: democratic-csi-node
+  namespace: democratic-csi
+----
+
+.Create democratic namespace and apply required labels:
+----
+oc create namespace democratic-csi
+oc label namespace democratic-csi security.openshift.io/scc.podSecurityLabelSync=false
+oc apply -f democratic-csi-cluster-role.yaml
+oc apply -f 99-worker-nvme-tcp.yaml
+----
+
 === Democratic nvmeof Driver Configuration
 
 In this configuration I am using Fedora 44 as backend ZFS.
@@ -422,5 +480,40 @@ node:
 .Helm install
 [code,bash]
 ----
+helm repo add democratic-csi https://democratic-csi.github.io/charts/
+helm repo update
+helm search repo democratic-csi
+
 helm upgrade   --install   --namespace democratic-csi   --values zfs-nvme.yaml   --set node.driver.localtimeHostPath=false   --set node.rbac.openshift.privileged=true   --set controller.rbac.openshift.privileged=true   zfs-nvmeof-driver democratic-csi/democratic-csi
 ----
+
+
+=== ZFS Node configuration
+
+.Install required packages for nvmet:
+----
+dnf install nvmetcli nvme-cli -y
+----
+
+Load required kernel modules:
+
+.Install modules
+----
+modprobe nvmet nvmet-tcp
+----
+
+Create a persistent way to load modules on bootup:
+
+./etc/modules-load.d/nvme-target.conf
+[code,text]
+----
+nvmet nvmet-tcp
+----
+
+.Prepare your ZFS Pool's data sets for nvme volumes and snapshots
+[code,bash]
+----
+zfs create -p SSDPool/k8s-nvme-volumes
+zfs create -p SSDPool/k8s-nvme-snapshots
+----
+
