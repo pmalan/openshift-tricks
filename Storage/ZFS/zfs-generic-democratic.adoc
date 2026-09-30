@@ -485,7 +485,12 @@ helm repo add democratic-csi https://democratic-csi.github.io/charts/
 helm repo update
 helm search repo democratic-csi
 
-helm upgrade   --install   --namespace democratic-csi   --values zfs-nvme.yaml   --set node.driver.localtimeHostPath=false   --set node.rbac.openshift.privileged=true   --set controller.rbac.openshift.privileged=true   zfs-nvmeof-driver democratic-csi/democratic-csi
+helm upgrade   --install   --namespace democratic-csi  \
+                           --values zfs-nvme.yaml      \
+                           --set node.driver.localtimeHostPath=false  \
+                           --set node.rbac.openshift.privileged=true  \
+                           --set controller.rbac.openshift.privileged=true \
+     zfs-nvmeof-driver democratic-csi/democratic-csi
 ----
 
 
