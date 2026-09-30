@@ -268,3 +268,159 @@ helm upgrade --install --namespace democratic-csi \
     --set controller.rbac.openshift.privileged=true \
       zfs-nfs democratic-csi/democratic-csi
 ----
+
+
+== ZFS nvmeof 
+
+Democratic can also enable nvmeof of ZVOLs which enables a faster protocol than iSCSI.
+
+=== Democratic nvmeof Driver Configuration
+
+In this configuration I am using Fedora 44 as backend ZFS.
+
+.zfs-nvmeof.yaml
+[code,yaml]
+----
+# ==============================================================================
+# DEMOCRATIC-CSI HELM VALUES CONFIGURATION
+# Platform: Red Hat OpenShift (RHCOS Worker Nodes)
+# Storage: Generic ZFS-on-Linux (Fedora 44 Host via NVMe/TCP)
+# ==============================================================================
+
+csiDriver:
+  name: "org.democratic-csi.nvmeof"
+
+# Automatically create the StorageClass inside OpenShift
+storageClasses:
+  - name: zfs-generic-nvmeof-csi
+    defaultClass: true
+    reclaimPolicy: Delete
+    volumeBindingMode: Immediate
+    allowVolumeExpansion: true
+    parameters:
+      fsType: ext4 # OpenShift natively works well with ext4 or xfs
+
+volumeSnapshotClasses:
+  - name: zfs-generic-nvmeof-csi
+    deletionPolicy: Delete
+    parameters:
+      snapshotClass: "default"
+    # Optional: labels or annotations can be passed if needed
+    labels:
+      velero.io/csi-volumesnapshotclass: "true" # Useful if using Velero for backups
+
+# ==============================================================================
+# CORE DRIVER ENGINE CONFIGURATION
+# ==============================================================================
+driver:
+  config:
+    driver: zfs-generic-nvmeof
+    
+    # SSH execution engine to orchestrate the Fedora ZFS Host
+    sshConnection:
+      host: "10.0.1.11" # IP address of your Fedora 44 storage node
+      port: 22
+      username: "root" 
+      password: "xxxxx"
+      # FIXED: Shifted and nested cleanly inside the sshConnection block
+      algorithms:
+        kex:
+          - curve25519-sha256
+          - curve25519-sha256@libssh.org
+          - diffie-hellman-group14-sha256
+          - diffie-hellman-group-exchange-sha256
+        cipher:
+          - aes256-gcm
+          - aes256-gcm@openssh.com
+          - aes256-ctr
+        serverHostKey:
+          - ssh-ed25519
+
+    # Instruct Democratic-CSI to elevate privileges on Fedora using sudo
+    # sudoEnabled: true
+
+    # ZFS Hierarchy configuration on the Fedora Host
+    zfs:
+      datasetParentName: "SSDPool/k8s-nvme-volumes"
+      detachedSnapshotsDatasetParentName: "SSDPool/k8s-nvme-snapshots"
+      zvolBlocksize: "16K" # Highly optimized for transactional databases
+      
+    # NVMe Target Configuration (Fedora 44 nvmetcli configuration)
+    nvmeof:
+      targetPortal: "10.0.10.50" # DOUBLE-CHECK: Swapped to match your control plane IP if single-homed
+      targetPort: 4420
+      nqnNamePrefix: "nqn.2014-08.org.democratic-csi"
+      cliProvider: "nvmetcli" # Tells driver to use standard Linux nvmetcli
+
+# ==============================================================================
+# CONTROLLER NODE CONFIGURATION (OpenShift Deployment)
+# ==============================================================================
+controller:
+  strategy: deployment
+  replicaCount: 1
+  
+  # Tolerations ensure the controller can run on OpenShift infra nodes if desired
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      operator: Exists
+
+# ==============================================================================
+# NODE PLUGIN CONFIGURATION (OpenShift DaemonSet)
+# ==============================================================================
+node:
+  kubeletDir: /var/lib/kubelet
+  hostNetwork: true
+  hostIPC: true
+
+  securityContext:
+    privileged: true
+    runAsUser: 0
+  env:
+    - name: NVMEOF_CLI_PATH
+      value: /host/usr/sbin/nvme
+    - name: LD_LIBRARY_PATH
+      value: /host/usr/lib64:$LD_LIBRARY_PATH # Allows libnvme.so.1 to resolve
+
+  extraVolumeMounts:
+    - name: host-usr
+      mountPath: /host/usr
+      readOnly: true
+    # Mount the host libraries path explicitly
+    - name: host-lib64
+      mountPath: /host/usr/lib64
+      readOnly: true
+    - name: host-sys
+      mountPath: /sys
+    - name: host-dev
+      mountPath: /dev
+    - name: host-modules
+      mountPath: /lib/modules
+      readOnly: true
+
+  extraVolumes:
+    - name: host-usr
+      hostPath:
+        path: /usr
+    # Map the host libraries to the container volume
+    - name: host-lib64
+      hostPath:
+        path: /usr/lib64
+    - name: host-sys
+      hostPath:
+        path: /sys
+    - name: host-dev
+      hostPath:
+        path: /dev
+    - name: host-modules
+      hostPath:
+        path: /lib/modules
+
+----
+
+
+.Helm install
+[code,bash]
+----
+helm upgrade   --install   --namespace democratic-csi   --values zfs-nvme.yaml   --set node.driver.localtimeHostPath=false   --set node.rbac.openshift.privileged=true   --set controller.rbac.openshift.privileged=true   zfs-nvmeof-driver democratic-csi/democratic-csi
+----
