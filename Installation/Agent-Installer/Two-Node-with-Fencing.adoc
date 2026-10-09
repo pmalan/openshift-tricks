@@ -1,0 +1,97 @@
+= Openshift Two Node with Fencing (Openshift TFN Cluster)
+
+== Requirements
+
+- VIP - 2 ips, with dns api.cluster.domain/api-int.cluster.domain and *.apps.cluster.domain
+
+- RedFish end points, and username/passwords :
+  Might have to be enabled in iDRAC, iDRAC Web Console under iDRAC Settings > Services > Redfish
+
+- Public ssh key (ssh-keygen)
+
+- Pull Secret - https://console.redhat.com/openshift/downloads - Tokens
+
+
+
+=== Binaries
+
+- openshift-installer - OpenShift Installer - https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz 
+- oc - OpenShift client - https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz
+
+Extract in ~/bin
+
+
+.binaries.sh
+[code,bash]
+----
+mkdir ~/bin
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz
+tar zxvf openshift-install-linux.tar.gz
+tar zxvf openshift-client-linux.tar.gz
+----
+
+Result should be oc and openshift-installer binaries available in path.
+
+
+=== Networking
+
+- API VIP - 10.0.1.32 - DNS api.tnf.pietersmalan.com (api.clustername.domain)
+- APP VIP - 10.0.1.33 - DNS *.apps.tnf.pietersmalan.com (*.apps.clustername.domain)
+
+Test
+ping api.tnf.pietersmalan.com
+ping api-int.tnf.pietersmalan.com
+ping myapp.apps.tfn.pietersmalan.com
+
+=== Storage
+
+For initial install, needs at least 140GB disk.
+
+
+== Install
+
+Create a working directory, supply the install-config.yaml and agent-config.yaml:
+
+.install-config.yaml
+[code,yaml]
+----
+apiVersion: v1
+baseDomain: pietersmalan.com
+metadata:
+  name: tfn
+compute:
+- name: worker
+  replicas: 0
+controlPlane:
+  name: master
+  replicas: 2
+  fencing:
+    credentials:
+      - hostname: bm208.pietersmalan.com
+        address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm208
+        username: test
+        password: password
+        certificateVerification: Disabled
+      - hostname: bm209.pietersmalan.com
+        address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm209
+        certificateVerification: Dsiabled
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  networkType: OVNKubernetes
+  machineNetwork:
+  - cidr: 10.0.1.0/24
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  baremetal:
+    apiVIPs:
+    - 10.0.1.32
+    ingressVIPs:
+    - 10.0.1.31
+sshKey: ssh-ed25519 A....
+pullSecret: {"auths":{"cloud.openshift.com":{.......com"}}}
+       
+----
