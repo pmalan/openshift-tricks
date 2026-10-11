@@ -1,0 +1,28 @@
+= Shared SCSI LUNS
+
+== Enable Multipath
+
+.99-worker-multipath.yaml
+[code,yaml]
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-multipath
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - contents:
+            source: data:,defaults%20%7B%0A%20%20%20%20user_friendly_names%20yes%0A%20%20%20%20find_multipaths%20yes%0A%7D%0A
+          mode: 420
+          path: /etc/multipath.conf
+    systemd:
+      units:
+        - enabled: true
+          name: multipathd.service
+----
