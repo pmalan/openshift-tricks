@@ -1,11 +1,28 @@
 = Shared SCSI LUNS
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:toc:
+:toc-placement!:
+
+If you have shared SCSI luns on an OpenShift cluster and don't have the ability to utilize a CSI complaint provisioner, then you can pre-allocate the PVs and use no-provioner storage class to simulate a CSI provisioner.
+
+WARNING: SCSI-3 Persistent Reservations (PR) are vital when using a raw block ReadWriteMany (RWX) device across multiple OpenShift nodes. They allow application-level clustering software—like Red Hat High Availability (Pacemaker)—to coordinate writes, manage node quorum, and safely fence off unhealthy nodes to prevent split-brain data corruption. 
+
+TIP: On Dell PowerVault storage arrays (including the ME4 and ME5 series), SCSI-3 Persistent Reservations (PR) are natively supported and permanently enabled by default. 
+
+toc::[]
 
 == Enable Multipath on Nodes
 
 WARNING: If 2/3 node cluster use master role, instead of worker role.
 
 .99-worker-multipath.yaml
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
@@ -32,10 +49,10 @@ spec:
 
 == Configure Storage
 
-=== Configure Volume PV's
+=== Configure Volume PVs
 
 .scsi-lun0.yaml
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: v1
 kind: PersistentVolume
@@ -43,10 +60,10 @@ metadata:
   name: lun-0
 spec:
   capacity:
-    storage: 50Gi                 # Match your precise physical LUN size
-  volumeMode: Block               # CRITICAL: Bypasses filesystem node-locking
+    storage: 50Gi                                 # Match your precise physical LUN size
+  volumeMode: Block                               # CRITICAL: Bypasses filesystem node-locking
   accessModes:
-    - ReadWriteMany               # Informs the scheduler multiple nodes can connect concurrently
+    - ReadWriteMany                               # Informs the scheduler multiple nodes can connect concurrently
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: scsi-shared-das
   local:
@@ -58,22 +75,40 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - bm208.pietersmalan.com
+          - bm208.pietersmalan.com                 # Nodes where luns are available
           - bm209.pietersmalan.com
 ----
 
 
 .scsi-shared-das-storageclass.yaml
+[source,yaml]
 ----
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: scsi-shared-das
   annotations:
-    storageclass.kubernetes.io/is-default-class: 'true'
-provisioner: kubernetes.io/no-provisioner # Instructs OpenShift to look for your static PV
+    storageclass.kubernetes.io/is-default-class: 'true'    # Make storage class default
+    storageclass.kubevirt.io/is-default-virt-class: 'true' # Make storage class default for virtualization use
+provisioner: kubernetes.io/no-provisioner                  # Instructs OpenShift to look for your static PV
 volumeBindingMode: Immediate
 ----
 
 
 To determine the devicepaths, do a 'ls /dev/disk/by-id/scsi-*'
+
+== (Optionally) Configure Openshift Virtualization
+
+
+.kubevirt-hyperconverged
+[source,yaml]
+----
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+spec:
+  featureGates:
+    persistentReservation: true     # <-- Enable this
+----
