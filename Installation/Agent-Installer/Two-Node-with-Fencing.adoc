@@ -86,7 +86,7 @@ controlPlane:
         address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm209
         username: test
         password: password
-        certificateVerification: Dsiabled
+        certificateVerification: Disabled
 networking:
   clusterNetwork:
   - cidr: 10.128.0.0/14
