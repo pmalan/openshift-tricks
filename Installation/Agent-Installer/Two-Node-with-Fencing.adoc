@@ -1,21 +1,32 @@
+
 = Openshift Two Node with Fencing (Openshift TFN Cluster)
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:toc:
+:toc-placement!:
 
 This configuration have 2 nodes, with RedFish acting as fencing mechanism.
 
+toc::[]
 
 
 == Requirements
 
-- VIP - 2 ips, with dns api.cluster.domain/api-int.cluster.domain and *.apps.cluster.domain
+- *VIP* - 2 ips, with dns api.cluster.domain/api-int.cluster.domain and \*.apps.cluster.domain
 
-- RedFish end points, and username/passwords :
+- *RedFish* end points, and username/passwords :
   Might have to be enabled in iDRAC, iDRAC Web Console under iDRAC Settings > Services > Redfish
 
-- Public ssh key (ssh-keygen)
+- *Public ssh key* (ssh-keygen) - typically one of the ~/.ssh/*.pub
 
-- Pull Secret - https://console.redhat.com/openshift/downloads - Tokens
+- *Pull Secret* - https://console.redhat.com/openshift/downloads - Tokens
 
-- nmstate package instaled
+- *nmstate package* instaled
 
 
 
@@ -28,7 +39,7 @@ Extract in ~/bin
 
 
 .binaries.sh
-[code,bash]
+[sourcce,bash]
 ----
 mkdir ~/bin
 wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz
@@ -63,7 +74,7 @@ For initial install, needs at least 140GB disk.
 Create a working directory, supply the install-config.yaml and agent-config.yaml:
 
 .install-config.yaml
-[code,yaml]
+[source,yaml]
 ----
 apiVersion: v1
 baseDomain: pietersmalan.com
@@ -109,6 +120,7 @@ pullSecret: {"auths":{"cloud.openshift.com":{.......com"}}}
 ----
 
 .agent-config.yaml
+[source,yaml]
 ----
 apiVersion: v1beta1
 metadata:
@@ -188,4 +200,9 @@ cp *.yaml install
 cd install
 openshift-install agent create image
 ----
+
+TIP: The output is a file called agent.x86_64.iso
+
+CAUTION: The sub folder auth, contains the kubeconfig and the kubeadmin-password text files.
+
 
