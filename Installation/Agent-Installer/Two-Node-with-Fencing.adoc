@@ -1,5 +1,9 @@
 = Openshift Two Node with Fencing (Openshift TFN Cluster)
 
+This configuration have 2 nodes, with RedFish acting as fencing mechanism.
+
+
+
 == Requirements
 
 - VIP - 2 ips, with dns api.cluster.domain/api-int.cluster.domain and *.apps.cluster.domain
@@ -10,6 +14,8 @@
 - Public ssh key (ssh-keygen)
 
 - Pull Secret - https://console.redhat.com/openshift/downloads - Tokens
+
+- nmstate package instaled
 
 
 
@@ -51,6 +57,9 @@ For initial install, needs at least 140GB disk.
 
 == Install
 
+
+=== Config yamls
+
 Create a working directory, supply the install-config.yaml and agent-config.yaml:
 
 .install-config.yaml
@@ -75,6 +84,8 @@ controlPlane:
         certificateVerification: Disabled
       - hostname: bm209.pietersmalan.com
         address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm209
+        username: test
+        password: password
         certificateVerification: Dsiabled
 networking:
   clusterNetwork:
@@ -91,7 +102,90 @@ platform:
     - 10.0.1.32
     ingressVIPs:
     - 10.0.1.31
+
 sshKey: ssh-ed25519 A....
 pullSecret: {"auths":{"cloud.openshift.com":{.......com"}}}
        
 ----
+
+.agent-config.yaml
+----
+apiVersion: v1beta1
+metadata:
+  name: tnf
+rendezvousIP: 10.0.1.208
+additionalNTPSources:
+- 0.rhel.pool.ntp.org
+- 1.rhel.pool.ntp.org
+hosts:
+- hostname: bm208.pietersmalan.com
+  role: master        
+  interfaces:
+  - name: enp0s1
+    macAddress: 56:6f:a5:cf:00:02
+  networkConfig: 
+    interfaces:
+    - name: enp0s1
+      type: ethernet
+      state: up
+      ipv4:
+        enabled: true
+        dhcp: false
+        address:
+        - ip: 10.0.1.208
+          prefix-length: 24
+      ipv6:
+        enabled: false
+    dns-resolver:
+      config:
+        server:
+        - 10.0.1.1
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: 10.0.1.1
+        next-hop-interface: enp0s1
+        table-id: 254
+- hostname: bm209.pietersmalan.com
+  role: master
+  interfaces:
+  - name: enp0s1
+    macAddress: 56:6f:a5:cf:00:04
+  networkConfig:
+    interfaces:
+    - name: enp0s1
+      type: ethernet
+      state: up
+      ipv4:
+        enabled: true
+        dhcp: false
+        address:
+        - ip: 10.0.1.209
+          prefix-length: 24
+      ipv6:
+        enabled: false
+    dns-resolver:
+      config:
+        server:
+        - 10.0.1.1
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: 10.0.1.1
+        next-hop-interface: enp0s1
+        table-id: 254
+----
+
+=== Generating ISO
+
+WARNING: Copy yaml files to backup directory, as they are consumed by the installer.
+
+.Create agent installer's ISO
+[code,bash]
+----
+mkdir install
+cp *.yaml install
+cd install
+openshift-install agent create image
+----
+
