@@ -47,7 +47,7 @@ spec:
   volumeMode: Block               # CRITICAL: Bypasses filesystem node-locking
   accessModes:
     - ReadWriteMany               # Informs the scheduler multiple nodes can connect concurrently
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: scsi-shared-das
   local:
     path: /dev/disk/by-id/scsi-35000c50030142f31  # Target path identical on both nodes
