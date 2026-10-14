@@ -178,7 +178,7 @@ spec:
       labels:
         app: scsi-block-recycler
     spec:
-      serviceAccountName: scsi-recycler-sa # <-- Updated to the new ServiceAccount
+      serviceAccountName: scsi-recycler-sa
       hostPID: true
       securityContext:
         seccompProfile:
@@ -200,19 +200,24 @@ spec:
             - |
               echo "Starting SCSI block storage monitoring loop..."
               while true; do
-                TARGET_PVS=$(oc get pv -o jsonpath='{range .items[?(@.status.phase=="Released" || @.status.phase=="Failed")]}{.metadata.name}{"\n"}{end}' 2>/dev/null)
-                for pv in $TARGET_PVS; do
-                  [ -z "$pv" ] && continue
-                  ST_CLASS=$(oc get pv $pv -o jsonpath='{.spec.storageClassName}' 2>/dev/null)
-                  if [ "$ST_CLASS" == "scsi-shared-das" ]; then
-                    CURRENT_PHASE=$(oc get pv $pv -o jsonpath='{.status.phase}' 2>/dev/null)
+                # Fetch all PVs formatted as: name phase storageclass
+                oc get pv -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.phase}{" "}{.spec.storageClassName}{"\n"}{end}' 2>/dev/null | while read -r pv phase st_class; do
+                  
+                  if [ -z "$pv" ]; then
+                    continue
+                  fi
+                  
+                  # Check if the storage class matches AND the phase is either Released or Failed
+                  if [ "$st_class" == "scsi-shared-das" ] && { [ "$phase" == "Released" ] || [ "$phase" == "Failed" ]; }; then
                     echo "=================================================="
-                    echo "Processing $CURRENT_PHASE volume: $pv"
-                    DISK_PATH=$(oc get pv $pv -o jsonpath='{.spec.local.path}' 2>/dev/null)
+                    echo "Processing $phase volume: $pv"
+                    
+                    DISK_PATH=$(oc get pv "$pv" -o jsonpath='{.spec.local.path}' 2>/dev/null)
                     if [ -z "$DISK_PATH" ]; then
                       echo "ERROR: Could not find local path for PV $pv. Skipping."
                       continue
                     fi
+                    
                     if [ -b "$DISK_PATH" ]; then
                       echo "Executing: wipefs -af $DISK_PATH"
                       wipefs -af "$DISK_PATH"
@@ -221,9 +226,19 @@ spec:
                     else
                       echo "WARNING: Block device $DISK_PATH is not visible on this node worker context."
                     fi
-                    echo "Removing claim references and cleaning up API states..."
-                    oc patch pv $pv --type=json -p='[{"op": "remove", "path": "/spec/claimRef"}]' 2>/dev/null || true
-                    echo "Volume $pv successfully recycled to Available."
+                    
+                    echo "Fixing reclaim policy and stripping claim locks on $pv..."
+                    
+                    # 1. Swap policy to Retain so the broken engine drops controller locks
+                    oc patch pv "$pv" --type=json -p='[{"op": "replace", "path": "/spec/persistentVolumeReclaimPolicy", "value": "Retain"}]' 2>/dev/null || true
+                    
+                    # 2. Release the claim allocation links
+                    oc patch pv "$pv" --type=json -p='[{"op": "remove", "path": "/spec/claimRef"}]' 2>/dev/null || true
+                    
+                    # 3. Clean the sticky controller message status
+                    oc patch pv "$pv" --subresource=status --type=json -p='[{"op": "remove", "path": "/status/message"}]' 2>/dev/null || true
+                    
+                    echo "Volume $pv successfully converted to Retain and recycled to Available."
                     echo "=================================================="
                   fi
                 done
