@@ -123,6 +123,120 @@ spec:
             source: data:,%23%20OpenShift%20LVM%20Configuration%0Adevices%20%7B%0A%20%20%20%20global_filter%20%3D%20%5B%20%22r%7C%5E/dev/disk/by-id/scsi-.*%7C%22%2C%20%22r%7C%5E/dev/sd.*%7C%22%2C%20%22a%7C.*%7C%22%20%5D%0A%7D
 ----
 
+== Add Volume Recycler
+
+.roles
+----
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scsi-recycler-sa
+  namespace: openshift-virtualization-os-images
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: scsi-pv-recycler-role
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scsi-pv-recycler-binding
+subjects:
+  - kind: ServiceAccount
+    name: scsi-recycler-sa
+    namespace: openshift-virtualization-os-images
+roleRef:
+  kind: ClusterRole
+  name: scsi-pv-recycler-role
+  apiGroup: rbac.authorization.k8s.io
+----
+
+.scsi-recycler-sa
+----
+oc adm policy add-scc-to-user privileged -z scsi-recycler-sa -n openshift-virtualization-os-images
+----
+
+.PV recycler
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scsi-block-recycler
+  namespace: openshift-virtualization-os-images
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scsi-block-recycler
+  template:
+    metadata:
+      labels:
+        app: scsi-block-recycler
+    spec:
+      serviceAccountName: scsi-recycler-sa # <-- Updated to the new ServiceAccount
+      hostPID: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cycler
+          image: quay.io/openshift/origin-cli:latest
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: host-dev
+              mountPath: /dev
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Starting SCSI block storage monitoring loop..."
+              while true; do
+                TARGET_PVS=$(oc get pv -o jsonpath='{range .items[?(@.status.phase=="Released" || @.status.phase=="Failed")]}{.metadata.name}{"\n"}{end}' 2>/dev/null)
+                for pv in $TARGET_PVS; do
+                  [ -z "$pv" ] && continue
+                  ST_CLASS=$(oc get pv $pv -o jsonpath='{.spec.storageClassName}' 2>/dev/null)
+                  if [ "$ST_CLASS" == "scsi-shared-das" ]; then
+                    CURRENT_PHASE=$(oc get pv $pv -o jsonpath='{.status.phase}' 2>/dev/null)
+                    echo "=================================================="
+                    echo "Processing $CURRENT_PHASE volume: $pv"
+                    DISK_PATH=$(oc get pv $pv -o jsonpath='{.spec.local.path}' 2>/dev/null)
+                    if [ -z "$DISK_PATH" ]; then
+                      echo "ERROR: Could not find local path for PV $pv. Skipping."
+                      continue
+                    fi
+                    if [ -b "$DISK_PATH" ]; then
+                      echo "Executing: wipefs -af $DISK_PATH"
+                      wipefs -af "$DISK_PATH"
+                      blockdev --rereadpt "$DISK_PATH" 2>/dev/null || true
+                      echo "Device signatures successfully wiped on $DISK_PATH."
+                    else
+                      echo "WARNING: Block device $DISK_PATH is not visible on this node worker context."
+                    fi
+                    echo "Removing claim references and cleaning up API states..."
+                    oc patch pv $pv --type=json -p='[{"op": "remove", "path": "/spec/claimRef"}]' 2>/dev/null || true
+                    echo "Volume $pv successfully recycled to Available."
+                    echo "=================================================="
+                  fi
+                done
+                sleep 20
+              done
+      volumes:
+        - name: host-dev
+          hostPath:
+            path: /dev
+
+----
+
+
 == (Optionally) Configure Openshift Virtualization
 
 
