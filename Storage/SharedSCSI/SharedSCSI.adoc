@@ -125,7 +125,8 @@ spec:
 
 == Add Volume Recycler
 
-.roles
+.scsi-recycler-role.yaml
+[source,yaml]
 ----
 apiVersion: v1
 kind: ServiceAccount
@@ -156,12 +157,20 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ----
 
-.scsi-recycler-sa
+.scsi-recycler-sa.yaml
+[source,yaml]
 ----
-oc adm policy add-scc-to-user privileged -z scsi-recycler-sa -n openshift-virtualization-os-images
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: privileged
+users:
+- system:serviceaccount:openshift-virtualization-os-images:scsi-recycler-sa
+
 ----
 
 .PV recycler
+[source,yaml]
 ----
 apiVersion: apps/v1
 kind: Deployment
