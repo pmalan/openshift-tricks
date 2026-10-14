@@ -125,6 +125,10 @@ spec:
 
 == Add Volume Recycler
 
+We need to cleanup the lun after recycling.
+
+We create a listener watching the PVs, and act on a recycle event, which will clean up the lun, reread the partition table as well.
+
 .scsi-recycler-role.yaml
 [source,yaml]
 ----
@@ -259,6 +263,9 @@ spec:
             path: /dev
 
 ----
+
+== (Optionally) Configure NFS for File System access.
+
 
 
 == (Optionally) Configure Openshift Virtualization
