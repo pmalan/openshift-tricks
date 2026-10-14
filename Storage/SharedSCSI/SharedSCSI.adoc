@@ -64,7 +64,7 @@ spec:
   volumeMode: Block                               # CRITICAL: Bypasses filesystem node-locking
   accessModes:
     - ReadWriteMany                               # Informs the scheduler multiple nodes can connect concurrently
-  persistentVolumeReclaimPolicy: Recycle
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: scsi-shared-das
   local:
     path: /dev/disk/by-id/scsi-35000c50030142f31  # Target path identical on both nodes
@@ -128,6 +128,10 @@ spec:
 We need to cleanup the lun after recycling.
 
 We create a listener watching the PVs, and act on a recycle event, which will clean up the lun, reread the partition table as well.
+
+WARNING: Script in the recycler assume the storage class name is defined as "scsi-shared-das" and that the reclaim policy is set to "Retain"
+
+TIP: The reclaim policy set to "Retain" to by the warnings that there are no cleanup available for no-provisioner storage.
 
 .scsi-recycler-role.yaml
 [source,yaml]
