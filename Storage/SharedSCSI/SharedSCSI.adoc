@@ -97,6 +97,32 @@ volumeBindingMode: Immediate
 
 To determine the devicepaths, do a 'ls /dev/disk/by-id/scsi-*'
 
+== Exclude scanning of Volumes for LVM
+
+.99-worker-lvm-filter
+[source,yaml]
+----
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-lvm-filter
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - path: /etc/lvm/lvm.conf
+          mode: 420
+          overwrite: true
+          user:
+            name: root
+          contents:
+            source: data:,%23%20OpenShift%20LVM%20Configuration%0Adevices%20%7B%0A%20%20%20%20global_filter%20%3D%20%5B%20%22r%7C%5E/dev/disk/by-id/scsi-.*%7C%22%2C%20%22r%7C%5E/dev/sd.*%7C%22%2C%20%22a%7C.*%7C%22%20%5D%0A%7D
+----
+
 == (Optionally) Configure Openshift Virtualization
 
 
