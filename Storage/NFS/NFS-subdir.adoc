@@ -1,0 +1,63 @@
+== NFS with sub directories
+
+export KUBECONFIG=kubeconfig ....
+
+Latest version is 4.13.6 as of writing.
+
+.install.sh
+[source,bash]
+----
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --version 4.13.6 \
+  --create-namespace \
+  --namespace csi-driver-nfs \
+  --set controller.runOnControlPlane=true \
+  --set controller.replicas=2 \
+  --set controller.strategyType=RollingUpdate \
+  --set externalSnapshotter.enabled=true \
+  --set externalSnapshotter.customResourceDefinitions.enabled=false
+
+oc adm policy add-scc-to-user privileged -z csi-nfs-node-sa -n csi-driver-nfs
+oc adm policy add-scc-to-user privileged -z csi-nfs-controller-sa -n csi-driver-nfs
+oc apply -f storageclass.yaml
+oc apply -f snapshotclass.yaml
+----
+
+.storageclass.yaml
+[source,yaml]
+----
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io   
+parameters:
+  server: 10.0.1.11   ### NFS server's IP/FQDN
+  share:  /SSDPool/tnf/                                                       ### NFS server's exported directory remember the '/'
+  subDir: ${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}  ### Folder/subdir name template
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: True
+----
+
+.snapshotclass.yaml
+[source,yaml]
+----
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io   
+parameters:
+  server: 10.0.1.11   ### NFS server's IP/FQDN
+  share:  /SSDPool/tnf/             ### NFS server's exported directory
+  subDir: ${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}  ##
+# Folder/subdir name template
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: True
+----
