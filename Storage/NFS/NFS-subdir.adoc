@@ -45,24 +45,30 @@ parameters:
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 allowVolumeExpansion: True
+mountOptions:
+  - nfsvers=4.2              # Use modern NFSv4.2 for better concurrency and feature support
+  - rsize=1048576            # Maximize read block size to 1MB for large sequential reads
+  - wsize=1048576            # Maximize write block size to 1MB for large sequential writes
+  - noatime                  # Disable access time updates on client mounts to drop IO overhead
+  - nodiratime               # Disable directory access time updates
+  - async                    # Allow the client to send asynchronous write requests
+  - tcp                      # Force TCP transport protocol
+  - hard                     # Ensure application retries if the NFS host blips momentarily
 ----
 
 .snapshotclass.yaml
 [source,yaml]
 ----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+deletionPolicy: Delete
+driver: nfs.csi.k8s.io
 metadata:
-  name: nfs-csi
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-provisioner: nfs.csi.k8s.io   
-parameters:
-  server: 10.0.1.11   ### NFS server's IP/FQDN
-  share:  /SSDPool/tnf/             ### NFS server's exported directory
-  subDir: ${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}  ##
-# Folder/subdir name template
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
-allowVolumeExpansion: True
+  name: csi-nfs-snapclass
 ----
+
+
+On NFS server:
+
+Share with "sec=sys,rw,crossmnt,no_subtree_check,no_root_squash,sync" or equivalent.
+
