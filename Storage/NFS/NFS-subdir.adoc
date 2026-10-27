@@ -4,9 +4,14 @@ export KUBECONFIG=kubeconfig ....
 
 Latest version is 4.13.6 as of writing.
 
+
 .install.sh
 [source,bash]
 ----
+# curl -L -o $HOME/bin/helm https://developers.redhat.com/content-gateway/file/pub/cgw/helm/3.17.4.2-61/helm-darwin-amd64
+# curl -L -o $HOME/bin/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux-amd64-rhel9.tar.gz
+# tar zxf $HOME/bin/oc.tar.gz
+
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
 helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --version 4.13.6 \
   --create-namespace \
