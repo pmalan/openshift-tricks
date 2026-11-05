@@ -1,0 +1,62 @@
+= Piraeus 
+
+Allows you use a shared scsi luns, across 2+ node clusters.
+
+
+== Deploy operator
+
+.install.sh
+[source,bash]
+----
+oc new-project piraeus-datastore
+oc apply --server-side -f "https://github.com/piraeusdatastore/piraeus-operator/releases/latest/download/manifest.yaml"
+----
+
+== Setup Satellite
+
+
+.satelite.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: pure-san-storage-satellites
+spec:
+  podTemplate:
+    spec:
+      initContainers:
+        - $patch: delete
+          name: drbd-module-loader  
+      volumes:
+        - $patch: delete
+          name: lib-modules
+      automountServiceAccountToken: true
+EOF
+----
+
+== Deploy Cluster
+
+.cluster.sh
+[source,bash]
+----
+oc apply -f - << EOF
+apiVersion: piraeus.io/v1
+kind: LinstorCluster
+metadata:
+  name: linstorcluster
+spec:
+  csiController:
+    enabled: true
+    podTemplate:
+      spec:
+        automountServiceAccountToken: true
+  csiNode:
+    enabled: true
+    podTemplate:
+      spec:
+        automountServiceAccountToken: true
+EOF
+----
+
