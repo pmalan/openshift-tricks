@@ -60,3 +60,49 @@ spec:
 EOF
 ----
 
+== Create Storage Class
+
+.storageclass.sh
+[source,bash]
+----
+oc appl -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: piraeus-storage
+  annotations:
+    storageclass.kubevirt.io/is-default-virt-class: 'true'
+provisioner: linstor.csi.linbit.com
+parameters:
+  linstor.csi.linbit.com/allowRemoteVolumeAccess: 'true'
+  linstor.csi.linbit.com/autoPlace: '1'
+  linstor.csi.linbit.com/layerList: STORAGE
+  linstor.csi.linbit.com/placementCount: '1'
+  linstor.csi.linbit.com/storagePool: pool1
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+----
+
+== Configuring shared LUN
+
+Create Volume Group, across all shared scsi luns:
+
+.First Node: (Openshift Cluster node)
+[source,bash]
+----
+pvcreate /dev/mapper/mpatha
+vgcreate vg_piraeus --shared --setpersist y --setlockargs persist,notimeout /dev/mapper/mpatha
+vgscan
+----
+
+.Second Node:
+[source,bash]
+----
+vgscan
+vgchange --lockstart vg_piraeus
+----
+
+
+
+
