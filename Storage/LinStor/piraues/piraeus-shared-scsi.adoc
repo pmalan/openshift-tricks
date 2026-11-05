@@ -86,7 +86,7 @@ volumeBindingMode: WaitForFirstConsumer
 
 == Configuring shared LUN
 
-NOTE: Enable multipath on Openshift 
+NOTE: Enable multipath on Openshift ../Mutlipath/Multipathd-service-enable.adoc
 
 Create Volume Group, across all shared scsi luns:
 
