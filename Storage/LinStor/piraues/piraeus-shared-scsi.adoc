@@ -12,6 +12,51 @@ oc new-project piraeus-datastore
 oc apply --server-side -f "https://github.com/piraeusdatastore/piraeus-operator/releases/latest/download/manifest.yaml"
 ----
 
+== Setup security
+
+Openshift specific tweaks:
+
+.policy.sh
+[bash,source]
+----
+oc adm policy add-scc-to-user privileged -z linstor-satellite-sa -n piraeus-datastore
+oc adm policy add-scc-to-user privileged -z linstor-csi-controller-sa -n piraeus-datastore
+oc adm policy add-scc-to-user privileged -z linstor-csi-node-sa -n piraeus-datastore
+----
+
+.roles.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linstor-csi-node-pv-patch
+rules:
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - persistentvolumes
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linstor-csi-node-pv-patch-binding
+subjects:
+  - kind: ServiceAccount
+    name: linstor-csi-node
+    namespace: piraeus-datastore
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: linstor-csi-node-pv-patch
+EOF
+----
+
 == Setup Satellite
 
 
