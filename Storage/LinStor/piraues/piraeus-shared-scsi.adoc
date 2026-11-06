@@ -121,7 +121,6 @@ Create Volume Group, across all shared scsi luns:
 pvcreate /dev/mapper/mpatha
 vgcreate vg_piraeus --shared --setpersist y --setlockargs persist,notimeout /dev/mapper/mpatha
 vgscan
-lvcreate -l 80%FREE -T vg_piraeus/pool1
 ----
 
 .Second Node:
@@ -129,7 +128,6 @@ lvcreate -l 80%FREE -T vg_piraeus/pool1
 ----
 vgscan
 vgchange -ay vg_piraeus
-lvscan
 ----
 
 === Configure Storage Pool
