@@ -1,6 +1,6 @@
 = Piraeus 
 
-Allows you use a shared scsi luns, across 2+ node clusters.
+Allows you to use shared scsi luns, across 2+ node clusters. Luns can be direct attached, fibre channel or iscsi.
 
 
 == Deploy operator
