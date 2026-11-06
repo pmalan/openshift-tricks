@@ -12,7 +12,7 @@ oc new-project piraeus-datastore
 oc apply --server-side -f "https://github.com/piraeusdatastore/piraeus-operator/releases/latest/download/manifest.yaml"
 ----
 
-== Setup security
+=== Setup security
 
 Openshift specific tweaks:
 
@@ -57,7 +57,7 @@ roleRef:
 EOF
 ----
 
-== Setup Satellite
+=== Setup Satellite
 
 
 .satelite.sh
@@ -81,7 +81,7 @@ spec:
 EOF
 ----
 
-== Deploy Cluster
+=== Deploy Cluster
 
 .cluster.sh
 [source,bash]
@@ -105,31 +105,11 @@ spec:
 EOF
 ----
 
-== Create Storage Class
+== Implementation
 
-.storageclass.sh
-[source,bash]
-----
-oc appl -f - <<EOF
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: piraeus-storage
-  annotations:
-    storageclass.kubevirt.io/is-default-virt-class: 'true'
-provisioner: linstor.csi.linbit.com
-parameters:
-  linstor.csi.linbit.com/allowRemoteVolumeAccess: 'true'
-  linstor.csi.linbit.com/autoPlace: '1'
-  linstor.csi.linbit.com/layerList: STORAGE
-  linstor.csi.linbit.com/placementCount: '1'
-  linstor.csi.linbit.com/storagePool: pool1
-reclaimPolicy: Delete
-allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
-----
 
-== Configuring shared LUN
+
+=== Configuring shared LUN
 
 NOTE: Enable multipath on Openshift link:../../Mutlipath/Multipathd-service-enable.adoc[Multipath]
 
@@ -150,7 +130,7 @@ vgscan
 vgchange --lockstart vg_piraeus
 ----
 
-== Configure Storage Pool
+=== Configure Storage Pool
 
 .createPool1.sh 
 [source,bash]
@@ -187,4 +167,30 @@ oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-g
 # 4. Tie it directly to your raw SAN storage pools
 oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-group modify piraeus-storage --storage-pool pool1
 ----
+
+=== Create Storage Class
+
+.storageclass.sh
+[source,bash]
+----
+oc appl -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: piraeus-storage
+  annotations:
+    storageclass.kubevirt.io/is-default-virt-class: 'true'
+provisioner: linstor.csi.linbit.com
+parameters:
+  linstor.csi.linbit.com/allowRemoteVolumeAccess: 'true'
+  linstor.csi.linbit.com/autoPlace: '1'
+  linstor.csi.linbit.com/layerList: STORAGE
+  linstor.csi.linbit.com/placementCount: '1'
+  linstor.csi.linbit.com/storagePool: pool1
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+----
+
+
 
