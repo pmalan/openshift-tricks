@@ -192,10 +192,10 @@ allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 ----
 
-.storageclass.sh
+.snapshotclass.sh
 [source,bash]
 ----
-oc appl -f - <<EOF
+oc apply -f - <<EOF
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshotClass
 metadata:
@@ -238,3 +238,33 @@ spec:
 EOF
 ----
 
+NOTE: Only for verification, Linstor/Piraeus is a recognized CSI driver in OpenShift, so the StorageProfile should be correct:
+
+.StorageProfile
+[source,yaml]
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: StorageProfile
+metadata:
+  name: piraeus-storage
+spec:
+  claimPropertySets:
+    - accessModes:
+        - ReadWriteMany
+      volumeMode: Block
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Block
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem
+    - accessModes:
+        - ReadOnlyMany
+      volumeMode: Block
+    - accessModes:
+        - ReadOnlyMany
+      volumeMode: Filesystem
+  cloneStrategy: snapshot
+  dataImportCronSourceFormat: pvc
+  snapshotClass: piraeus-rwx-snapshot-class
+----
