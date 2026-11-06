@@ -192,6 +192,22 @@ allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 ----
 
+.storageclass.sh
+[source,bash]
+----
+oc appl -f - <<EOF
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: piraeus-rwx-snapshot-class
+driver: linstor.csi.linbit.com
+deletionPolicy: Delete
+parameters:
+  # Allows LINSTOR to ignore active attachments during a snapshot sequence
+  allow-active-multi-node: "true"
+EOF
+----
+
 == Node Preparation
 
 We need to install dm-snapshot module:
