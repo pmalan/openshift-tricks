@@ -128,7 +128,7 @@ lvcreate -l 80%FREE -T vg_piraeus/pool1
 [source,bash]
 ----
 vgscan
-vgchange --lockstart vg_piraeus
+vgchange -ay vg_piraeus
 lvscan
 ----
 
