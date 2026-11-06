@@ -2,7 +2,9 @@
 
 Allows you to use shared scsi luns, across 2+ node clusters. Luns can be direct attached, fibre channel or iscsi.
 
-WARNING: Once an LVM Thick snapshot is actively created, its mapping allocation table is still locked into the kernel memory of the source node (bm208). If you try to live-migrate after this offline snapshot is taken, the migration may still hang because bm209 cannot read bm208's in-memory LVM table. For a shared SAN layout using LVM Thick, you should use these offline snapshots as temporary capture points, back them up off-site using an operator like OADP, and then immediately delete the local snapshot to keep the VM clear for seamless live migrations.
+WARNING: Only LVM thick volumes supported, LVM thin is not supported.
+
+WARNING: Once an LVM Thick snapshot is actively created, its mapping allocation table is still locked into the kernel memory of the source node. If you try to live-migrate after this offline snapshot is taken, the migration may still hang because target node cannot read source's in-memory LVM table. For a shared SAN layout using LVM Thick, you should use these offline snapshots as temporary capture points, back them up off-site using an operator like OADP, and then immediately delete the local snapshot to keep the VM clear for seamless live migrations.
 
 
 == Deploy operator
