@@ -192,5 +192,33 @@ allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 ----
 
+== Node Preparation
 
+We need to install dm-snapshot module:
+
+NOTE: Adapt master/worker roles as required.
+
+.modprobe.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-dm-snapshot
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,dm-snapshot%0A
+        mode: 420
+        overwrite: true
+        path: /etc/modules-load.d/dm-snapshot.conf
+EOF
+----
 
