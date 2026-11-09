@@ -71,6 +71,8 @@ For initial install, needs at least 140GB disk.
 
 === Config yamls
 
+WARNING: Since we are going to use PCSD, Corosync, all hostnames must be short names without domain name.
+
 Create a working directory, supply the install-config.yaml and agent-config.yaml:
 
 .install-config.yaml
@@ -88,12 +90,12 @@ controlPlane:
   replicas: 2
   fencing:
     credentials:
-      - hostname: bm208.pietersmalan.com
+      - hostname: bm208
         address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm208
         username: test
         password: password
         certificateVerification: Disabled
-      - hostname: bm209.pietersmalan.com
+      - hostname: bm209
         address: redfish+https://10.0.1.11:8800/redfish/v1/Systems/node2/bm209
         username: test
         password: password
@@ -130,7 +132,7 @@ additionalNTPSources:
 - 0.rhel.pool.ntp.org
 - 1.rhel.pool.ntp.org
 hosts:
-- hostname: bm208.pietersmalan.com
+- hostname: bm208
   role: master        
   interfaces:
   - name: enp0s1
@@ -158,7 +160,7 @@ hosts:
         next-hop-address: 10.0.1.1
         next-hop-interface: enp0s1
         table-id: 254
-- hostname: bm209.pietersmalan.com
+- hostname: bm209
   role: master
   interfaces:
   - name: enp0s1
@@ -179,7 +181,9 @@ hosts:
     dns-resolver:
       config:
         server:
-        - 10.0.1.1
+          - 10.0.1.1
+        search:
+          - pietersmalan.com
     routes:
       config:
       - destination: 0.0.0.0/0
