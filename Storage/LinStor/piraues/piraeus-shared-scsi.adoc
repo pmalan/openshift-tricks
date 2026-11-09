@@ -126,7 +126,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 99-worker-multipathd-config
+  name: 99-master-multipathd-config
 spec:
   config:
     ignition:
@@ -148,7 +148,7 @@ EOF
 
 Create Volume Group, across all shared scsi luns:
 
-.First Node: (Openshift Cluster node)
+.*First Node:* (Openshift Cluster node)
 [source,bash]
 ----
 pvcreate /dev/mapper/mpatha
