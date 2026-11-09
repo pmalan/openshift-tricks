@@ -146,6 +146,31 @@ spec:
 EOF
 ----
 
+Create LVM filters to include "/dev/mapper/mpath*"
+
+.lvm filter
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-lvm-filter
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,devices%20%7B%20filter%20%3D%20%5B%20%22a%7C%2Fdev%2Fmapper%2Fmpath.*%7C%22%2C%20%22r%7C.*%7C%22%20%5D%20%7D
+        mode: 420
+        path: /etc/lvm/lvm.conf.d/99-linstor-filter.conf
+EOF
+----
+
 Create Volume Group, across all shared scsi luns:
 
 .*First Node:* (Openshift Cluster node)
