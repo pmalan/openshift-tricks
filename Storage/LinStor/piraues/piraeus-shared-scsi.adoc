@@ -190,48 +190,30 @@ vgchange -ay vg_piraeus
 
 === Configure Storage Pool
 
-.createPool1.sh 
+.storage-pool.sh
 [source,bash]
 ----
-# 1. Clear out the non-shared mappings
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool delete bm208.pietersmalan.com pool1
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool delete bm209.pietersmalan.com pool1
-
-# 2. Re-create the pools using an identical shared-space token (e.g., "san-backing-pool")
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool create lvm bm208.pietersmalan.com pool1 vg_piraeus/pool1 --shared-space san-backing-pool
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool create lvm bm209.pietersmalan.com  pool1 vg_piraeus/pool1 --shared-space san-backing-pool
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool list
-
-# This forces the LINSTOR satellites to rebuild their capacity map for pool1
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool modify bm208.pietersmalan.com pool1 --property Autoplace/Force=true
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool modify bm209.pietersmalan.com pool1 --property Autoplace/Force=true
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor storage-pool list
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: shared-scsi-pool
+spec:
+  storagePools:
+    - name: scsi-shared-vg
+      lvmPool:
+        volumeGroup: "vg_piraeus"
+        sharedSpace: "san-scsi-cluster-1" # Must be identical on all nodes sharing the LUN
+EOF
 ----
 
-=== Configure Resource Group
-
-./resourcegroup.sh 
-[source,bash]
-----
-# 1. Create the group
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-group create piraeus-storage
-
-# 2. Lock it to 1 replica (no DRBD mirrors since your SAN handles HA)
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-group modify piraeus-storage --place-count 1
-
-# 3. Enable automated diskless attachments for smooth VM live migrations
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-group modify piraeus-storage --diskless-on-remaining true
-
-# 4. Tie it directly to your raw SAN storage pools
-oc exec -n piraeus-datastore deployment/linstor-controller -- linstor resource-group modify piraeus-storage --storage-pool pool1
-----
 
 === Create Storage Class
 
 .storageclass.sh
 [source,bash]
 ----
-oc appl -f - <<EOF
+oc apply -f - <<EOF
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -244,10 +226,11 @@ parameters:
   linstor.csi.linbit.com/autoPlace: '1'
   linstor.csi.linbit.com/layerList: STORAGE
   linstor.csi.linbit.com/placementCount: '1'
-  linstor.csi.linbit.com/storagePool: pool1
+  linstor.csi.linbit.com/storagePool: scsi-shared-vg
 reclaimPolicy: Delete
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
+EOF
 ----
 
 .snapshotclass.sh
