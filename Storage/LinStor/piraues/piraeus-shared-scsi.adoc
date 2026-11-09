@@ -157,7 +157,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 99-worker-lvm-filter
+  name: 99-master-lvm-filter
 spec:
   config:
     ignition:
