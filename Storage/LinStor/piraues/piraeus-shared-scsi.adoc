@@ -152,7 +152,7 @@ Create Volume Group, across all shared scsi luns:
 [source,bash]
 ----
 pvcreate /dev/mapper/mpatha
-vgcreate vg_piraeus --shared --setpersist y --setlockargs persist,notimeout /dev/mapper/mpatha
+vgcreate vg_piraeus /dev/mapper/mpatha
 vgscan
 ----
 
