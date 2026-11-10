@@ -103,7 +103,7 @@ spec:
           command:
             - /bin/sh
             - '-c'
-          image: 'quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:1e3c69574f69a11babcd045c10e2242f1ccd8d161043750366673ef1535296f6'
+          image: 'quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:1e3c69574f69a11babcd045c10e2242f1ccd8d161043750366673ef1535296f6' ## Driver toolkit obtained with oc adm
           name: extract-dtk-headers
           securityContext:
             privileged: true
@@ -337,7 +337,7 @@ NOTE: Only for verification, Linstor/Piraeus is a recognized CSI driver in OpenS
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: StorageProfile
 metadata:
-  name: piraeus-storage
+  name: piraeus-shared-virt
 spec:
   claimPropertySets:
     - accessModes:
