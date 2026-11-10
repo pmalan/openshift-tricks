@@ -2,11 +2,6 @@
 
 Allows you to use shared scsi luns, across 2+ node clusters. Luns can be direct attached, fibre channel or iscsi.
 
-WARNING: Only LVM thick volumes supported, LVM thin is not supported.
-
-WARNING: Once an LVM Thick snapshot is actively created, its mapping allocation table is still locked into the kernel memory of the source node. If you try to live-migrate after this offline snapshot is taken, the migration may still hang because target node cannot read source's in-memory LVM table. For a shared SAN layout using LVM Thick, you should use these offline snapshots as temporary capture points, back them up off-site using an operator like OADP, and then immediately delete the local snapshot to keep the VM clear for seamless live migrations.
-
-
 == Deploy operator
 
 .install.sh
@@ -82,6 +77,60 @@ spec:
         - $patch: delete
           name: lib-modules
       automountServiceAccountToken: true
+EOF
+----
+
+NOTE: To get the correct image (first image referenced in next script) do a "oc adm release info $(oc get clusterversion version -o jsonpath='{.status.desired.image}') --image-for=driver-toolkit"
+
+.satellite-drdb.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: rhcos-drbd-loader
+spec:
+  podTemplate:
+    spec:
+      initContainers:
+        - args:
+            - |
+              set -e
+              echo "Extracting pristine kernel headers into shared memory..."
+              tar -cf - -C /usr/src/kernels/5.14.0-687.65.1.el9_8.x86_64 . | tar -xf - -C /kdir-override/
+              echo "Headers safely provisioned."
+          command:
+            - /bin/sh
+            - '-c'
+          image: 'quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:1e3c69574f69a11babcd045c10e2242f1ccd8d161043750366673ef1535296f6'
+          name: extract-dtk-headers
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /kdir-override
+              name: kdir-override
+        - env:
+            - name: LB_HOW
+              value: compile
+            - name: KDIR
+              value: /kdir-override
+          image: 'quay.io/piraeusdatastore/drbd9-almalinux9:latest'
+          imagePullPolicy: IfNotPresent
+          name: drbd-module-loader
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /lib/modules
+              name: host-lib-modules
+            - mountPath: /kdir-override
+              name: kdir-override
+      volumes:
+        - hostPath:
+            path: /lib/modules
+          name: host-lib-modules
+        - emptyDir: {}
+          name: kdir-override
 EOF
 ----
 
@@ -217,7 +266,7 @@ oc apply -f - <<EOF
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: piraeus-storage
+  name: piraeus-shared-virt
   annotations:
     storageclass.kubevirt.io/is-default-virt-class: 'true'
 provisioner: linstor.csi.linbit.com
@@ -229,7 +278,8 @@ parameters:
   linstor.csi.linbit.com/storagePool: scsi-shared-vg
 reclaimPolicy: Delete
 allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
+
 EOF
 ----
 
