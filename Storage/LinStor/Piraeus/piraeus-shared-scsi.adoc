@@ -82,6 +82,8 @@ EOF
 
 NOTE: To get the correct image (first image referenced in next script) do a "oc adm release info $(oc get clusterversion version -o jsonpath='{.status.desired.image}') --image-for=driver-toolkit"
 
+NOTE: For Openshift 5/rhcos 10 - use image: drbd9-almalinux10:latest and "oc get is/driver-toolkit -n openshift -o jsonpath='{.status.tags[0].items[0].dockerImageReference}'" to get first iamge.
+
 .satellite-drdb.sh
 [source,bash]
 ----
