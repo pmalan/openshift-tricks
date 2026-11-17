@@ -1,0 +1,56 @@
+= Auto Pilot Description of Available Annotations
+
+== Autopilot
+
+Enable features and deploy associated operators, by annotating HyperConverged custom resource:
+
+.kubevirt-hyperconverged
+[source,yaml]
+----
+apiVersion: hco.kubevirt.io/v1
+kind: HyperConverged
+metadata:
+  annotations:
+    deployOVS: 'false'
+    platform.kubevirt.io/autopilot: 'descheduler-loadaware,metallb-operator' 
+    platform.kubevirt.io/enable-kubelet-performance-settings: 'true'
+    platform.kubevirt.io/managed-by: virt-platform-autopilot
+    platform.kubevirt.io/version: 1.0.0
+----
+
+The following table contains the breakdown of available features (or true for all features).
+
+.platform.kubevirt.io/autopilot:
+
+|===
+|Description|Features
+
+|true | All features
+|prometheus-alerts | Autopilot specific alerting rules
+|swap-enable | Swap on worker nodes (higher VM density)
+|descheduler-loadaware | Load-aware descheduling
+|kubelet-cpu-manager | CPU Manager
+|pci-passthrough | PCI passthrough
+|mtv-operator | VM migration
+|metallb-operator | MetalLB
+|observability-operator | Observability UI plugin
+
+|===
+
+
+== Additional Fine Tuning
+
+.Annotations
+
+|===
+|Description |Annotation
+
+|Optimized kubelet settings for virtualization workloads. Does not require node reboot; restarts kubelet. 
+|platform.kubevirt.io/enable-kubelet-performance-settings: "true"
+
+
+
+|===
+
+
+'platform.kubevirt.io/enable-loadaware=true'
