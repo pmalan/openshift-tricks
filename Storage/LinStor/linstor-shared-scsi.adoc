@@ -37,7 +37,16 @@ apiVersion: piraeus.io/v1
 kind: LinstorCluster
 metadata:
   name: linstorcluster
-spec: {}
+spec:
+  csiController:
+    enabled: true
+    podTemplate:
+      spec:
+        containers:
+          - env:
+              - name: FEATURE_GATE_CSI_VOLUME_GROUP_SNAPSHOT
+                value: 'true'
+            name: csi-snapshotter
 EOF
 ----
 
