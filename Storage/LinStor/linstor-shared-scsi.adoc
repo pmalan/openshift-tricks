@@ -191,6 +191,20 @@ EOF
 .snapshotclass.sh
 [source,bash]
 ----
+oc apply -k https://github.com/kubernetes-csi/external-snapshotter//client/config/crd
+oc apply -k https://github.com/kubernetes-csi/external-snapshotter//deploy/kubernetes/snapshot-controller
+oc patch linstorcluster linstorcluster --type=merge --patch '
+spec:
+  csiController:
+    podTemplate:
+      spec:
+        containers:
+        - name: csi-snapshotter
+          env:
+          - name: FEATURE_GATE_CSI_VOLUME_GROUP_SNAPSHOT
+            value: "true"
+'
+
 oc apply -f - <<EOF
 apiVersion: groupsnapshot.storage.k8s.io/v1
 kind: VolumeGroupSnapshotClass
