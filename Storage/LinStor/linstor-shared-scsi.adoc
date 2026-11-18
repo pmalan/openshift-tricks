@@ -74,7 +74,7 @@ spec:
             compression: ""
             source: data:;base64,Z2xvYmFsIHsKICB1c2VfbHZtbG9ja2QgPSAxCn0KCmRldmljZXMgewogIGZpbHRlciA9IFsgImF8L2Rldi9tYXBwZXIvbXBhdGguKnwiLCAicnwuKnwiIF0KfQo=
           mode: 420
-          path: /etc/lvmlocal.conf
+          path: /etc/lvm/lvmlocal.conf
     systemd:
       units:
         - enabled: true
