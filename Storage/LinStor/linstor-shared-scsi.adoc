@@ -192,15 +192,12 @@ EOF
 [source,bash]
 ----
 oc apply -f - <<EOF
-apiVersion: snapshot.storage.k8s.io/v1
-kind: VolumeSnapshotClass
+apiVersion: groupsnapshot.storage.k8s.io/v1
+kind: VolumeGroupSnapshotClass
 metadata:
-  name: piraeus-rwx-snapshot-class
+  name: linstor-group-snapshots
 driver: linstor.csi.linbit.com
 deletionPolicy: Delete
-parameters:
-  # Allows LINSTOR to ignore active attachments during a snapshot sequence
-  allow-active-multi-node: "true"
 EOF
 ----
 
