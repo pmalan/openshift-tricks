@@ -163,17 +163,7 @@ apiVersion: piraeus.io/v1
 kind: LinstorCluster
 metadata:
   name: linstorcluster
-spec:
-  csiController:
-    enabled: true
-    podTemplate:
-      spec:
-        automountServiceAccountToken: true
-  csiNode:
-    enabled: true
-    podTemplate:
-      spec:
-        automountServiceAccountToken: true
+spec: {}
 EOF
 ----
 
