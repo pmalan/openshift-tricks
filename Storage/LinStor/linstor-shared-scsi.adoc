@@ -213,6 +213,32 @@ metadata:
 driver: linstor.csi.linbit.com
 deletionPolicy: Delete
 EOF
+oc apply -f - << EOF
+apiVersion: snapshot.storage.k8s.io/v1
+deletionPolicy: Delete
+driver: linstor.csi.linbit.com
+kind: VolumeSnapshotClass
+metadata:
+  creationTimestamp: '2026-11-18T08:07:01Z'
+  generation: 1
+  managedFields:
+    - apiVersion: snapshot.storage.k8s.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:deletionPolicy': {}
+        'f:driver': {}
+        'f:parameters':
+          .: {}
+          'f:snap.linstor.csi.linbit.com/type': {}
+      manager: Mozilla
+      operation: Update
+      time: '2026-11-18T08:07:01Z'
+  name: piraeus-snapshot-class
+  resourceVersion: '406796'
+  uid: 7358d8a7-0e0d-432d-844a-de293ee6bf67
+parameters:
+  snap.linstor.csi.linbit.com/type: InCluster
+EOF
 ----
 
 == Node Preparation
