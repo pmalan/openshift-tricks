@@ -71,7 +71,7 @@ metadata:
 spec:
   config:
     ignition:
-      version: 3.4.0
+      version: 3.5.0
     storage:
       files:
         - contents:
@@ -81,23 +81,21 @@ spec:
           path: /etc/multipath.conf
         - contents:
             compression: ""
-            source: data:;base64,Z2xvYmFsIHsKICB1c2VfbHZtbG9ja2QgPSAxCn0KCmRldmljZXMgewogIGZpbHRlciA9IFsgImF8L2Rldi9tYXBwZXIvbXBhdGguKnwiLCAicnwuKnwiIF0KfQo=
+            source: data:;base64,Z2xvYmFsIHsKICB1c2VfbHZtbG9ja2QgPSAwCn0KCmRldmljZXMgewogIGZpbHRlciA9IFsgImF8L2Rldi9tYXBwZXIvbXBhdGguKnwiLCAicnwuKnwiIF0KfQo=
           mode: 420
-          path: /etc/lvm/lvmlocal.conf
+          path: /etc/lvmlocal.conf
     systemd:
       units:
         - enabled: true
           name: multipathd.service
-        - enabled: true
-          name: lvmlockd.service
 EOF
 ----
 
-.For reference Only:
+.For reference Only: (butane -p file.yaml)
 [source,bash]
 ----
 variant: openshift
-version: 4.16.0
+version: 4.22.0
 metadata:
   name: 99-master-multipath-lvm
   labels:
@@ -120,7 +118,7 @@ storage:
       contents:
         inline: |
           global {
-            use_lvmlockd = 1
+            use_lvmlockd = 0
           }
 
           devices {
@@ -129,8 +127,6 @@ storage:
 systemd:
   units:
     - name: multipathd.service
-      enabled: true
-    - name: lvmlockd.service
       enabled: true
 ----
 
