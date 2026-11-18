@@ -50,9 +50,9 @@ NOTE: Enable multipath on Openshift link:../../Mutlipath/Multipathd-service-enab
 Enable mulitpath,create LVM filters to include "/dev/mapper/mpath*" and enable lvmd service.
 
 .multipath.sh
-[source,bash]
+[source,yaml]
 ----
-oc apply -f - <<EOF
+oc apply -f - << EOF
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
@@ -62,41 +62,67 @@ metadata:
 spec:
   config:
     ignition:
-      version: 3.2.0
+      version: 3.4.0
     storage:
       files:
-        - path: /etc/multipath.conf
-          filesystem: root
+        - contents:
+            compression: ""
+            source: data:;base64,ZGVmYXVsdHMgewogIHVzZXJfZnJpZW5kbHlfbmFtZXMgeWVzCiAgZmluZF9tdWx0aXBhdGhzIHllcwp9CgpibGFja2xpc3Qgewp9Cg==
           mode: 420
-          contents:
-            source: |
-              data:,defaults {
-              	user_friendly_names yes
-              	find_multipaths yes
-              }
-
-              blacklist {
-              }
-        - path: /etc/lvmlocal.conf
-          filesystem: root
+          path: /etc/multipath.conf
+        - contents:
+            compression: ""
+            source: data:;base64,Z2xvYmFsIHsKICB1c2VfbHZtbG9ja2QgPSAxCn0KCmRldmljZXMgewogIGZpbHRlciA9IFsgImF8L2Rldi9tYXBwZXIvbXBhdGguKnwiLCAicnwuKnwiIF0KfQo=
           mode: 420
-          contents:
-            source: |
-              data:,global {
-                use_lvmlockd = 1
-              }
-
-              devices {
-                filter = [ "a|/dev/mapper/mpath.*|", "r|.*|" ]
-              }
+          path: /etc/lvmlocal.conf
     systemd:
       units:
-        - name: multipathd.service
-          enabled: true
-        - name: lvmlockd.service
-          enabled: true
+        - enabled: true
+          name: multipathd.service
+        - enabled: true
+          name: lvmlockd.service
 EOF
+----
 
+.For reference Only:
+[source,bash]
+----
+variant: openshift
+version: 4.16.0
+metadata:
+  name: 99-master-multipath-lvm
+  labels:
+    machineconfiguration.openshift.io/role: master
+storage:
+  files:
+    - path: /etc/multipath.conf
+      mode: 0644
+      contents:
+        inline: |
+          defaults {
+            user_friendly_names yes
+            find_multipaths yes
+          }
+
+          blacklist {
+          }
+    - path: /etc/lvmlocal.conf
+      mode: 0644
+      contents:
+        inline: |
+          global {
+            use_lvmlockd = 1
+          }
+
+          devices {
+            filter = [ "a|/dev/mapper/mpath.*|", "r|.*|" ]
+          }
+systemd:
+  units:
+    - name: multipathd.service
+      enabled: true
+    - name: lvmlockd.service
+      enabled: true
 ----
 
 Create Volume Group, across all shared scsi luns:
