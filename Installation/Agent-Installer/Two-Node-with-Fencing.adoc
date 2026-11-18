@@ -209,4 +209,14 @@ TIP: The output is a file called agent.x86_64.iso
 
 CAUTION: The sub folder auth, contains the kubeconfig and the kubeadmin-password text files.
 
+=== Install Progress
+
+Boot the iso on the target nodes.
+
+.Monitor install progress
+[source,bassh]
+----
+openshift-install agent wait-for bootstrap-complete
+----
+
 
