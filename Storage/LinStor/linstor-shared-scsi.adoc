@@ -47,6 +47,8 @@ EOF
 
 NOTE: Enable multipath on Openshift link:../../Mutlipath/Multipathd-service-enable.adoc[Multipath]
 
+Enable mulitpath,create LVM filters to include "/dev/mapper/mpath*" and enable lvmd service.
+
 .multipath.sh
 [source,bash]
 ----
@@ -56,49 +58,45 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 99-master-multipathd-config
+  name: 99-master-multipath-lvm
 spec:
   config:
     ignition:
       version: 3.2.0
     storage:
       files:
-        - contents:
-            source: >-
-              data:text/plain;charset=utf-8;base64,IyBkZXZpY2UtbWFwcGVyLW11bHRpcGF0aCBjb25maWd1cmF0aW9uIGZpbGUKCiMgRm9yIGEgY29tcGxldGUgbGlzdCBvZiB0aGUgZGVmYXVsdCBjb25maWd1cmF0aW9uIHZhbHVlcywgcnVuIGVpdGhlcjoKIyAjIG11bHRpcGF0aCAtdAojIG9yCiMgIyBtdWx0aXBhdGhkIHNob3cgY29uZmlnCgojIEZvciBhIGxpc3Qgb2YgY29uZmlndXJhdGlvbiBvcHRpb25zIHdpdGggZGVzY3JpcHRpb25zLCBzZWUgdGhlCiMgbXVsdGlwYXRoLmNvbmYgbWFuIHBhZ2UuCgpkZWZhdWx0cyB7Cgl1c2VyX2ZyaWVuZGx5X25hbWVzIHllcwoJZmluZF9tdWx0aXBhdGhzIHllcwp9CgpibGFja2xpc3Qgewp9Cg==
+        - path: /etc/multipath.conf
           filesystem: root
           mode: 420
-          path: /etc/multipath.conf
+          contents:
+            source: |
+              data:,defaults {
+              	user_friendly_names yes
+              	find_multipaths yes
+              }
+
+              blacklist {
+              }
+        - path: /etc/lvmlocal.conf
+          filesystem: root
+          mode: 420
+          contents:
+            source: |
+              data:,global {
+                use_lvmlockd = 1
+              }
+
+              devices {
+                filter = [ "a|/dev/mapper/mpath.*|", "r|.*|" ]
+              }
     systemd:
       units:
-        - enabled: true
-          name: multipathd.service
+        - name: multipathd.service
+          enabled: true
+        - name: lvmlockd.service
+          enabled: true
 EOF
-----
 
-Create LVM filters to include "/dev/mapper/mpath*"
-
-.lvm filter
-[source,bash]
-----
-oc apply -f - <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  labels:
-    machineconfiguration.openshift.io/role: master
-  name: 99-master-lvm-filter
-spec:
-  config:
-    ignition:
-      version: 3.2.0
-    storage:
-      files:
-      - contents:
-          source: data:,devices%20%7B%20filter%20%3D%20%5B%20%22a%7C%2Fdev%2Fmapper%2Fmpath.*%7C%22%2C%20%22r%7C.*%7C%22%20%5D%20%7D
-        mode: 420
-        path: /etc/lvm/lvm.conf.d/99-linstor-filter.conf
-EOF
 ----
 
 Create Volume Group, across all shared scsi luns:
@@ -107,7 +105,7 @@ Create Volume Group, across all shared scsi luns:
 [source,bash]
 ----
 pvcreate /dev/mapper/mpatha
-vgcreate vg_piraeus /dev/mapper/mpatha
+vgcreate vg_piraeus /dev/mapper/mpatha -ff #-ff force if not empty
 vgscan
 ----
 
