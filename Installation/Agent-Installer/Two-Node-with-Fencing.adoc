@@ -214,9 +214,15 @@ CAUTION: The sub folder auth, contains the kubeconfig and the kubeadmin-password
 Boot the iso on the target nodes.
 
 .Monitor install progress
-[source,bassh]
+[source,bash]
 ----
 openshift-install agent wait-for bootstrap-complete
+----
+
+.Monitor Cluster Completion
+[source,bash]
+----
+openshift-install agent wait-for install-complete
 ----
 
 
