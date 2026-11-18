@@ -1,0 +1,380 @@
+= Linstor
+
+Allows you to use shared scsi luns, across 2+ node clusters. Luns can be direct attached, fibre channel or iscsi.
+
+== Deploy operator
+
+Deploy the Linstor Operator:
+
+.Linstor Project
+[source,bash]
+----
+oc create project linbit-sds
+----
+
+.Linstor Credentials
+[source,bash]
+----
+oc create secret docker-registry drbdio-pull-secret \
+  --namespace=linbit-sds \
+  --docker-server=drbd.io \
+  --docker-username=MY_LINBIT_USER \
+  --docker-password=MY_LINBIT_PASSWORD
+----
+
+Install the Linstor Operator from OpenShift Console.
+
+???
+=== Setup security
+
+Openshift specific tweaks:
+
+.policy.sh
+[source,bash]
+----
+oc adm policy add-scc-to-user privileged -z linstor-satellite-sa -n piraeus-datastore
+oc adm policy add-scc-to-user privileged -z linstor-csi-controller-sa -n piraeus-datastore
+oc adm policy add-scc-to-user privileged -z linstor-csi-node-sa -n piraeus-datastore
+----
+
+.roles.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linstor-csi-node-pv-patch
+rules:
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - persistentvolumes
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linstor-csi-node-pv-patch-binding
+subjects:
+  - kind: ServiceAccount
+    name: linstor-csi-node
+    namespace: piraeus-datastore
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: linstor-csi-node-pv-patch
+EOF
+----
+?????
+
+=== Setup Satellite
+
+
+.satelite.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: pure-san-storage-satellites
+spec:
+  podTemplate:
+    spec:
+      initContainers:
+        - $patch: delete
+          name: drbd-module-loader  
+      volumes:
+        - $patch: delete
+          name: lib-modules
+      automountServiceAccountToken: true
+EOF
+----
+
+NOTE: To get the correct image (first image referenced in next script) do a "oc adm release info $(oc get clusterversion version -o jsonpath='{.status.desired.image}') --image-for=driver-toolkit"
+
+NOTE: For Openshift 5/rhcos 10 - use image: drbd9-almalinux10:latest and "oc get is/driver-toolkit -n openshift -o jsonpath='{.status.tags[0].items[0].dockerImageReference}'" to get first iamge.
+
+.satellite-drdb.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: rhcos-drbd-loader
+spec:
+  podTemplate:
+    spec:
+      initContainers:
+        - args:
+            - |
+              set -e
+              echo "Extracting pristine kernel headers into shared memory..."
+              tar -cf - -C /usr/src/kernels/5.14.0-687.65.1.el9_8.x86_64 . | tar -xf - -C /kdir-override/
+              echo "Headers safely provisioned."
+          command:
+            - /bin/sh
+            - '-c'
+          image: 'quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:1e3c69574f69a11babcd045c10e2242f1ccd8d161043750366673ef1535296f6' ## Driver toolkit obtained with oc adm
+          name: extract-dtk-headers
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /kdir-override
+              name: kdir-override
+        - env:
+            - name: LB_HOW
+              value: compile
+            - name: KDIR
+              value: /kdir-override
+          image: 'quay.io/piraeusdatastore/drbd9-almalinux9:latest'
+          imagePullPolicy: IfNotPresent
+          name: drbd-module-loader
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /lib/modules
+              name: host-lib-modules
+            - mountPath: /kdir-override
+              name: kdir-override
+      volumes:
+        - hostPath:
+            path: /lib/modules
+          name: host-lib-modules
+        - emptyDir: {}
+          name: kdir-override
+EOF
+----
+??????????????????????????????
+
+
+=== Deploy Cluster
+
+.cluster.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorCluster
+metadata:
+  name: linstorcluster
+spec:
+  csiController:
+    enabled: true
+    podTemplate:
+      spec:
+        automountServiceAccountToken: true
+  csiNode:
+    enabled: true
+    podTemplate:
+      spec:
+        automountServiceAccountToken: true
+EOF
+----
+
+== Implementation
+
+
+
+=== Configuring shared LUN
+
+NOTE: Enable multipath on Openshift link:../../Mutlipath/Multipathd-service-enable.adoc[Multipath]
+
+.multipath.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-multipathd-config
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - contents:
+            source: >-
+              data:text/plain;charset=utf-8;base64,IyBkZXZpY2UtbWFwcGVyLW11bHRpcGF0aCBjb25maWd1cmF0aW9uIGZpbGUKCiMgRm9yIGEgY29tcGxldGUgbGlzdCBvZiB0aGUgZGVmYXVsdCBjb25maWd1cmF0aW9uIHZhbHVlcywgcnVuIGVpdGhlcjoKIyAjIG11bHRpcGF0aCAtdAojIG9yCiMgIyBtdWx0aXBhdGhkIHNob3cgY29uZmlnCgojIEZvciBhIGxpc3Qgb2YgY29uZmlndXJhdGlvbiBvcHRpb25zIHdpdGggZGVzY3JpcHRpb25zLCBzZWUgdGhlCiMgbXVsdGlwYXRoLmNvbmYgbWFuIHBhZ2UuCgpkZWZhdWx0cyB7Cgl1c2VyX2ZyaWVuZGx5X25hbWVzIHllcwoJZmluZF9tdWx0aXBhdGhzIHllcwp9CgpibGFja2xpc3Qgewp9Cg==
+          filesystem: root
+          mode: 420
+          path: /etc/multipath.conf
+    systemd:
+      units:
+        - enabled: true
+          name: multipathd.service
+EOF
+----
+
+Create LVM filters to include "/dev/mapper/mpath*"
+
+.lvm filter
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-lvm-filter
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,devices%20%7B%20filter%20%3D%20%5B%20%22a%7C%2Fdev%2Fmapper%2Fmpath.*%7C%22%2C%20%22r%7C.*%7C%22%20%5D%20%7D
+        mode: 420
+        path: /etc/lvm/lvm.conf.d/99-linstor-filter.conf
+EOF
+----
+
+Create Volume Group, across all shared scsi luns:
+
+.*First Node:* (Openshift Cluster node)
+[source,bash]
+----
+pvcreate /dev/mapper/mpatha
+vgcreate vg_piraeus /dev/mapper/mpatha
+vgscan
+----
+
+.Second Node:
+[source,bash]
+----
+vgscan
+vgchange -ay vg_piraeus
+----
+
+=== Configure Storage Pool
+
+.storage-pool.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: shared-scsi-pool
+spec:
+  storagePools:
+    - name: scsi-shared-vg
+      lvmPool:
+        volumeGroup: "vg_piraeus"
+        sharedSpace: "san-scsi-cluster-1" # Must be identical on all nodes sharing the LUN
+EOF
+----
+
+
+=== Create Storage Class
+
+.storageclass.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: piraeus-shared-virt
+  annotations:
+    storageclass.kubevirt.io/is-default-virt-class: 'true'
+provisioner: linstor.csi.linbit.com
+parameters:
+  linstor.csi.linbit.com/allowRemoteVolumeAccess: 'true'
+  linstor.csi.linbit.com/autoPlace: '1'
+  linstor.csi.linbit.com/layerList: STORAGE
+  linstor.csi.linbit.com/placementCount: '1'
+  linstor.csi.linbit.com/storagePool: scsi-shared-vg
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+
+EOF
+----
+
+.snapshotclass.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: piraeus-rwx-snapshot-class
+driver: linstor.csi.linbit.com
+deletionPolicy: Delete
+parameters:
+  # Allows LINSTOR to ignore active attachments during a snapshot sequence
+  allow-active-multi-node: "true"
+EOF
+----
+
+== Node Preparation
+
+We need to install dm-snapshot module:
+
+NOTE: Adapt master/worker roles as required.
+
+.modprobe.sh
+[source,bash]
+----
+oc apply -f - <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-dm-snapshot
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,dm-snapshot%0A
+        mode: 420
+        overwrite: true
+        path: /etc/modules-load.d/dm-snapshot.conf
+EOF
+----
+
+NOTE: Only for verification, Linstor/Piraeus is a recognized CSI driver in OpenShift, so the StorageProfile should be correct:
+
+.StorageProfile
+[source,yaml]
+----
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: StorageProfile
+metadata:
+  name: piraeus-shared-virt
+spec:
+  claimPropertySets:
+    - accessModes:
+        - ReadWriteMany
+      volumeMode: Block
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Block
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem
+    - accessModes:
+        - ReadOnlyMany
+      volumeMode: Block
+    - accessModes:
+        - ReadOnlyMany
+      volumeMode: Filesystem
+  cloneStrategy: snapshot
+  dataImportCronSourceFormat: pvc
+  snapshotClass: piraeus-rwx-snapshot-class
+----
