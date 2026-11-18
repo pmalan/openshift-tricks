@@ -137,7 +137,7 @@ Create Volume Group, across all shared scsi luns:
 ----
 pvcreate /dev/mapper/mpatha
 vgcreate vg_piraeus /dev/mapper/mpatha -ff #-ff force if not empty
-vgscan
+vgscan -ay vg_piraeus
 ----
 
 .Second Node:
