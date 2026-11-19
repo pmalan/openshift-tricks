@@ -196,8 +196,8 @@ EOF
 .snapshotclass.sh
 [source,bash]
 ----
-oc apply -k https://github.com/kubernetes-csi/external-snapshotter//client/config/crd
-oc apply -k https://github.com/kubernetes-csi/external-snapshotter//deploy/kubernetes/snapshot-controller
+#oc apply -k https://github.com/kubernetes-csi/external-snapshotter//client/config/crd
+#oc apply -k https://github.com/kubernetes-csi/external-snapshotter//deploy/kubernetes/snapshot-controller
 oc patch linstorcluster linstorcluster --type=merge --patch '
 spec:
   csiController:
