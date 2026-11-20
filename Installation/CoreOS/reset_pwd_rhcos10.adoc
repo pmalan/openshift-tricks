@@ -5,7 +5,7 @@ Please note that this only sets the password for *console* access, not for *ssh*
 == Boot into recovery mode
 
 
-Iterrupt the countdown on the boot loader by pressing a key, then on grub menu, press e on default boot item.
+Interrupt the countdown on the boot loader by pressing a key, then on grub menu, press e on default boot item.
 
 Append at the end of the "linux ..." line add the *rd.break*
 
