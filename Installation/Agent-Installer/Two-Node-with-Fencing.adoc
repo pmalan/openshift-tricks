@@ -56,10 +56,12 @@ Result should be oc and openshift-installer binaries available in path.
 - API VIP - 10.0.1.32 - DNS api.tnf.pietersmalan.com (api.clustername.domain)
 - APP VIP - 10.0.1.33 - DNS *.apps.tnf.pietersmalan.com (*.apps.clustername.domain)
 
-Test
+.Test
+----
 ping api.tnf.pietersmalan.com
 ping api-int.tnf.pietersmalan.com
 ping myapp.apps.tfn.pietersmalan.com
+----
 
 === Storage
 
